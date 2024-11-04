@@ -1,2 +1,3 @@
-src/
+src/antlr/build
+examples/fortran
 *node_modules
