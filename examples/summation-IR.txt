@@ -1,0 +1,18 @@
+        DECLARE @print
+        DECLARE @read
+        PROGRAM summation
+        CALL    PRINT   #0      #50             //call print with address + length
+        MOV     t1      #0                      //initialise variable 'sum'
+doloop: CALL    PRINT   #50     #4
+        CALL    READ    t2                      //read variable 'a'
+        CMPEQ   t3      t2      #0              //<bool> <val1> <val2>
+        IF      t3      then    else            //<bool> <lab1> <lab2>   
+then:   JMP     exit                            //EXIT
+        JMP     endif                           //usually run if no EXIT
+else:   ADD     t4      t1      t2              //sum_2 = sum_1 + a   
+                                                !! BUT this is in a loop - would need to loop unroll then SSA for each sum_k iteration?
+        JMP     endif                           //redundant?
+endif:  JMP     doloop                          //loop until exit
+exit:   CALL    PRINT   #54     #11
+        CALL    PRINT   t4                      
+

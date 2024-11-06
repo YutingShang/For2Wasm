@@ -1,7 +1,7 @@
 (module
     (import "console" "logString" (func $logString (param i32 i32)))  ;; parameters for string_offest and string_length in memory
     (import "console" "log" (func $log (param i32)))
-        (import "console" "promptSync" (func $read (result i32)))
+    (import "console" "promptSync" (func $read (result i32)))
     (import "js" "mem" (memory 1))     ;; 1 page memory = 64KB
 
     ;; data to write string to memory
