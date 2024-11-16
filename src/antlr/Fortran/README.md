@@ -96,6 +96,8 @@ The runtime is needed to actually run the lexer and parser, generated from the A
     g++ -std=c++17 -I/usr/local/lib/antlr4-runtime -I./include -L/usr/local/lib/lib -lantlr4-runtime -o main main.cpp Fortran90Lexer.cpp Fortran90Parser.cpp Fortran90LexerBase.cpp
     ```
 
+    UPDATE: I created a Makefile to automate the compilation process. So instead of the above command, you can just run `make` in the terminal in the Fortran directory.
+
     The compilation flags explained:
     - `-I`: Specifies directories containing header files (for runtime, lexer, and parser)
     - `-L`: Specifies directories containing library files (for runtime)

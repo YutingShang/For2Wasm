@@ -7,3 +7,4 @@ examples/fortran
 src/antlr/TLexer
 *.antlr
 *.bak
+*.o
