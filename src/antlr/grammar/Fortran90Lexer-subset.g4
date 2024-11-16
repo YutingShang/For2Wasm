@@ -1,4 +1,4 @@
-lexer grammar Fortran90Lexer;
+lexer grammar Fortran90Lexer-subset;
 
 options {
     superClass = Fortran90LexerBase;
