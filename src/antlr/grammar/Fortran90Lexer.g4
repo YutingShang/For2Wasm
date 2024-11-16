@@ -8,7 +8,7 @@ options {
     superClass = Fortran90LexerBase;
 }
 
-// Insert here @header for C++ lexer.
+@header {#include "Fortran90LexerBase.h"}
 
 RECURSIVE: 'RECURSIVE' | 'recursive' | 'Recursive';
 
@@ -269,7 +269,7 @@ WS: ([ \t] | NEWLINE)+ -> channel(HIDDEN);
 COMMENT:
     (
         ('\t'* '\u0020'* '!' (~ [\r\n])* [\r\n]*)
-        | ( {this.IsColumnZero()}? ('c' | 'C') (~ [\r\n])* [\r\n]*)
+        | ( {this->IsColumnZero()}? ('c' | 'C') (~ [\r\n])* [\r\n]*)
     )       -> channel(HIDDEN)
 ;
 
@@ -436,7 +436,7 @@ SCON:
     | ('"') (~('"') | '""')* ('"')
 ;
 
-RDCON: NUM+ '.' { this.VerifyNotOperator() }? NUM* EXPON? | NUM* '.' NUM+ EXPON? | NUM+ EXPON;
+RDCON: NUM+ '.' { this->VerifyNotOperator() }? NUM* EXPON? | NUM* '.' NUM+ EXPON? | NUM+ EXPON;
 
 DEALLOCATE: 'DEALLOCATE' | 'deallocate';
 

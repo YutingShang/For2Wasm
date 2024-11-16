@@ -5,3 +5,5 @@ examples/fortran
 *node_modules
 *Lexer-with-line-num.g4
 src/antlr/TLexer
+*.antlr
+*.bak

@@ -1,8 +1,9 @@
 
-// Generated from ../../../grammar/Fortran90Parser.g4 by ANTLR 4.13.2
+// Generated from Fortran90Parser.g4 by ANTLR 4.13.2
 
 
 #include "Fortran90ParserListener.h"
+#include "Fortran90ParserVisitor.h"
 
 #include "Fortran90Parser.h"
 
@@ -1690,6 +1691,14 @@ void Fortran90Parser::ProgramContext::exitRule(tree::ParseTreeListener *listener
     parserListener->exitProgram(this);
 }
 
+
+std::any Fortran90Parser::ProgramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitProgram(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ProgramContext* Fortran90Parser::program() {
   ProgramContext *_localctx = _tracker.createInstance<ProgramContext>(_ctx, getState());
   enterRule(_localctx, 0, Fortran90Parser::RuleProgram);
@@ -1747,6 +1756,14 @@ void Fortran90Parser::ExecutableProgramContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExecutableProgram(this);
+}
+
+
+std::any Fortran90Parser::ExecutableProgramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExecutableProgram(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ExecutableProgramContext* Fortran90Parser::executableProgram() {
@@ -1828,6 +1845,14 @@ void Fortran90Parser::ProgramUnitContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitProgramUnit(this);
+}
+
+
+std::any Fortran90Parser::ProgramUnitContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitProgramUnit(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ProgramUnitContext* Fortran90Parser::programUnit() {
@@ -1925,6 +1950,14 @@ void Fortran90Parser::MainProgramContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitMainProgram(this);
 }
 
+
+std::any Fortran90Parser::MainProgramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitMainProgram(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::MainProgramContext* Fortran90Parser::mainProgram() {
   MainProgramContext *_localctx = _tracker.createInstance<MainProgramContext>(_ctx, getState());
   enterRule(_localctx, 6, Fortran90Parser::RuleMainProgram);
@@ -1991,6 +2024,14 @@ void Fortran90Parser::ProgramStmtContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitProgramStmt(this);
 }
 
+
+std::any Fortran90Parser::ProgramStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitProgramStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ProgramStmtContext* Fortran90Parser::programStmt() {
   ProgramStmtContext *_localctx = _tracker.createInstance<ProgramStmtContext>(_ctx, getState());
   enterRule(_localctx, 8, Fortran90Parser::RuleProgramStmt);
@@ -2052,6 +2093,14 @@ void Fortran90Parser::MainRangeContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitMainRange(this);
+}
+
+
+std::any Fortran90Parser::MainRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitMainRange(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::MainRangeContext* Fortran90Parser::mainRange() {
@@ -2149,6 +2198,14 @@ void Fortran90Parser::BodyPlusInternalsContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitBodyPlusInternals(this);
+}
+
+
+std::any Fortran90Parser::BodyPlusInternalsContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBodyPlusInternals(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -2320,6 +2377,14 @@ void Fortran90Parser::InternalSubprogramContext::exitRule(tree::ParseTreeListene
     parserListener->exitInternalSubprogram(this);
 }
 
+
+std::any Fortran90Parser::InternalSubprogramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInternalSubprogram(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::InternalSubprogramContext* Fortran90Parser::internalSubprogram() {
   InternalSubprogramContext *_localctx = _tracker.createInstance<InternalSubprogramContext>(_ctx, getState());
   enterRule(_localctx, 14, Fortran90Parser::RuleInternalSubprogram);
@@ -2412,6 +2477,14 @@ void Fortran90Parser::SpecificationPartConstructContext::exitRule(tree::ParseTre
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSpecificationPartConstruct(this);
+}
+
+
+std::any Fortran90Parser::SpecificationPartConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSpecificationPartConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SpecificationPartConstructContext* Fortran90Parser::specificationPartConstruct() {
@@ -2565,6 +2638,14 @@ void Fortran90Parser::UseStmtContext::exitRule(tree::ParseTreeListener *listener
     parserListener->exitUseStmt(this);
 }
 
+
+std::any Fortran90Parser::UseStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUseStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::UseStmtContext* Fortran90Parser::useStmt() {
   UseStmtContext *_localctx = _tracker.createInstance<UseStmtContext>(_ctx, getState());
   enterRule(_localctx, 18, Fortran90Parser::RuleUseStmt);
@@ -2687,6 +2768,14 @@ void Fortran90Parser::OnlyListContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitOnlyList(this);
 }
 
+
+std::any Fortran90Parser::OnlyListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOnlyList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::OnlyListContext* Fortran90Parser::onlyList() {
   OnlyListContext *_localctx = _tracker.createInstance<OnlyListContext>(_ctx, getState());
   enterRule(_localctx, 20, Fortran90Parser::RuleOnlyList);
@@ -2765,6 +2854,14 @@ void Fortran90Parser::OnlyStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitOnlyStmt(this);
+}
+
+
+std::any Fortran90Parser::OnlyStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOnlyStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::OnlyStmtContext* Fortran90Parser::onlyStmt() {
@@ -2860,6 +2957,14 @@ void Fortran90Parser::RenameListContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitRenameList(this);
 }
 
+
+std::any Fortran90Parser::RenameListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRenameList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::RenameListContext* Fortran90Parser::renameList() {
   RenameListContext *_localctx = _tracker.createInstance<RenameListContext>(_ctx, getState());
   enterRule(_localctx, 24, Fortran90Parser::RuleRenameList);
@@ -2936,6 +3041,14 @@ void Fortran90Parser::RenameContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitRename(this);
 }
 
+
+std::any Fortran90Parser::RenameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRename(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::RenameContext* Fortran90Parser::rename() {
   RenameContext *_localctx = _tracker.createInstance<RenameContext>(_ctx, getState());
   enterRule(_localctx, 26, Fortran90Parser::RuleRename);
@@ -2991,6 +3104,14 @@ void Fortran90Parser::UseNameContext::exitRule(tree::ParseTreeListener *listener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitUseName(this);
+}
+
+
+std::any Fortran90Parser::UseNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUseName(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::UseNameContext* Fortran90Parser::useName() {
@@ -3058,6 +3179,14 @@ void Fortran90Parser::ParameterStmtContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitParameterStmt(this);
 }
 
+
+std::any Fortran90Parser::ParameterStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitParameterStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ParameterStmtContext* Fortran90Parser::parameterStmt() {
   ParameterStmtContext *_localctx = _tracker.createInstance<ParameterStmtContext>(_ctx, getState());
   enterRule(_localctx, 30, Fortran90Parser::RuleParameterStmt);
@@ -3119,6 +3248,14 @@ void Fortran90Parser::NamedConstantDefListContext::exitRule(tree::ParseTreeListe
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitNamedConstantDefList(this);
+}
+
+
+std::any Fortran90Parser::NamedConstantDefListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNamedConstantDefList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::NamedConstantDefListContext* Fortran90Parser::namedConstantDefList() {
@@ -3191,6 +3328,14 @@ void Fortran90Parser::NamedConstantDefContext::exitRule(tree::ParseTreeListener 
     parserListener->exitNamedConstantDef(this);
 }
 
+
+std::any Fortran90Parser::NamedConstantDefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNamedConstantDef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::NamedConstantDefContext* Fortran90Parser::namedConstantDef() {
   NamedConstantDefContext *_localctx = _tracker.createInstance<NamedConstantDefContext>(_ctx, getState());
   enterRule(_localctx, 34, Fortran90Parser::RuleNamedConstantDef);
@@ -3254,6 +3399,14 @@ void Fortran90Parser::EndProgramStmtContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndProgramStmt(this);
+}
+
+
+std::any Fortran90Parser::EndProgramStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndProgramStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndProgramStmtContext* Fortran90Parser::endProgramStmt() {
@@ -3349,6 +3502,14 @@ void Fortran90Parser::BlockDataSubprogramContext::exitRule(tree::ParseTreeListen
     parserListener->exitBlockDataSubprogram(this);
 }
 
+
+std::any Fortran90Parser::BlockDataSubprogramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBlockDataSubprogram(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::BlockDataSubprogramContext* Fortran90Parser::blockDataSubprogram() {
   BlockDataSubprogramContext *_localctx = _tracker.createInstance<BlockDataSubprogramContext>(_ctx, getState());
   enterRule(_localctx, 38, Fortran90Parser::RuleBlockDataSubprogram);
@@ -3435,6 +3596,14 @@ void Fortran90Parser::BlockDataStmtContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitBlockDataStmt(this);
+}
+
+
+std::any Fortran90Parser::BlockDataStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBlockDataStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::BlockDataStmtContext* Fortran90Parser::blockDataStmt() {
@@ -3531,6 +3700,14 @@ void Fortran90Parser::BlockDataBodyContext::exitRule(tree::ParseTreeListener *li
 }
 
 
+std::any Fortran90Parser::BlockDataBodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBlockDataBody(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+
 Fortran90Parser::BlockDataBodyContext* Fortran90Parser::blockDataBody() {
    return blockDataBody(0);
 }
@@ -3615,6 +3792,14 @@ void Fortran90Parser::BlockDataBodyConstructContext::exitRule(tree::ParseTreeLis
     parserListener->exitBlockDataBodyConstruct(this);
 }
 
+
+std::any Fortran90Parser::BlockDataBodyConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBlockDataBodyConstruct(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::BlockDataBodyConstructContext* Fortran90Parser::blockDataBodyConstruct() {
   BlockDataBodyConstructContext *_localctx = _tracker.createInstance<BlockDataBodyConstructContext>(_ctx, getState());
   enterRule(_localctx, 44, Fortran90Parser::RuleBlockDataBodyConstruct);
@@ -3690,6 +3875,14 @@ void Fortran90Parser::EndBlockDataStmtContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndBlockDataStmt(this);
+}
+
+
+std::any Fortran90Parser::EndBlockDataStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndBlockDataStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndBlockDataStmtContext* Fortran90Parser::endBlockDataStmt() {
@@ -3859,6 +4052,14 @@ void Fortran90Parser::FormatStmtContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitFormatStmt(this);
 }
 
+
+std::any Fortran90Parser::FormatStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFormatStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FormatStmtContext* Fortran90Parser::formatStmt() {
   FormatStmtContext *_localctx = _tracker.createInstance<FormatStmtContext>(_ctx, getState());
   enterRule(_localctx, 48, Fortran90Parser::RuleFormatStmt);
@@ -3940,6 +4141,14 @@ void Fortran90Parser::FmtSpecContext::exitRule(tree::ParseTreeListener *listener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFmtSpec(this);
+}
+
+
+std::any Fortran90Parser::FmtSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFmtSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -4127,6 +4336,14 @@ void Fortran90Parser::FormateditContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitFormatedit(this);
 }
 
+
+std::any Fortran90Parser::FormateditContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFormatedit(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FormateditContext* Fortran90Parser::formatedit() {
   FormateditContext *_localctx = _tracker.createInstance<FormateditContext>(_ctx, getState());
   enterRule(_localctx, 52, Fortran90Parser::RuleFormatedit);
@@ -4261,6 +4478,14 @@ void Fortran90Parser::EditElementContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitEditElement(this);
 }
 
+
+std::any Fortran90Parser::EditElementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEditElement(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EditElementContext* Fortran90Parser::editElement() {
   EditElementContext *_localctx = _tracker.createInstance<EditElementContext>(_ctx, getState());
   enterRule(_localctx, 54, Fortran90Parser::RuleEditElement);
@@ -4379,6 +4604,14 @@ void Fortran90Parser::MislexedFconContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitMislexedFcon(this);
 }
 
+
+std::any Fortran90Parser::MislexedFconContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitMislexedFcon(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::MislexedFconContext* Fortran90Parser::mislexedFcon() {
   MislexedFconContext *_localctx = _tracker.createInstance<MislexedFconContext>(_ctx, getState());
   enterRule(_localctx, 56, Fortran90Parser::RuleMislexedFcon);
@@ -4469,6 +4702,14 @@ void Fortran90Parser::ModuleContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitModule(this);
 }
 
+
+std::any Fortran90Parser::ModuleContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitModule(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ModuleContext* Fortran90Parser::module() {
   ModuleContext *_localctx = _tracker.createInstance<ModuleContext>(_ctx, getState());
   enterRule(_localctx, 58, Fortran90Parser::RuleModule);
@@ -4555,6 +4796,14 @@ void Fortran90Parser::EndModuleStmtContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndModuleStmt(this);
+}
+
+
+std::any Fortran90Parser::EndModuleStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndModuleStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndModuleStmtContext* Fortran90Parser::endModuleStmt() {
@@ -4686,6 +4935,14 @@ void Fortran90Parser::EntryStmtContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitEntryStmt(this);
 }
 
+
+std::any Fortran90Parser::EntryStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEntryStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EntryStmtContext* Fortran90Parser::entryStmt() {
   EntryStmtContext *_localctx = _tracker.createInstance<EntryStmtContext>(_ctx, getState());
   enterRule(_localctx, 62, Fortran90Parser::RuleEntryStmt);
@@ -4757,6 +5014,14 @@ void Fortran90Parser::SubroutineParListContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubroutineParList(this);
+}
+
+
+std::any Fortran90Parser::SubroutineParListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineParList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SubroutineParListContext* Fortran90Parser::subroutineParList() {
@@ -4843,6 +5108,14 @@ void Fortran90Parser::SubroutineParsContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitSubroutinePars(this);
 }
 
+
+std::any Fortran90Parser::SubroutineParsContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutinePars(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubroutineParsContext* Fortran90Parser::subroutinePars() {
   SubroutineParsContext *_localctx = _tracker.createInstance<SubroutineParsContext>(_ctx, getState());
   enterRule(_localctx, 66, Fortran90Parser::RuleSubroutinePars);
@@ -4911,6 +5184,14 @@ void Fortran90Parser::SubroutineParContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubroutinePar(this);
+}
+
+
+std::any Fortran90Parser::SubroutineParContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutinePar(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SubroutineParContext* Fortran90Parser::subroutinePar() {
@@ -4993,6 +5274,14 @@ void Fortran90Parser::DeclarationConstructContext::exitRule(tree::ParseTreeListe
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDeclarationConstruct(this);
+}
+
+
+std::any Fortran90Parser::DeclarationConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDeclarationConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DeclarationConstructContext* Fortran90Parser::declarationConstruct() {
@@ -5129,6 +5418,14 @@ void Fortran90Parser::SpecificationStmtContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSpecificationStmt(this);
+}
+
+
+std::any Fortran90Parser::SpecificationStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSpecificationStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SpecificationStmtContext* Fortran90Parser::specificationStmt() {
@@ -5293,6 +5590,14 @@ void Fortran90Parser::TargetStmtContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitTargetStmt(this);
 }
 
+
+std::any Fortran90Parser::TargetStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTargetStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::TargetStmtContext* Fortran90Parser::targetStmt() {
   TargetStmtContext *_localctx = _tracker.createInstance<TargetStmtContext>(_ctx, getState());
   enterRule(_localctx, 74, Fortran90Parser::RuleTargetStmt);
@@ -5367,6 +5672,14 @@ void Fortran90Parser::TargetObjectListContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitTargetObjectList(this);
+}
+
+
+std::any Fortran90Parser::TargetObjectListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTargetObjectList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::TargetObjectListContext* Fortran90Parser::targetObjectList() {
@@ -5447,6 +5760,14 @@ void Fortran90Parser::TargetObjectContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitTargetObject(this);
+}
+
+
+std::any Fortran90Parser::TargetObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTargetObject(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::TargetObjectContext* Fortran90Parser::targetObject() {
@@ -5533,6 +5854,14 @@ void Fortran90Parser::PointerStmtContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitPointerStmt(this);
 }
 
+
+std::any Fortran90Parser::PointerStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPointerStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::PointerStmtContext* Fortran90Parser::pointerStmt() {
   PointerStmtContext *_localctx = _tracker.createInstance<PointerStmtContext>(_ctx, getState());
   enterRule(_localctx, 80, Fortran90Parser::RulePointerStmt);
@@ -5607,6 +5936,14 @@ void Fortran90Parser::PointerStmtObjectListContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitPointerStmtObjectList(this);
+}
+
+
+std::any Fortran90Parser::PointerStmtObjectListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPointerStmtObjectList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::PointerStmtObjectListContext* Fortran90Parser::pointerStmtObjectList() {
@@ -5687,6 +6024,14 @@ void Fortran90Parser::PointerStmtObjectContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitPointerStmtObject(this);
+}
+
+
+std::any Fortran90Parser::PointerStmtObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPointerStmtObject(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::PointerStmtObjectContext* Fortran90Parser::pointerStmtObject() {
@@ -5773,6 +6118,14 @@ void Fortran90Parser::OptionalStmtContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitOptionalStmt(this);
 }
 
+
+std::any Fortran90Parser::OptionalStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOptionalStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::OptionalStmtContext* Fortran90Parser::optionalStmt() {
   OptionalStmtContext *_localctx = _tracker.createInstance<OptionalStmtContext>(_ctx, getState());
   enterRule(_localctx, 86, Fortran90Parser::RuleOptionalStmt);
@@ -5849,6 +6202,14 @@ void Fortran90Parser::OptionalParListContext::exitRule(tree::ParseTreeListener *
     parserListener->exitOptionalParList(this);
 }
 
+
+std::any Fortran90Parser::OptionalParListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOptionalParList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::OptionalParListContext* Fortran90Parser::optionalParList() {
   OptionalParListContext *_localctx = _tracker.createInstance<OptionalParListContext>(_ctx, getState());
   enterRule(_localctx, 88, Fortran90Parser::RuleOptionalParList);
@@ -5917,6 +6278,14 @@ void Fortran90Parser::OptionalParContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitOptionalPar(this);
 }
 
+
+std::any Fortran90Parser::OptionalParContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOptionalPar(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::OptionalParContext* Fortran90Parser::optionalPar() {
   OptionalParContext *_localctx = _tracker.createInstance<OptionalParContext>(_ctx, getState());
   enterRule(_localctx, 90, Fortran90Parser::RuleOptionalPar);
@@ -5972,6 +6341,14 @@ void Fortran90Parser::NamelistStmtContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitNamelistStmt(this);
+}
+
+
+std::any Fortran90Parser::NamelistStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNamelistStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::NamelistStmtContext* Fortran90Parser::namelistStmt() {
@@ -6047,6 +6424,14 @@ void Fortran90Parser::NamelistGroupsContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitNamelistGroups(this);
+}
+
+
+std::any Fortran90Parser::NamelistGroupsContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNamelistGroups(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -6188,6 +6573,14 @@ void Fortran90Parser::NamelistGroupNameContext::exitRule(tree::ParseTreeListener
     parserListener->exitNamelistGroupName(this);
 }
 
+
+std::any Fortran90Parser::NamelistGroupNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNamelistGroupName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::NamelistGroupNameContext* Fortran90Parser::namelistGroupName() {
   NamelistGroupNameContext *_localctx = _tracker.createInstance<NamelistGroupNameContext>(_ctx, getState());
   enterRule(_localctx, 96, Fortran90Parser::RuleNamelistGroupName);
@@ -6239,6 +6632,14 @@ void Fortran90Parser::NamelistGroupObjectContext::exitRule(tree::ParseTreeListen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitNamelistGroupObject(this);
+}
+
+
+std::any Fortran90Parser::NamelistGroupObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNamelistGroupObject(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::NamelistGroupObjectContext* Fortran90Parser::namelistGroupObject() {
@@ -6312,6 +6713,14 @@ void Fortran90Parser::IntentStmtContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitIntentStmt(this);
+}
+
+
+std::any Fortran90Parser::IntentStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIntentStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::IntentStmtContext* Fortran90Parser::intentStmt() {
@@ -6392,6 +6801,14 @@ void Fortran90Parser::IntentParListContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitIntentParList(this);
 }
 
+
+std::any Fortran90Parser::IntentParListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIntentParList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IntentParListContext* Fortran90Parser::intentParList() {
   IntentParListContext *_localctx = _tracker.createInstance<IntentParListContext>(_ctx, getState());
   enterRule(_localctx, 102, Fortran90Parser::RuleIntentParList);
@@ -6450,6 +6867,14 @@ void Fortran90Parser::IntentParContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitIntentPar(this);
 }
 
+
+std::any Fortran90Parser::IntentParContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIntentPar(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IntentParContext* Fortran90Parser::intentPar() {
   IntentParContext *_localctx = _tracker.createInstance<IntentParContext>(_ctx, getState());
   enterRule(_localctx, 104, Fortran90Parser::RuleIntentPar);
@@ -6501,6 +6926,14 @@ void Fortran90Parser::DummyArgNameContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDummyArgName(this);
+}
+
+
+std::any Fortran90Parser::DummyArgNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDummyArgName(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DummyArgNameContext* Fortran90Parser::dummyArgName() {
@@ -6562,6 +6995,14 @@ void Fortran90Parser::IntentSpecContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitIntentSpec(this);
+}
+
+
+std::any Fortran90Parser::IntentSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIntentSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::IntentSpecContext* Fortran90Parser::intentSpec() {
@@ -6632,6 +7073,14 @@ void Fortran90Parser::AllocatableStmtContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAllocatableStmt(this);
+}
+
+
+std::any Fortran90Parser::AllocatableStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAllocatableStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AllocatableStmtContext* Fortran90Parser::allocatableStmt() {
@@ -6708,6 +7157,14 @@ void Fortran90Parser::ArrayAllocationListContext::exitRule(tree::ParseTreeListen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitArrayAllocationList(this);
+}
+
+
+std::any Fortran90Parser::ArrayAllocationListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArrayAllocationList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ArrayAllocationListContext* Fortran90Parser::arrayAllocationList() {
@@ -6790,6 +7247,14 @@ void Fortran90Parser::ArrayAllocationContext::exitRule(tree::ParseTreeListener *
     parserListener->exitArrayAllocation(this);
 }
 
+
+std::any Fortran90Parser::ArrayAllocationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArrayAllocation(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ArrayAllocationContext* Fortran90Parser::arrayAllocation() {
   ArrayAllocationContext *_localctx = _tracker.createInstance<ArrayAllocationContext>(_ctx, getState());
   enterRule(_localctx, 114, Fortran90Parser::RuleArrayAllocation);
@@ -6866,6 +7331,14 @@ void Fortran90Parser::ArrayNameContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitArrayName(this);
 }
 
+
+std::any Fortran90Parser::ArrayNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArrayName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ArrayNameContext* Fortran90Parser::arrayName() {
   ArrayNameContext *_localctx = _tracker.createInstance<ArrayNameContext>(_ctx, getState());
   enterRule(_localctx, 116, Fortran90Parser::RuleArrayName);
@@ -6925,6 +7398,14 @@ void Fortran90Parser::AccessStmtContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAccessStmt(this);
+}
+
+
+std::any Fortran90Parser::AccessStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAccessStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AccessStmtContext* Fortran90Parser::accessStmt() {
@@ -7020,6 +7501,14 @@ void Fortran90Parser::AccessIdListContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitAccessIdList(this);
 }
 
+
+std::any Fortran90Parser::AccessIdListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAccessIdList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AccessIdListContext* Fortran90Parser::accessIdList() {
   AccessIdListContext *_localctx = _tracker.createInstance<AccessIdListContext>(_ctx, getState());
   enterRule(_localctx, 120, Fortran90Parser::RuleAccessIdList);
@@ -7090,6 +7579,14 @@ void Fortran90Parser::AccessIdContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAccessId(this);
+}
+
+
+std::any Fortran90Parser::AccessIdContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAccessId(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AccessIdContext* Fortran90Parser::accessId() {
@@ -7163,6 +7660,14 @@ void Fortran90Parser::GenericNameContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitGenericName(this);
 }
 
+
+std::any Fortran90Parser::GenericNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitGenericName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::GenericNameContext* Fortran90Parser::genericName() {
   GenericNameContext *_localctx = _tracker.createInstance<GenericNameContext>(_ctx, getState());
   enterRule(_localctx, 124, Fortran90Parser::RuleGenericName);
@@ -7222,6 +7727,14 @@ void Fortran90Parser::SaveStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSaveStmt(this);
+}
+
+
+std::any Fortran90Parser::SaveStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSaveStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SaveStmtContext* Fortran90Parser::saveStmt() {
@@ -7311,6 +7824,14 @@ void Fortran90Parser::SavedEntityListContext::exitRule(tree::ParseTreeListener *
     parserListener->exitSavedEntityList(this);
 }
 
+
+std::any Fortran90Parser::SavedEntityListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSavedEntityList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SavedEntityListContext* Fortran90Parser::savedEntityList() {
   SavedEntityListContext *_localctx = _tracker.createInstance<SavedEntityListContext>(_ctx, getState());
   enterRule(_localctx, 128, Fortran90Parser::RuleSavedEntityList);
@@ -7383,6 +7904,14 @@ void Fortran90Parser::SavedEntityContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSavedEntity(this);
+}
+
+
+std::any Fortran90Parser::SavedEntityContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSavedEntity(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SavedEntityContext* Fortran90Parser::savedEntity() {
@@ -7463,6 +7992,14 @@ void Fortran90Parser::SavedCommonBlockContext::exitRule(tree::ParseTreeListener 
     parserListener->exitSavedCommonBlock(this);
 }
 
+
+std::any Fortran90Parser::SavedCommonBlockContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSavedCommonBlock(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SavedCommonBlockContext* Fortran90Parser::savedCommonBlock() {
   SavedCommonBlockContext *_localctx = _tracker.createInstance<SavedCommonBlockContext>(_ctx, getState());
   enterRule(_localctx, 132, Fortran90Parser::RuleSavedCommonBlock);
@@ -7524,6 +8061,14 @@ void Fortran90Parser::IntrinsicStmtContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitIntrinsicStmt(this);
 }
 
+
+std::any Fortran90Parser::IntrinsicStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIntrinsicStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IntrinsicStmtContext* Fortran90Parser::intrinsicStmt() {
   IntrinsicStmtContext *_localctx = _tracker.createInstance<IntrinsicStmtContext>(_ctx, getState());
   enterRule(_localctx, 134, Fortran90Parser::RuleIntrinsicStmt);
@@ -7581,6 +8126,14 @@ void Fortran90Parser::IntrinsicListContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitIntrinsicList(this);
+}
+
+
+std::any Fortran90Parser::IntrinsicListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIntrinsicList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::IntrinsicListContext* Fortran90Parser::intrinsicList() {
@@ -7653,6 +8206,14 @@ void Fortran90Parser::IntrinsicProcedureNameContext::exitRule(tree::ParseTreeLis
     parserListener->exitIntrinsicProcedureName(this);
 }
 
+
+std::any Fortran90Parser::IntrinsicProcedureNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIntrinsicProcedureName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IntrinsicProcedureNameContext* Fortran90Parser::intrinsicProcedureName() {
   IntrinsicProcedureNameContext *_localctx = _tracker.createInstance<IntrinsicProcedureNameContext>(_ctx, getState());
   enterRule(_localctx, 138, Fortran90Parser::RuleIntrinsicProcedureName);
@@ -7708,6 +8269,14 @@ void Fortran90Parser::ExternalStmtContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExternalStmt(this);
+}
+
+
+std::any Fortran90Parser::ExternalStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExternalStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ExternalStmtContext* Fortran90Parser::externalStmt() {
@@ -7767,6 +8336,14 @@ void Fortran90Parser::ExternalNameListContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExternalNameList(this);
+}
+
+
+std::any Fortran90Parser::ExternalNameListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExternalNameList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ExternalNameListContext* Fortran90Parser::externalNameList() {
@@ -7839,6 +8416,14 @@ void Fortran90Parser::ExternalNameContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitExternalName(this);
 }
 
+
+std::any Fortran90Parser::ExternalNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExternalName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ExternalNameContext* Fortran90Parser::externalName() {
   ExternalNameContext *_localctx = _tracker.createInstance<ExternalNameContext>(_ctx, getState());
   enterRule(_localctx, 144, Fortran90Parser::RuleExternalName);
@@ -7894,6 +8479,14 @@ void Fortran90Parser::EquivalenceStmtContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEquivalenceStmt(this);
+}
+
+
+std::any Fortran90Parser::EquivalenceStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEquivalenceStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EquivalenceStmtContext* Fortran90Parser::equivalenceStmt() {
@@ -7953,6 +8546,14 @@ void Fortran90Parser::EquivalenceSetListContext::exitRule(tree::ParseTreeListene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEquivalenceSetList(this);
+}
+
+
+std::any Fortran90Parser::EquivalenceSetListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEquivalenceSetList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EquivalenceSetListContext* Fortran90Parser::equivalenceSetList() {
@@ -8041,6 +8642,14 @@ void Fortran90Parser::EquivalenceSetContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitEquivalenceSet(this);
 }
 
+
+std::any Fortran90Parser::EquivalenceSetContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEquivalenceSet(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EquivalenceSetContext* Fortran90Parser::equivalenceSet() {
   EquivalenceSetContext *_localctx = _tracker.createInstance<EquivalenceSetContext>(_ctx, getState());
   enterRule(_localctx, 150, Fortran90Parser::RuleEquivalenceSet);
@@ -8102,6 +8711,14 @@ void Fortran90Parser::EquivalenceObjectContext::exitRule(tree::ParseTreeListener
     parserListener->exitEquivalenceObject(this);
 }
 
+
+std::any Fortran90Parser::EquivalenceObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEquivalenceObject(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EquivalenceObjectContext* Fortran90Parser::equivalenceObject() {
   EquivalenceObjectContext *_localctx = _tracker.createInstance<EquivalenceObjectContext>(_ctx, getState());
   enterRule(_localctx, 152, Fortran90Parser::RuleEquivalenceObject);
@@ -8157,6 +8774,14 @@ void Fortran90Parser::EquivalenceObjectListContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEquivalenceObjectList(this);
+}
+
+
+std::any Fortran90Parser::EquivalenceObjectListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEquivalenceObjectList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EquivalenceObjectListContext* Fortran90Parser::equivalenceObjectList() {
@@ -8227,6 +8852,14 @@ void Fortran90Parser::DimensionStmtContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDimensionStmt(this);
+}
+
+
+std::any Fortran90Parser::DimensionStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDimensionStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DimensionStmtContext* Fortran90Parser::dimensionStmt() {
@@ -8309,6 +8942,14 @@ void Fortran90Parser::ArrayDeclaratorListContext::exitRule(tree::ParseTreeListen
     parserListener->exitArrayDeclaratorList(this);
 }
 
+
+std::any Fortran90Parser::ArrayDeclaratorListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArrayDeclaratorList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ArrayDeclaratorListContext* Fortran90Parser::arrayDeclaratorList() {
   ArrayDeclaratorListContext *_localctx = _tracker.createInstance<ArrayDeclaratorListContext>(_ctx, getState());
   enterRule(_localctx, 158, Fortran90Parser::RuleArrayDeclaratorList);
@@ -8383,6 +9024,14 @@ void Fortran90Parser::CommonStmtContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitCommonStmt(this);
 }
 
+
+std::any Fortran90Parser::CommonStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCommonStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CommonStmtContext* Fortran90Parser::commonStmt() {
   CommonStmtContext *_localctx = _tracker.createInstance<CommonStmtContext>(_ctx, getState());
   enterRule(_localctx, 160, Fortran90Parser::RuleCommonStmt);
@@ -8448,6 +9097,14 @@ void Fortran90Parser::ComlistContext::exitRule(tree::ParseTreeListener *listener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComlist(this);
+}
+
+
+std::any Fortran90Parser::ComlistContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComlist(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -8580,6 +9237,14 @@ void Fortran90Parser::CommonBlockObjectContext::exitRule(tree::ParseTreeListener
     parserListener->exitCommonBlockObject(this);
 }
 
+
+std::any Fortran90Parser::CommonBlockObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCommonBlockObject(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CommonBlockObjectContext* Fortran90Parser::commonBlockObject() {
   CommonBlockObjectContext *_localctx = _tracker.createInstance<CommonBlockObjectContext>(_ctx, getState());
   enterRule(_localctx, 164, Fortran90Parser::RuleCommonBlockObject);
@@ -8662,6 +9327,14 @@ void Fortran90Parser::ArrayDeclaratorContext::exitRule(tree::ParseTreeListener *
     parserListener->exitArrayDeclarator(this);
 }
 
+
+std::any Fortran90Parser::ArrayDeclaratorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArrayDeclarator(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ArrayDeclaratorContext* Fortran90Parser::arrayDeclarator() {
   ArrayDeclaratorContext *_localctx = _tracker.createInstance<ArrayDeclaratorContext>(_ctx, getState());
   enterRule(_localctx, 166, Fortran90Parser::RuleArrayDeclarator);
@@ -8735,6 +9408,14 @@ void Fortran90Parser::ComblockContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComblock(this);
+}
+
+
+std::any Fortran90Parser::ComblockContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComblock(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ComblockContext* Fortran90Parser::comblock() {
@@ -8817,6 +9498,14 @@ void Fortran90Parser::CommonBlockNameContext::exitRule(tree::ParseTreeListener *
     parserListener->exitCommonBlockName(this);
 }
 
+
+std::any Fortran90Parser::CommonBlockNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCommonBlockName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CommonBlockNameContext* Fortran90Parser::commonBlockName() {
   CommonBlockNameContext *_localctx = _tracker.createInstance<CommonBlockNameContext>(_ctx, getState());
   enterRule(_localctx, 170, Fortran90Parser::RuleCommonBlockName);
@@ -8880,6 +9569,14 @@ void Fortran90Parser::TypeDeclarationStmtContext::exitRule(tree::ParseTreeListen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitTypeDeclarationStmt(this);
+}
+
+
+std::any Fortran90Parser::TypeDeclarationStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTypeDeclarationStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::TypeDeclarationStmtContext* Fortran90Parser::typeDeclarationStmt() {
@@ -8973,6 +9670,14 @@ void Fortran90Parser::AttrSpecSeqContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAttrSpecSeq(this);
+}
+
+
+std::any Fortran90Parser::AttrSpecSeqContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAttrSpecSeq(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -9118,6 +9823,14 @@ void Fortran90Parser::AttrSpecContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAttrSpec(this);
+}
+
+
+std::any Fortran90Parser::AttrSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAttrSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AttrSpecContext* Fortran90Parser::attrSpec() {
@@ -9277,6 +9990,14 @@ void Fortran90Parser::EntityDeclListContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitEntityDeclList(this);
 }
 
+
+std::any Fortran90Parser::EntityDeclListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEntityDeclList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EntityDeclListContext* Fortran90Parser::entityDeclList() {
   EntityDeclListContext *_localctx = _tracker.createInstance<EntityDeclListContext>(_ctx, getState());
   enterRule(_localctx, 178, Fortran90Parser::RuleEntityDeclList);
@@ -9371,6 +10092,14 @@ void Fortran90Parser::EntityDeclContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEntityDecl(this);
+}
+
+
+std::any Fortran90Parser::EntityDeclContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEntityDecl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EntityDeclContext* Fortran90Parser::entityDecl() {
@@ -9539,6 +10268,14 @@ void Fortran90Parser::ObjectNameContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitObjectName(this);
+}
+
+
+std::any Fortran90Parser::ObjectNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitObjectName(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ObjectNameContext* Fortran90Parser::objectName() {
@@ -10158,6 +10895,14 @@ void Fortran90Parser::NameContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitName(this);
 }
 
+
+std::any Fortran90Parser::NameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::NameContext* Fortran90Parser::name() {
   NameContext *_localctx = _tracker.createInstance<NameContext>(_ctx, getState());
   enterRule(_localctx, 184, Fortran90Parser::RuleName);
@@ -10232,6 +10977,14 @@ void Fortran90Parser::ArraySpecContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitArraySpec(this);
+}
+
+
+std::any Fortran90Parser::ArraySpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArraySpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ArraySpecContext* Fortran90Parser::arraySpec() {
@@ -10336,6 +11089,14 @@ void Fortran90Parser::AssumedShapeSpecListContext::exitRule(tree::ParseTreeListe
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAssumedShapeSpecList(this);
+}
+
+
+std::any Fortran90Parser::AssumedShapeSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAssumedShapeSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -10605,6 +11366,14 @@ void Fortran90Parser::AssumedShapeSpecContext::exitRule(tree::ParseTreeListener 
     parserListener->exitAssumedShapeSpec(this);
 }
 
+
+std::any Fortran90Parser::AssumedShapeSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAssumedShapeSpec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AssumedShapeSpecContext* Fortran90Parser::assumedShapeSpec() {
   AssumedShapeSpecContext *_localctx = _tracker.createInstance<AssumedShapeSpecContext>(_ctx, getState());
   enterRule(_localctx, 190, Fortran90Parser::RuleAssumedShapeSpec);
@@ -10845,6 +11614,14 @@ void Fortran90Parser::AssumedSizeSpecContext::exitRule(tree::ParseTreeListener *
     parserListener->exitAssumedSizeSpec(this);
 }
 
+
+std::any Fortran90Parser::AssumedSizeSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAssumedSizeSpec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AssumedSizeSpecContext* Fortran90Parser::assumedSizeSpec() {
   AssumedSizeSpecContext *_localctx = _tracker.createInstance<AssumedSizeSpecContext>(_ctx, getState());
   enterRule(_localctx, 192, Fortran90Parser::RuleAssumedSizeSpec);
@@ -10953,6 +11730,14 @@ void Fortran90Parser::InterfaceBlockContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitInterfaceBlock(this);
 }
 
+
+std::any Fortran90Parser::InterfaceBlockContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInterfaceBlock(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::InterfaceBlockContext* Fortran90Parser::interfaceBlock() {
   InterfaceBlockContext *_localctx = _tracker.createInstance<InterfaceBlockContext>(_ctx, getState());
   enterRule(_localctx, 194, Fortran90Parser::RuleInterfaceBlock);
@@ -11020,6 +11805,14 @@ void Fortran90Parser::EndInterfaceStmtContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndInterfaceStmt(this);
+}
+
+
+std::any Fortran90Parser::EndInterfaceStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndInterfaceStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndInterfaceStmtContext* Fortran90Parser::endInterfaceStmt() {
@@ -11112,6 +11905,14 @@ void Fortran90Parser::InterfaceStmtContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitInterfaceStmt(this);
+}
+
+
+std::any Fortran90Parser::InterfaceStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInterfaceStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::InterfaceStmtContext* Fortran90Parser::interfaceStmt() {
@@ -11213,6 +12014,14 @@ void Fortran90Parser::GenericSpecContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitGenericSpec(this);
+}
+
+
+std::any Fortran90Parser::GenericSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitGenericSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::GenericSpecContext* Fortran90Parser::genericSpec() {
@@ -11371,6 +12180,14 @@ void Fortran90Parser::DefinedOperatorContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDefinedOperator(this);
+}
+
+
+std::any Fortran90Parser::DefinedOperatorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDefinedOperator(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DefinedOperatorContext* Fortran90Parser::definedOperator() {
@@ -11544,6 +12361,14 @@ void Fortran90Parser::InterfaceBlockBodyContext::exitRule(tree::ParseTreeListene
 }
 
 
+std::any Fortran90Parser::InterfaceBlockBodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInterfaceBlockBody(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+
 Fortran90Parser::InterfaceBlockBodyContext* Fortran90Parser::interfaceBlockBody() {
    return interfaceBlockBody(0);
 }
@@ -11630,6 +12455,14 @@ void Fortran90Parser::InterfaceBodyPartConstructContext::exitRule(tree::ParseTre
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitInterfaceBodyPartConstruct(this);
+}
+
+
+std::any Fortran90Parser::InterfaceBodyPartConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInterfaceBodyPartConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::InterfaceBodyPartConstructContext* Fortran90Parser::interfaceBodyPartConstruct() {
@@ -11720,6 +12553,14 @@ void Fortran90Parser::ModuleProcedureStmtContext::exitRule(tree::ParseTreeListen
     parserListener->exitModuleProcedureStmt(this);
 }
 
+
+std::any Fortran90Parser::ModuleProcedureStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitModuleProcedureStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ModuleProcedureStmtContext* Fortran90Parser::moduleProcedureStmt() {
   ModuleProcedureStmtContext *_localctx = _tracker.createInstance<ModuleProcedureStmtContext>(_ctx, getState());
   enterRule(_localctx, 208, Fortran90Parser::RuleModuleProcedureStmt);
@@ -11787,6 +12628,14 @@ void Fortran90Parser::ProcedureNameListContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitProcedureNameList(this);
+}
+
+
+std::any Fortran90Parser::ProcedureNameListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitProcedureNameList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ProcedureNameListContext* Fortran90Parser::procedureNameList() {
@@ -11857,6 +12706,14 @@ void Fortran90Parser::ProcedureNameContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitProcedureName(this);
 }
 
+
+std::any Fortran90Parser::ProcedureNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitProcedureName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ProcedureNameContext* Fortran90Parser::procedureName() {
   ProcedureNameContext *_localctx = _tracker.createInstance<ProcedureNameContext>(_ctx, getState());
   enterRule(_localctx, 212, Fortran90Parser::RuleProcedureName);
@@ -11924,6 +12781,14 @@ void Fortran90Parser::InterfaceBodyContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitInterfaceBody(this);
+}
+
+
+std::any Fortran90Parser::InterfaceBodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInterfaceBody(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::InterfaceBodyContext* Fortran90Parser::interfaceBody() {
@@ -12021,6 +12886,14 @@ void Fortran90Parser::SubroutineInterfaceRangeContext::exitRule(tree::ParseTreeL
     parserListener->exitSubroutineInterfaceRange(this);
 }
 
+
+std::any Fortran90Parser::SubroutineInterfaceRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineInterfaceRange(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubroutineInterfaceRangeContext* Fortran90Parser::subroutineInterfaceRange() {
   SubroutineInterfaceRangeContext *_localctx = _tracker.createInstance<SubroutineInterfaceRangeContext>(_ctx, getState());
   enterRule(_localctx, 216, Fortran90Parser::RuleSubroutineInterfaceRange);
@@ -12093,6 +12966,14 @@ void Fortran90Parser::EndSubroutineStmtContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndSubroutineStmt(this);
+}
+
+
+std::any Fortran90Parser::EndSubroutineStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndSubroutineStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndSubroutineStmtContext* Fortran90Parser::endSubroutineStmt() {
@@ -12180,6 +13061,14 @@ void Fortran90Parser::RecursiveContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitRecursive(this);
 }
 
+
+std::any Fortran90Parser::RecursiveContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRecursive(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::RecursiveContext* Fortran90Parser::recursive() {
   RecursiveContext *_localctx = _tracker.createInstance<RecursiveContext>(_ctx, getState());
   enterRule(_localctx, 220, Fortran90Parser::RuleRecursive);
@@ -12247,6 +13136,13 @@ void Fortran90Parser::FunctionPrefixRecContext::exitRule(tree::ParseTreeListener
   if (parserListener != nullptr)
     parserListener->exitFunctionPrefixRec(this);
 }
+
+std::any Fortran90Parser::FunctionPrefixRecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionPrefixRec(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- FunctionPrefixTypContext ------------------------------------------------------------------
 
 Fortran90Parser::TypeSpecContext* Fortran90Parser::FunctionPrefixTypContext::typeSpec() {
@@ -12272,6 +13168,13 @@ void Fortran90Parser::FunctionPrefixTypContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionPrefixTyp(this);
+}
+
+std::any Fortran90Parser::FunctionPrefixTypContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionPrefixTyp(this);
+  else
+    return visitor->visitChildren(this);
 }
 Fortran90Parser::FunctionPrefixContext* Fortran90Parser::functionPrefix() {
   FunctionPrefixContext *_localctx = _tracker.createInstance<FunctionPrefixContext>(_ctx, getState());
@@ -12376,6 +13279,14 @@ void Fortran90Parser::FunctionInterfaceRangeContext::exitRule(tree::ParseTreeLis
     parserListener->exitFunctionInterfaceRange(this);
 }
 
+
+std::any Fortran90Parser::FunctionInterfaceRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionInterfaceRange(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FunctionInterfaceRangeContext* Fortran90Parser::functionInterfaceRange() {
   FunctionInterfaceRangeContext *_localctx = _tracker.createInstance<FunctionInterfaceRangeContext>(_ctx, getState());
   enterRule(_localctx, 224, Fortran90Parser::RuleFunctionInterfaceRange);
@@ -12448,6 +13359,14 @@ void Fortran90Parser::FunctionParListContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionParList(this);
+}
+
+
+std::any Fortran90Parser::FunctionParListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionParList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::FunctionParListContext* Fortran90Parser::functionParList() {
@@ -12526,6 +13445,14 @@ void Fortran90Parser::FunctionParsContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitFunctionPars(this);
 }
 
+
+std::any Fortran90Parser::FunctionParsContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionPars(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FunctionParsContext* Fortran90Parser::functionPars() {
   FunctionParsContext *_localctx = _tracker.createInstance<FunctionParsContext>(_ctx, getState());
   enterRule(_localctx, 228, Fortran90Parser::RuleFunctionPars);
@@ -12592,6 +13519,14 @@ void Fortran90Parser::FunctionParContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitFunctionPar(this);
 }
 
+
+std::any Fortran90Parser::FunctionParContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionPar(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FunctionParContext* Fortran90Parser::functionPar() {
   FunctionParContext *_localctx = _tracker.createInstance<FunctionParContext>(_ctx, getState());
   enterRule(_localctx, 230, Fortran90Parser::RuleFunctionPar);
@@ -12647,6 +13582,14 @@ void Fortran90Parser::SubprogramInterfaceBodyContext::exitRule(tree::ParseTreeLi
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubprogramInterfaceBody(this);
+}
+
+
+std::any Fortran90Parser::SubprogramInterfaceBodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubprogramInterfaceBody(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -12742,6 +13685,14 @@ void Fortran90Parser::EndFunctionStmtContext::exitRule(tree::ParseTreeListener *
     parserListener->exitEndFunctionStmt(this);
 }
 
+
+std::any Fortran90Parser::EndFunctionStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndFunctionStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EndFunctionStmtContext* Fortran90Parser::endFunctionStmt() {
   EndFunctionStmtContext *_localctx = _tracker.createInstance<EndFunctionStmtContext>(_ctx, getState());
   enterRule(_localctx, 234, Fortran90Parser::RuleEndFunctionStmt);
@@ -12835,6 +13786,14 @@ void Fortran90Parser::DerivedTypeDefContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitDerivedTypeDef(this);
 }
 
+
+std::any Fortran90Parser::DerivedTypeDefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDerivedTypeDef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DerivedTypeDefContext* Fortran90Parser::derivedTypeDef() {
   DerivedTypeDefContext *_localctx = _tracker.createInstance<DerivedTypeDefContext>(_ctx, getState());
   enterRule(_localctx, 236, Fortran90Parser::RuleDerivedTypeDef);
@@ -12902,6 +13861,14 @@ void Fortran90Parser::EndTypeStmtContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndTypeStmt(this);
+}
+
+
+std::any Fortran90Parser::EndTypeStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndTypeStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndTypeStmtContext* Fortran90Parser::endTypeStmt() {
@@ -13012,6 +13979,14 @@ void Fortran90Parser::DerivedTypeStmtContext::exitRule(tree::ParseTreeListener *
     parserListener->exitDerivedTypeStmt(this);
 }
 
+
+std::any Fortran90Parser::DerivedTypeStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDerivedTypeStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DerivedTypeStmtContext* Fortran90Parser::derivedTypeStmt() {
   DerivedTypeStmtContext *_localctx = _tracker.createInstance<DerivedTypeStmtContext>(_ctx, getState());
   enterRule(_localctx, 240, Fortran90Parser::RuleDerivedTypeStmt);
@@ -13108,6 +14083,14 @@ void Fortran90Parser::DerivedTypeBodyContext::exitRule(tree::ParseTreeListener *
 }
 
 
+std::any Fortran90Parser::DerivedTypeBodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDerivedTypeBody(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+
 Fortran90Parser::DerivedTypeBodyContext* Fortran90Parser::derivedTypeBody() {
    return derivedTypeBody(0);
 }
@@ -13196,6 +14179,14 @@ void Fortran90Parser::DerivedTypeBodyConstructContext::exitRule(tree::ParseTreeL
     parserListener->exitDerivedTypeBodyConstruct(this);
 }
 
+
+std::any Fortran90Parser::DerivedTypeBodyConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDerivedTypeBodyConstruct(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DerivedTypeBodyConstructContext* Fortran90Parser::derivedTypeBodyConstruct() {
   DerivedTypeBodyConstructContext *_localctx = _tracker.createInstance<DerivedTypeBodyConstructContext>(_ctx, getState());
   enterRule(_localctx, 244, Fortran90Parser::RuleDerivedTypeBodyConstruct);
@@ -13278,6 +14269,14 @@ void Fortran90Parser::PrivateSequenceStmtContext::exitRule(tree::ParseTreeListen
     parserListener->exitPrivateSequenceStmt(this);
 }
 
+
+std::any Fortran90Parser::PrivateSequenceStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPrivateSequenceStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::PrivateSequenceStmtContext* Fortran90Parser::privateSequenceStmt() {
   PrivateSequenceStmtContext *_localctx = _tracker.createInstance<PrivateSequenceStmtContext>(_ctx, getState());
   enterRule(_localctx, 246, Fortran90Parser::RulePrivateSequenceStmt);
@@ -13355,6 +14354,14 @@ void Fortran90Parser::ComponentDefStmtContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComponentDefStmt(this);
+}
+
+
+std::any Fortran90Parser::ComponentDefStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComponentDefStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ComponentDefStmtContext* Fortran90Parser::componentDefStmt() {
@@ -13460,6 +14467,14 @@ void Fortran90Parser::ComponentDeclListContext::exitRule(tree::ParseTreeListener
     parserListener->exitComponentDeclList(this);
 }
 
+
+std::any Fortran90Parser::ComponentDeclListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComponentDeclList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ComponentDeclListContext* Fortran90Parser::componentDeclList() {
   ComponentDeclListContext *_localctx = _tracker.createInstance<ComponentDeclListContext>(_ctx, getState());
   enterRule(_localctx, 250, Fortran90Parser::RuleComponentDeclList);
@@ -13554,6 +14569,14 @@ void Fortran90Parser::ComponentDeclContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComponentDecl(this);
+}
+
+
+std::any Fortran90Parser::ComponentDeclContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComponentDecl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ComponentDeclContext* Fortran90Parser::componentDecl() {
@@ -13724,6 +14747,14 @@ void Fortran90Parser::ComponentNameContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitComponentName(this);
 }
 
+
+std::any Fortran90Parser::ComponentNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComponentName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ComponentNameContext* Fortran90Parser::componentName() {
   ComponentNameContext *_localctx = _tracker.createInstance<ComponentNameContext>(_ctx, getState());
   enterRule(_localctx, 254, Fortran90Parser::RuleComponentName);
@@ -13787,6 +14818,14 @@ void Fortran90Parser::ComponentAttrSpecListContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComponentAttrSpecList(this);
+}
+
+
+std::any Fortran90Parser::ComponentAttrSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComponentAttrSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ComponentAttrSpecListContext* Fortran90Parser::componentAttrSpecList() {
@@ -13871,6 +14910,14 @@ void Fortran90Parser::ComponentAttrSpecContext::exitRule(tree::ParseTreeListener
     parserListener->exitComponentAttrSpec(this);
 }
 
+
+std::any Fortran90Parser::ComponentAttrSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComponentAttrSpec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ComponentAttrSpecContext* Fortran90Parser::componentAttrSpec() {
   ComponentAttrSpecContext *_localctx = _tracker.createInstance<ComponentAttrSpecContext>(_ctx, getState());
   enterRule(_localctx, 258, Fortran90Parser::RuleComponentAttrSpec);
@@ -13949,6 +14996,14 @@ void Fortran90Parser::ComponentArraySpecContext::exitRule(tree::ParseTreeListene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComponentArraySpec(this);
+}
+
+
+std::any Fortran90Parser::ComponentArraySpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComponentArraySpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ComponentArraySpecContext* Fortran90Parser::componentArraySpec() {
@@ -14185,6 +15240,14 @@ void Fortran90Parser::ExplicitShapeSpecListContext::exitRule(tree::ParseTreeList
     parserListener->exitExplicitShapeSpecList(this);
 }
 
+
+std::any Fortran90Parser::ExplicitShapeSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExplicitShapeSpecList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ExplicitShapeSpecListContext* Fortran90Parser::explicitShapeSpecList() {
   ExplicitShapeSpecListContext *_localctx = _tracker.createInstance<ExplicitShapeSpecListContext>(_ctx, getState());
   enterRule(_localctx, 262, Fortran90Parser::RuleExplicitShapeSpecList);
@@ -14261,6 +15324,14 @@ void Fortran90Parser::ExplicitShapeSpecContext::exitRule(tree::ParseTreeListener
     parserListener->exitExplicitShapeSpec(this);
 }
 
+
+std::any Fortran90Parser::ExplicitShapeSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExplicitShapeSpec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ExplicitShapeSpecContext* Fortran90Parser::explicitShapeSpec() {
   ExplicitShapeSpecContext *_localctx = _tracker.createInstance<ExplicitShapeSpecContext>(_ctx, getState());
   enterRule(_localctx, 264, Fortran90Parser::RuleExplicitShapeSpec);
@@ -14335,6 +15406,14 @@ void Fortran90Parser::LowerBoundContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitLowerBound(this);
 }
 
+
+std::any Fortran90Parser::LowerBoundContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLowerBound(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::LowerBoundContext* Fortran90Parser::lowerBound() {
   LowerBoundContext *_localctx = _tracker.createInstance<LowerBoundContext>(_ctx, getState());
   enterRule(_localctx, 266, Fortran90Parser::RuleLowerBound);
@@ -14386,6 +15465,14 @@ void Fortran90Parser::UpperBoundContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitUpperBound(this);
+}
+
+
+std::any Fortran90Parser::UpperBoundContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUpperBound(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::UpperBoundContext* Fortran90Parser::upperBound() {
@@ -14451,6 +15538,14 @@ void Fortran90Parser::DeferredShapeSpecListContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDeferredShapeSpecList(this);
+}
+
+
+std::any Fortran90Parser::DeferredShapeSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDeferredShapeSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DeferredShapeSpecListContext* Fortran90Parser::deferredShapeSpecList() {
@@ -14519,6 +15614,14 @@ void Fortran90Parser::DeferredShapeSpecContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDeferredShapeSpec(this);
+}
+
+
+std::any Fortran90Parser::DeferredShapeSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDeferredShapeSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DeferredShapeSpecContext* Fortran90Parser::deferredShapeSpec() {
@@ -14628,6 +15731,14 @@ void Fortran90Parser::TypeSpecContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitTypeSpec(this);
+}
+
+
+std::any Fortran90Parser::TypeSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTypeSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::TypeSpecContext* Fortran90Parser::typeSpec() {
@@ -14820,6 +15931,14 @@ void Fortran90Parser::KindSelectorContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitKindSelector(this);
 }
 
+
+std::any Fortran90Parser::KindSelectorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitKindSelector(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::KindSelectorContext* Fortran90Parser::kindSelector() {
   KindSelectorContext *_localctx = _tracker.createInstance<KindSelectorContext>(_ctx, getState());
   enterRule(_localctx, 276, Fortran90Parser::RuleKindSelector);
@@ -14900,6 +16019,14 @@ void Fortran90Parser::TypeNameContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitTypeName(this);
+}
+
+
+std::any Fortran90Parser::TypeNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTypeName(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::TypeNameContext* Fortran90Parser::typeName() {
@@ -14985,6 +16112,14 @@ void Fortran90Parser::CharSelectorContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCharSelector(this);
+}
+
+
+std::any Fortran90Parser::CharSelectorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCharSelector(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CharSelectorContext* Fortran90Parser::charSelector() {
@@ -15142,6 +16277,14 @@ void Fortran90Parser::LengthSelectorContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitLengthSelector(this);
 }
 
+
+std::any Fortran90Parser::LengthSelectorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLengthSelector(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::LengthSelectorContext* Fortran90Parser::lengthSelector() {
   LengthSelectorContext *_localctx = _tracker.createInstance<LengthSelectorContext>(_ctx, getState());
   enterRule(_localctx, 282, Fortran90Parser::RuleLengthSelector);
@@ -15228,6 +16371,14 @@ void Fortran90Parser::CharLengthContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCharLength(this);
+}
+
+
+std::any Fortran90Parser::CharLengthContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCharLength(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CharLengthContext* Fortran90Parser::charLength() {
@@ -15342,6 +16493,14 @@ void Fortran90Parser::ConstantContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitConstant(this);
+}
+
+
+std::any Fortran90Parser::ConstantContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitConstant(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ConstantContext* Fortran90Parser::constant() {
@@ -15499,6 +16658,14 @@ void Fortran90Parser::BozLiteralConstantContext::exitRule(tree::ParseTreeListene
     parserListener->exitBozLiteralConstant(this);
 }
 
+
+std::any Fortran90Parser::BozLiteralConstantContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBozLiteralConstant(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::BozLiteralConstantContext* Fortran90Parser::bozLiteralConstant() {
   BozLiteralConstantContext *_localctx = _tracker.createInstance<BozLiteralConstantContext>(_ctx, getState());
   enterRule(_localctx, 288, Fortran90Parser::RuleBozLiteralConstant);
@@ -15573,6 +16740,14 @@ void Fortran90Parser::StructureConstructorContext::exitRule(tree::ParseTreeListe
     parserListener->exitStructureConstructor(this);
 }
 
+
+std::any Fortran90Parser::StructureConstructorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitStructureConstructor(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::StructureConstructorContext* Fortran90Parser::structureConstructor() {
   StructureConstructorContext *_localctx = _tracker.createInstance<StructureConstructorContext>(_ctx, getState());
   enterRule(_localctx, 290, Fortran90Parser::RuleStructureConstructor);
@@ -15640,6 +16815,14 @@ void Fortran90Parser::ExprListContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitExprList(this);
 }
 
+
+std::any Fortran90Parser::ExprListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExprList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ExprListContext* Fortran90Parser::exprList() {
   ExprListContext *_localctx = _tracker.createInstance<ExprListContext>(_ctx, getState());
   enterRule(_localctx, 292, Fortran90Parser::RuleExprList);
@@ -15698,6 +16881,14 @@ void Fortran90Parser::NamedConstantUseContext::exitRule(tree::ParseTreeListener 
     parserListener->exitNamedConstantUse(this);
 }
 
+
+std::any Fortran90Parser::NamedConstantUseContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNamedConstantUse(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::NamedConstantUseContext* Fortran90Parser::namedConstantUse() {
   NamedConstantUseContext *_localctx = _tracker.createInstance<NamedConstantUseContext>(_ctx, getState());
   enterRule(_localctx, 294, Fortran90Parser::RuleNamedConstantUse);
@@ -15753,6 +16944,14 @@ void Fortran90Parser::TypeParamValueContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitTypeParamValue(this);
+}
+
+
+std::any Fortran90Parser::TypeParamValueContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTypeParamValue(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::TypeParamValueContext* Fortran90Parser::typeParamValue() {
@@ -15981,6 +17180,14 @@ void Fortran90Parser::ModuleStmtContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitModuleStmt(this);
 }
 
+
+std::any Fortran90Parser::ModuleStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitModuleStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ModuleStmtContext* Fortran90Parser::moduleStmt() {
   ModuleStmtContext *_localctx = _tracker.createInstance<ModuleStmtContext>(_ctx, getState());
   enterRule(_localctx, 298, Fortran90Parser::RuleModuleStmt);
@@ -16036,6 +17243,14 @@ void Fortran90Parser::ModuleNameContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitModuleName(this);
 }
 
+
+std::any Fortran90Parser::ModuleNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitModuleName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ModuleNameContext* Fortran90Parser::moduleName() {
   ModuleNameContext *_localctx = _tracker.createInstance<ModuleNameContext>(_ctx, getState());
   enterRule(_localctx, 300, Fortran90Parser::RuleModuleName);
@@ -16087,6 +17302,14 @@ void Fortran90Parser::IdentContext::exitRule(tree::ParseTreeListener *listener) 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitIdent(this);
+}
+
+
+std::any Fortran90Parser::IdentContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIdent(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::IdentContext* Fortran90Parser::ident() {
@@ -16152,6 +17375,13 @@ void Fortran90Parser::ComplexSubmoduleContext::exitRule(tree::ParseTreeListener 
   if (parserListener != nullptr)
     parserListener->exitComplexSubmodule(this);
 }
+
+std::any Fortran90Parser::ComplexSubmoduleContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComplexSubmodule(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- ComplexSpecPartContext ------------------------------------------------------------------
 
 Fortran90Parser::ModuleBodyContext* Fortran90Parser::ComplexSpecPartContext::moduleBody() {
@@ -16174,6 +17404,13 @@ void Fortran90Parser::ComplexSpecPartContext::exitRule(tree::ParseTreeListener *
   if (parserListener != nullptr)
     parserListener->exitComplexSpecPart(this);
 }
+
+std::any Fortran90Parser::ComplexSpecPartContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComplexSpecPart(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- SubmoduleStmtContext ------------------------------------------------------------------
 
 Fortran90Parser::ModuleSubprogramPartConstructContext* Fortran90Parser::SubmoduleStmtContext::moduleSubprogramPartConstruct() {
@@ -16192,6 +17429,13 @@ void Fortran90Parser::SubmoduleStmtContext::exitRule(tree::ParseTreeListener *li
   if (parserListener != nullptr)
     parserListener->exitSubmoduleStmt(this);
 }
+
+std::any Fortran90Parser::SubmoduleStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubmoduleStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- SpecPartStmtContext ------------------------------------------------------------------
 
 Fortran90Parser::SpecificationPartConstructContext* Fortran90Parser::SpecPartStmtContext::specificationPartConstruct() {
@@ -16209,6 +17453,13 @@ void Fortran90Parser::SpecPartStmtContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSpecPartStmt(this);
+}
+
+std::any Fortran90Parser::SpecPartStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSpecPartStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ModuleBodyContext* Fortran90Parser::moduleBody() {
@@ -16345,6 +17596,14 @@ void Fortran90Parser::ModuleSubprogramPartConstructContext::exitRule(tree::Parse
     parserListener->exitModuleSubprogramPartConstruct(this);
 }
 
+
+std::any Fortran90Parser::ModuleSubprogramPartConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitModuleSubprogramPartConstruct(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ModuleSubprogramPartConstructContext* Fortran90Parser::moduleSubprogramPartConstruct() {
   ModuleSubprogramPartConstructContext *_localctx = _tracker.createInstance<ModuleSubprogramPartConstructContext>(_ctx, getState());
   enterRule(_localctx, 306, Fortran90Parser::RuleModuleSubprogramPartConstruct);
@@ -16425,6 +17684,14 @@ void Fortran90Parser::ContainsStmtContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitContainsStmt(this);
 }
 
+
+std::any Fortran90Parser::ContainsStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitContainsStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ContainsStmtContext* Fortran90Parser::containsStmt() {
   ContainsStmtContext *_localctx = _tracker.createInstance<ContainsStmtContext>(_ctx, getState());
   enterRule(_localctx, 308, Fortran90Parser::RuleContainsStmt);
@@ -16480,6 +17747,14 @@ void Fortran90Parser::ModuleSubprogramContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitModuleSubprogram(this);
+}
+
+
+std::any Fortran90Parser::ModuleSubprogramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitModuleSubprogram(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ModuleSubprogramContext* Fortran90Parser::moduleSubprogram() {
@@ -16560,6 +17835,14 @@ void Fortran90Parser::FunctionSubprogramContext::exitRule(tree::ParseTreeListene
     parserListener->exitFunctionSubprogram(this);
 }
 
+
+std::any Fortran90Parser::FunctionSubprogramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionSubprogram(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FunctionSubprogramContext* Fortran90Parser::functionSubprogram() {
   FunctionSubprogramContext *_localctx = _tracker.createInstance<FunctionSubprogramContext>(_ctx, getState());
   enterRule(_localctx, 312, Fortran90Parser::RuleFunctionSubprogram);
@@ -16615,6 +17898,14 @@ void Fortran90Parser::FunctionNameContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionName(this);
+}
+
+
+std::any Fortran90Parser::FunctionNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionName(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::FunctionNameContext* Fortran90Parser::functionName() {
@@ -16696,6 +17987,14 @@ void Fortran90Parser::FunctionRangeContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionRange(this);
+}
+
+
+std::any Fortran90Parser::FunctionRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionRange(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::FunctionRangeContext* Fortran90Parser::functionRange() {
@@ -16840,6 +18139,14 @@ void Fortran90Parser::BodyContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitBody(this);
 }
 
+
+std::any Fortran90Parser::BodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBody(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::BodyContext* Fortran90Parser::body() {
   BodyContext *_localctx = _tracker.createInstance<BodyContext>(_ctx, getState());
   enterRule(_localctx, 318, Fortran90Parser::RuleBody);
@@ -16912,6 +18219,14 @@ void Fortran90Parser::BodyConstructContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitBodyConstruct(this);
+}
+
+
+std::any Fortran90Parser::BodyConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBodyConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::BodyConstructContext* Fortran90Parser::bodyConstruct() {
@@ -16998,6 +18313,14 @@ void Fortran90Parser::ExecutableConstructContext::exitRule(tree::ParseTreeListen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExecutableConstruct(this);
+}
+
+
+std::any Fortran90Parser::ExecutableConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExecutableConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ExecutableConstructContext* Fortran90Parser::executableConstruct() {
@@ -17099,6 +18422,14 @@ void Fortran90Parser::WhereConstructContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitWhereConstruct(this);
 }
 
+
+std::any Fortran90Parser::WhereConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitWhereConstruct(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::WhereConstructContext* Fortran90Parser::whereConstruct() {
   WhereConstructContext *_localctx = _tracker.createInstance<WhereConstructContext>(_ctx, getState());
   enterRule(_localctx, 324, Fortran90Parser::RuleWhereConstruct);
@@ -17183,6 +18514,14 @@ void Fortran90Parser::ElseWhereContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitElseWhere(this);
+}
+
+
+std::any Fortran90Parser::ElseWhereContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitElseWhere(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -17272,6 +18611,14 @@ void Fortran90Parser::ElsewhereStmtContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitElsewhereStmt(this);
 }
 
+
+std::any Fortran90Parser::ElsewhereStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitElsewhereStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ElsewhereStmtContext* Fortran90Parser::elsewhereStmt() {
   ElsewhereStmtContext *_localctx = _tracker.createInstance<ElsewhereStmtContext>(_ctx, getState());
   enterRule(_localctx, 328, Fortran90Parser::RuleElsewhereStmt);
@@ -17331,6 +18678,14 @@ void Fortran90Parser::EndWhereStmtContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndWhereStmt(this);
+}
+
+
+std::any Fortran90Parser::EndWhereStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndWhereStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndWhereStmtContext* Fortran90Parser::endWhereStmt() {
@@ -17411,6 +18766,14 @@ void Fortran90Parser::WhereContext::exitRule(tree::ParseTreeListener *listener) 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitWhere(this);
+}
+
+
+std::any Fortran90Parser::WhereContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitWhere(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -17510,6 +18873,14 @@ void Fortran90Parser::WhereConstructStmtContext::exitRule(tree::ParseTreeListene
     parserListener->exitWhereConstructStmt(this);
 }
 
+
+std::any Fortran90Parser::WhereConstructStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitWhereConstructStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::WhereConstructStmtContext* Fortran90Parser::whereConstructStmt() {
   WhereConstructStmtContext *_localctx = _tracker.createInstance<WhereConstructStmtContext>(_ctx, getState());
   enterRule(_localctx, 334, Fortran90Parser::RuleWhereConstructStmt);
@@ -17567,6 +18938,14 @@ void Fortran90Parser::MaskExprContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitMaskExpr(this);
+}
+
+
+std::any Fortran90Parser::MaskExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitMaskExpr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::MaskExprContext* Fortran90Parser::maskExpr() {
@@ -17652,6 +19031,14 @@ void Fortran90Parser::CaseConstructContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCaseConstruct(this);
+}
+
+
+std::any Fortran90Parser::CaseConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCaseConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CaseConstructContext* Fortran90Parser::caseConstruct() {
@@ -17786,6 +19173,14 @@ void Fortran90Parser::SelectCaseRangeContext::exitRule(tree::ParseTreeListener *
     parserListener->exitSelectCaseRange(this);
 }
 
+
+std::any Fortran90Parser::SelectCaseRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSelectCaseRange(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SelectCaseRangeContext* Fortran90Parser::selectCaseRange() {
   SelectCaseRangeContext *_localctx = _tracker.createInstance<SelectCaseRangeContext>(_ctx, getState());
   enterRule(_localctx, 340, Fortran90Parser::RuleSelectCaseRange);
@@ -17869,6 +19264,14 @@ void Fortran90Parser::EndSelectStmtContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndSelectStmt(this);
+}
+
+
+std::any Fortran90Parser::EndSelectStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndSelectStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndSelectStmtContext* Fortran90Parser::endSelectStmt() {
@@ -17978,6 +19381,14 @@ void Fortran90Parser::SelectCaseBodyContext::exitRule(tree::ParseTreeListener *l
 }
 
 
+std::any Fortran90Parser::SelectCaseBodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSelectCaseBody(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+
 Fortran90Parser::SelectCaseBodyContext* Fortran90Parser::selectCaseBody() {
    return selectCaseBody(0);
 }
@@ -18064,6 +19475,14 @@ void Fortran90Parser::CaseBodyConstructContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCaseBodyConstruct(this);
+}
+
+
+std::any Fortran90Parser::CaseBodyConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCaseBodyConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CaseBodyConstructContext* Fortran90Parser::caseBodyConstruct() {
@@ -18176,6 +19595,14 @@ void Fortran90Parser::CaseStmtContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitCaseStmt(this);
 }
 
+
+std::any Fortran90Parser::CaseStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCaseStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CaseStmtContext* Fortran90Parser::caseStmt() {
   CaseStmtContext *_localctx = _tracker.createInstance<CaseStmtContext>(_ctx, getState());
   enterRule(_localctx, 348, Fortran90Parser::RuleCaseStmt);
@@ -18264,6 +19691,14 @@ void Fortran90Parser::CaseSelectorContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitCaseSelector(this);
 }
 
+
+std::any Fortran90Parser::CaseSelectorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCaseSelector(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CaseSelectorContext* Fortran90Parser::caseSelector() {
   CaseSelectorContext *_localctx = _tracker.createInstance<CaseSelectorContext>(_ctx, getState());
   enterRule(_localctx, 350, Fortran90Parser::RuleCaseSelector);
@@ -18340,6 +19775,14 @@ void Fortran90Parser::CaseValueRangeListContext::exitRule(tree::ParseTreeListene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCaseValueRangeList(this);
+}
+
+
+std::any Fortran90Parser::CaseValueRangeListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCaseValueRangeList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CaseValueRangeListContext* Fortran90Parser::caseValueRangeList() {
@@ -18421,6 +19864,13 @@ void Fortran90Parser::MidlleColonExpressionContext::exitRule(tree::ParseTreeList
   if (parserListener != nullptr)
     parserListener->exitMidlleColonExpression(this);
 }
+
+std::any Fortran90Parser::MidlleColonExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitMidlleColonExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- LitteralExpressionContext ------------------------------------------------------------------
 
 Fortran90Parser::ExpressionContext* Fortran90Parser::LitteralExpressionContext::expression() {
@@ -18438,6 +19888,13 @@ void Fortran90Parser::LitteralExpressionContext::exitRule(tree::ParseTreeListene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLitteralExpression(this);
+}
+
+std::any Fortran90Parser::LitteralExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLitteralExpression(this);
+  else
+    return visitor->visitChildren(this);
 }
 //----------------- AfterColonExpressionContext ------------------------------------------------------------------
 
@@ -18461,6 +19918,13 @@ void Fortran90Parser::AfterColonExpressionContext::exitRule(tree::ParseTreeListe
   if (parserListener != nullptr)
     parserListener->exitAfterColonExpression(this);
 }
+
+std::any Fortran90Parser::AfterColonExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAfterColonExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
 //----------------- BeforeColonExpressionContext ------------------------------------------------------------------
 
 tree::TerminalNode* Fortran90Parser::BeforeColonExpressionContext::COLON() {
@@ -18482,6 +19946,13 @@ void Fortran90Parser::BeforeColonExpressionContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitBeforeColonExpression(this);
+}
+
+std::any Fortran90Parser::BeforeColonExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBeforeColonExpression(this);
+  else
+    return visitor->visitChildren(this);
 }
 Fortran90Parser::CaseValueRangeContext* Fortran90Parser::caseValueRange() {
   CaseValueRangeContext *_localctx = _tracker.createInstance<CaseValueRangeContext>(_ctx, getState());
@@ -18599,6 +20070,14 @@ void Fortran90Parser::IfConstructContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitIfConstruct(this);
 }
 
+
+std::any Fortran90Parser::IfConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIfConstruct(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IfConstructContext* Fortran90Parser::ifConstruct() {
   IfConstructContext *_localctx = _tracker.createInstance<IfConstructContext>(_ctx, getState());
   enterRule(_localctx, 356, Fortran90Parser::RuleIfConstruct);
@@ -18694,6 +20173,14 @@ void Fortran90Parser::IfThenStmtContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitIfThenStmt(this);
 }
 
+
+std::any Fortran90Parser::IfThenStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIfThenStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IfThenStmtContext* Fortran90Parser::ifThenStmt() {
   IfThenStmtContext *_localctx = _tracker.createInstance<IfThenStmtContext>(_ctx, getState());
   enterRule(_localctx, 358, Fortran90Parser::RuleIfThenStmt);
@@ -18757,6 +20244,14 @@ void Fortran90Parser::ConditionalBodyContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitConditionalBody(this);
+}
+
+
+std::any Fortran90Parser::ConditionalBodyContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitConditionalBody(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ConditionalBodyContext* Fortran90Parser::conditionalBody() {
@@ -18825,6 +20320,14 @@ void Fortran90Parser::ElseIfConstructContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitElseIfConstruct(this);
+}
+
+
+std::any Fortran90Parser::ElseIfConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitElseIfConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ElseIfConstructContext* Fortran90Parser::elseIfConstruct() {
@@ -18904,6 +20407,14 @@ void Fortran90Parser::ElseIfStmtContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitElseIfStmt(this);
+}
+
+
+std::any Fortran90Parser::ElseIfStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitElseIfStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ElseIfStmtContext* Fortran90Parser::elseIfStmt() {
@@ -18998,6 +20509,14 @@ void Fortran90Parser::ElseConstructContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitElseConstruct(this);
 }
 
+
+std::any Fortran90Parser::ElseConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitElseConstruct(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ElseConstructContext* Fortran90Parser::elseConstruct() {
   ElseConstructContext *_localctx = _tracker.createInstance<ElseConstructContext>(_ctx, getState());
   enterRule(_localctx, 366, Fortran90Parser::RuleElseConstruct);
@@ -19051,6 +20570,14 @@ void Fortran90Parser::ElseStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitElseStmt(this);
+}
+
+
+std::any Fortran90Parser::ElseStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitElseStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ElseStmtContext* Fortran90Parser::elseStmt() {
@@ -19112,6 +20639,14 @@ void Fortran90Parser::EndIfStmtContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndIfStmt(this);
+}
+
+
+std::any Fortran90Parser::EndIfStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndIfStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndIfStmtContext* Fortran90Parser::endIfStmt() {
@@ -19188,6 +20723,14 @@ void Fortran90Parser::DoConstructContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDoConstruct(this);
+}
+
+
+std::any Fortran90Parser::DoConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDoConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DoConstructContext* Fortran90Parser::doConstruct() {
@@ -19278,6 +20821,14 @@ void Fortran90Parser::BlockDoConstructContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitBlockDoConstruct(this);
+}
+
+
+std::any Fortran90Parser::BlockDoConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBlockDoConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::BlockDoConstructContext* Fortran90Parser::blockDoConstruct() {
@@ -19382,6 +20933,14 @@ void Fortran90Parser::EndDoStmtContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitEndDoStmt(this);
 }
 
+
+std::any Fortran90Parser::EndDoStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndDoStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EndDoStmtContext* Fortran90Parser::endDoStmt() {
   EndDoStmtContext *_localctx = _tracker.createInstance<EndDoStmtContext>(_ctx, getState());
   enterRule(_localctx, 376, Fortran90Parser::RuleEndDoStmt);
@@ -19480,6 +21039,14 @@ void Fortran90Parser::EndNameContext::exitRule(tree::ParseTreeListener *listener
     parserListener->exitEndName(this);
 }
 
+
+std::any Fortran90Parser::EndNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EndNameContext* Fortran90Parser::endName() {
   EndNameContext *_localctx = _tracker.createInstance<EndNameContext>(_ctx, getState());
   enterRule(_localctx, 378, Fortran90Parser::RuleEndName);
@@ -19535,6 +21102,14 @@ void Fortran90Parser::NameColonContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitNameColon(this);
+}
+
+
+std::any Fortran90Parser::NameColonContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNameColon(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::NameColonContext* Fortran90Parser::nameColon() {
@@ -19616,6 +21191,14 @@ void Fortran90Parser::LabelDoStmtContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitLabelDoStmt(this);
 }
 
+
+std::any Fortran90Parser::LabelDoStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLabelDoStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::LabelDoStmtContext* Fortran90Parser::labelDoStmt() {
   LabelDoStmtContext *_localctx = _tracker.createInstance<LabelDoStmtContext>(_ctx, getState());
   enterRule(_localctx, 382, Fortran90Parser::RuleLabelDoStmt);
@@ -19690,6 +21273,14 @@ void Fortran90Parser::DoLblRefContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitDoLblRef(this);
 }
 
+
+std::any Fortran90Parser::DoLblRefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDoLblRef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DoLblRefContext* Fortran90Parser::doLblRef() {
   DoLblRefContext *_localctx = _tracker.createInstance<DoLblRefContext>(_ctx, getState());
   enterRule(_localctx, 384, Fortran90Parser::RuleDoLblRef);
@@ -19743,6 +21334,14 @@ void Fortran90Parser::DoLblDefContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitDoLblDef(this);
 }
 
+
+std::any Fortran90Parser::DoLblDefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDoLblDef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DoLblDefContext* Fortran90Parser::doLblDef() {
   DoLblDefContext *_localctx = _tracker.createInstance<DoLblDefContext>(_ctx, getState());
   enterRule(_localctx, 386, Fortran90Parser::RuleDoLblDef);
@@ -19794,6 +21393,14 @@ void Fortran90Parser::DoLabelStmtContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDoLabelStmt(this);
+}
+
+
+std::any Fortran90Parser::DoLabelStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDoLabelStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DoLabelStmtContext* Fortran90Parser::doLabelStmt() {
@@ -19863,6 +21470,14 @@ void Fortran90Parser::ExecutionPartConstructContext::exitRule(tree::ParseTreeLis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExecutionPartConstruct(this);
+}
+
+
+std::any Fortran90Parser::ExecutionPartConstructContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExecutionPartConstruct(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ExecutionPartConstructContext* Fortran90Parser::executionPartConstruct() {
@@ -19964,6 +21579,14 @@ void Fortran90Parser::DoubleDoStmtContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitDoubleDoStmt(this);
 }
 
+
+std::any Fortran90Parser::DoubleDoStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDoubleDoStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DoubleDoStmtContext* Fortran90Parser::doubleDoStmt() {
   DoubleDoStmtContext *_localctx = _tracker.createInstance<DoubleDoStmtContext>(_ctx, getState());
   enterRule(_localctx, 392, Fortran90Parser::RuleDoubleDoStmt);
@@ -20035,6 +21658,14 @@ void Fortran90Parser::DataStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDataStmt(this);
+}
+
+
+std::any Fortran90Parser::DataStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDataStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DataStmtContext* Fortran90Parser::dataStmt() {
@@ -20118,6 +21749,14 @@ void Fortran90Parser::DataStmtSetContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitDataStmtSet(this);
 }
 
+
+std::any Fortran90Parser::DataStmtSetContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDataStmtSet(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DataStmtSetContext* Fortran90Parser::dataStmtSet() {
   DataStmtSetContext *_localctx = _tracker.createInstance<DataStmtSetContext>(_ctx, getState());
   enterRule(_localctx, 396, Fortran90Parser::RuleDataStmtSet);
@@ -20187,6 +21826,14 @@ void Fortran90Parser::Dse1Context::exitRule(tree::ParseTreeListener *listener) {
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDse1(this);
+}
+
+
+std::any Fortran90Parser::Dse1Context::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDse1(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::Dse1Context* Fortran90Parser::dse1() {
@@ -20273,6 +21920,14 @@ void Fortran90Parser::Dse2Context::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitDse2(this);
 }
 
+
+std::any Fortran90Parser::Dse2Context::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDse2(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::Dse2Context* Fortran90Parser::dse2() {
   Dse2Context *_localctx = _tracker.createInstance<Dse2Context>(_ctx, getState());
   enterRule(_localctx, 400, Fortran90Parser::RuleDse2);
@@ -20351,6 +22006,14 @@ void Fortran90Parser::DataStmtValueContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDataStmtValue(this);
+}
+
+
+std::any Fortran90Parser::DataStmtValueContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDataStmtValue(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DataStmtValueContext* Fortran90Parser::dataStmtValue() {
@@ -20442,6 +22105,14 @@ void Fortran90Parser::DataStmtObjectContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitDataStmtObject(this);
 }
 
+
+std::any Fortran90Parser::DataStmtObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDataStmtObject(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DataStmtObjectContext* Fortran90Parser::dataStmtObject() {
   DataStmtObjectContext *_localctx = _tracker.createInstance<DataStmtObjectContext>(_ctx, getState());
   enterRule(_localctx, 404, Fortran90Parser::RuleDataStmtObject);
@@ -20518,6 +22189,14 @@ void Fortran90Parser::VariableContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitVariable(this);
+}
+
+
+std::any Fortran90Parser::VariableContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitVariable(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::VariableContext* Fortran90Parser::variable() {
@@ -20607,6 +22286,14 @@ void Fortran90Parser::SubscriptListRefContext::exitRule(tree::ParseTreeListener 
     parserListener->exitSubscriptListRef(this);
 }
 
+
+std::any Fortran90Parser::SubscriptListRefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubscriptListRef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubscriptListRefContext* Fortran90Parser::subscriptListRef() {
   SubscriptListRefContext *_localctx = _tracker.createInstance<SubscriptListRefContext>(_ctx, getState());
   enterRule(_localctx, 408, Fortran90Parser::RuleSubscriptListRef);
@@ -20666,6 +22353,14 @@ void Fortran90Parser::SubscriptListContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubscriptList(this);
+}
+
+
+std::any Fortran90Parser::SubscriptListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubscriptList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SubscriptListContext* Fortran90Parser::subscriptList() {
@@ -20733,6 +22428,14 @@ void Fortran90Parser::SubscriptContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitSubscript(this);
 }
 
+
+std::any Fortran90Parser::SubscriptContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubscript(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubscriptContext* Fortran90Parser::subscript() {
   SubscriptContext *_localctx = _tracker.createInstance<SubscriptContext>(_ctx, getState());
   enterRule(_localctx, 412, Fortran90Parser::RuleSubscript);
@@ -20796,6 +22499,14 @@ void Fortran90Parser::SubstringRangeContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubstringRange(this);
+}
+
+
+std::any Fortran90Parser::SubstringRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubstringRange(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SubstringRangeContext* Fortran90Parser::substringRange() {
@@ -20897,6 +22608,14 @@ void Fortran90Parser::DataImpliedDoContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDataImpliedDo(this);
+}
+
+
+std::any Fortran90Parser::DataImpliedDoContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDataImpliedDo(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DataImpliedDoContext* Fortran90Parser::dataImpliedDo() {
@@ -21009,6 +22728,14 @@ void Fortran90Parser::DataIDoObjectListContext::exitRule(tree::ParseTreeListener
     parserListener->exitDataIDoObjectList(this);
 }
 
+
+std::any Fortran90Parser::DataIDoObjectListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDataIDoObjectList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DataIDoObjectListContext* Fortran90Parser::dataIDoObjectList() {
   DataIDoObjectListContext *_localctx = _tracker.createInstance<DataIDoObjectListContext>(_ctx, getState());
   enterRule(_localctx, 418, Fortran90Parser::RuleDataIDoObjectList);
@@ -21077,6 +22804,14 @@ void Fortran90Parser::DataIDoObjectContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDataIDoObject(this);
+}
+
+
+std::any Fortran90Parser::DataIDoObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDataIDoObject(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DataIDoObjectContext* Fortran90Parser::dataIDoObject() {
@@ -21162,6 +22897,14 @@ void Fortran90Parser::StructureComponentContext::exitRule(tree::ParseTreeListene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitStructureComponent(this);
+}
+
+
+std::any Fortran90Parser::StructureComponentContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitStructureComponent(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -21267,6 +23010,14 @@ void Fortran90Parser::FieldSelectorContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitFieldSelector(this);
 }
 
+
+std::any Fortran90Parser::FieldSelectorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFieldSelector(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FieldSelectorContext* Fortran90Parser::fieldSelector() {
   FieldSelectorContext *_localctx = _tracker.createInstance<FieldSelectorContext>(_ctx, getState());
   enterRule(_localctx, 424, Fortran90Parser::RuleFieldSelector);
@@ -21363,6 +23114,14 @@ void Fortran90Parser::ArrayElementContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitArrayElement(this);
 }
 
+
+std::any Fortran90Parser::ArrayElementContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArrayElement(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ArrayElementContext* Fortran90Parser::arrayElement() {
   ArrayElementContext *_localctx = _tracker.createInstance<ArrayElementContext>(_ctx, getState());
   enterRule(_localctx, 426, Fortran90Parser::RuleArrayElement);
@@ -21445,6 +23204,14 @@ void Fortran90Parser::ImpliedDoVariableContext::exitRule(tree::ParseTreeListener
     parserListener->exitImpliedDoVariable(this);
 }
 
+
+std::any Fortran90Parser::ImpliedDoVariableContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitImpliedDoVariable(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ImpliedDoVariableContext* Fortran90Parser::impliedDoVariable() {
   ImpliedDoVariableContext *_localctx = _tracker.createInstance<ImpliedDoVariableContext>(_ctx, getState());
   enterRule(_localctx, 428, Fortran90Parser::RuleImpliedDoVariable);
@@ -21500,6 +23267,14 @@ void Fortran90Parser::CommaLoopControlContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCommaLoopControl(this);
+}
+
+
+std::any Fortran90Parser::CommaLoopControlContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCommaLoopControl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CommaLoopControlContext* Fortran90Parser::commaLoopControl() {
@@ -21594,6 +23369,14 @@ void Fortran90Parser::LoopControlContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLoopControl(this);
+}
+
+
+std::any Fortran90Parser::LoopControlContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLoopControl(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::LoopControlContext* Fortran90Parser::loopControl() {
@@ -21693,6 +23476,14 @@ void Fortran90Parser::VariableNameContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitVariableName(this);
 }
 
+
+std::any Fortran90Parser::VariableNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitVariableName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::VariableNameContext* Fortran90Parser::variableName() {
   VariableNameContext *_localctx = _tracker.createInstance<VariableNameContext>(_ctx, getState());
   enterRule(_localctx, 434, Fortran90Parser::RuleVariableName);
@@ -21748,6 +23539,14 @@ void Fortran90Parser::CommaExprContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCommaExpr(this);
+}
+
+
+std::any Fortran90Parser::CommaExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCommaExpr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CommaExprContext* Fortran90Parser::commaExpr() {
@@ -21807,6 +23606,14 @@ void Fortran90Parser::SemicolonStmtContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSemicolonStmt(this);
+}
+
+
+std::any Fortran90Parser::SemicolonStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSemicolonStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SemicolonStmtContext* Fortran90Parser::semicolonStmt() {
@@ -21978,6 +23785,14 @@ void Fortran90Parser::ActionStmtContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitActionStmt(this);
+}
+
+
+std::any Fortran90Parser::ActionStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitActionStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ActionStmtContext* Fortran90Parser::actionStmt() {
@@ -22262,6 +24077,14 @@ void Fortran90Parser::WhereStmtContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitWhereStmt(this);
 }
 
+
+std::any Fortran90Parser::WhereStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitWhereStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::WhereStmtContext* Fortran90Parser::whereStmt() {
   WhereStmtContext *_localctx = _tracker.createInstance<WhereStmtContext>(_ctx, getState());
   enterRule(_localctx, 442, Fortran90Parser::RuleWhereStmt);
@@ -22341,6 +24164,14 @@ void Fortran90Parser::PointerAssignmentStmtContext::exitRule(tree::ParseTreeList
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitPointerAssignmentStmt(this);
+}
+
+
+std::any Fortran90Parser::PointerAssignmentStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPointerAssignmentStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::PointerAssignmentStmtContext* Fortran90Parser::pointerAssignmentStmt() {
@@ -22434,6 +24265,14 @@ void Fortran90Parser::TargetContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitTarget(this);
 }
 
+
+std::any Fortran90Parser::TargetContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitTarget(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::TargetContext* Fortran90Parser::target() {
   TargetContext *_localctx = _tracker.createInstance<TargetContext>(_ctx, getState());
   enterRule(_localctx, 446, Fortran90Parser::RuleTarget);
@@ -22497,6 +24336,14 @@ void Fortran90Parser::NullifyStmtContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitNullifyStmt(this);
+}
+
+
+std::any Fortran90Parser::NullifyStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNullifyStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::NullifyStmtContext* Fortran90Parser::nullifyStmt() {
@@ -22570,6 +24417,14 @@ void Fortran90Parser::PointerObjectListContext::exitRule(tree::ParseTreeListener
     parserListener->exitPointerObjectList(this);
 }
 
+
+std::any Fortran90Parser::PointerObjectListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPointerObjectList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::PointerObjectListContext* Fortran90Parser::pointerObjectList() {
   PointerObjectListContext *_localctx = _tracker.createInstance<PointerObjectListContext>(_ctx, getState());
   enterRule(_localctx, 450, Fortran90Parser::RulePointerObjectList);
@@ -22638,6 +24493,14 @@ void Fortran90Parser::PointerObjectContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitPointerObject(this);
+}
+
+
+std::any Fortran90Parser::PointerObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPointerObject(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::PointerObjectContext* Fortran90Parser::pointerObject() {
@@ -22728,6 +24591,14 @@ void Fortran90Parser::PointerFieldContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitPointerField(this);
+}
+
+
+std::any Fortran90Parser::PointerFieldContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPointerField(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -22831,6 +24702,14 @@ void Fortran90Parser::ExitStmtContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitExitStmt(this);
 }
 
+
+std::any Fortran90Parser::ExitStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExitStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ExitStmtContext* Fortran90Parser::exitStmt() {
   ExitStmtContext *_localctx = _tracker.createInstance<ExitStmtContext>(_ctx, getState());
   enterRule(_localctx, 456, Fortran90Parser::RuleExitStmt);
@@ -22923,6 +24802,14 @@ void Fortran90Parser::DeallocateStmtContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitDeallocateStmt(this);
+}
+
+
+std::any Fortran90Parser::DeallocateStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDeallocateStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::DeallocateStmtContext* Fortran90Parser::deallocateStmt() {
@@ -23027,6 +24914,14 @@ void Fortran90Parser::AllocateObjectListContext::exitRule(tree::ParseTreeListene
     parserListener->exitAllocateObjectList(this);
 }
 
+
+std::any Fortran90Parser::AllocateObjectListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAllocateObjectList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AllocateObjectListContext* Fortran90Parser::allocateObjectList() {
   AllocateObjectListContext *_localctx = _tracker.createInstance<AllocateObjectListContext>(_ctx, getState());
   enterRule(_localctx, 460, Fortran90Parser::RuleAllocateObjectList);
@@ -23097,6 +24992,14 @@ void Fortran90Parser::CycleStmtContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCycleStmt(this);
+}
+
+
+std::any Fortran90Parser::CycleStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCycleStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CycleStmtContext* Fortran90Parser::cycleStmt() {
@@ -23191,6 +25094,14 @@ void Fortran90Parser::AllocateStmtContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAllocateStmt(this);
+}
+
+
+std::any Fortran90Parser::AllocateStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAllocateStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AllocateStmtContext* Fortran90Parser::allocateStmt() {
@@ -23295,6 +25206,14 @@ void Fortran90Parser::AllocationListContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitAllocationList(this);
 }
 
+
+std::any Fortran90Parser::AllocationListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAllocationList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AllocationListContext* Fortran90Parser::allocationList() {
   AllocationListContext *_localctx = _tracker.createInstance<AllocationListContext>(_ctx, getState());
   enterRule(_localctx, 466, Fortran90Parser::RuleAllocationList);
@@ -23365,6 +25284,14 @@ void Fortran90Parser::AllocationContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAllocation(this);
+}
+
+
+std::any Fortran90Parser::AllocationContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAllocation(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AllocationContext* Fortran90Parser::allocation() {
@@ -23445,6 +25372,14 @@ void Fortran90Parser::AllocateObjectContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAllocateObject(this);
+}
+
+
+std::any Fortran90Parser::AllocateObjectContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAllocateObject(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -23540,6 +25475,14 @@ void Fortran90Parser::AllocatedShapeContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitAllocatedShape(this);
 }
 
+
+std::any Fortran90Parser::AllocatedShapeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAllocatedShape(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AllocatedShapeContext* Fortran90Parser::allocatedShape() {
   AllocatedShapeContext *_localctx = _tracker.createInstance<AllocatedShapeContext>(_ctx, getState());
   enterRule(_localctx, 472, Fortran90Parser::RuleAllocatedShape);
@@ -23603,6 +25546,14 @@ void Fortran90Parser::StopStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitStopStmt(this);
+}
+
+
+std::any Fortran90Parser::StopStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitStopStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::StopStmtContext* Fortran90Parser::stopStmt() {
@@ -23697,6 +25648,14 @@ void Fortran90Parser::WriteStmtContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitWriteStmt(this);
 }
 
+
+std::any Fortran90Parser::WriteStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitWriteStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::WriteStmtContext* Fortran90Parser::writeStmt() {
   WriteStmtContext *_localctx = _tracker.createInstance<WriteStmtContext>(_ctx, getState());
   enterRule(_localctx, 476, Fortran90Parser::RuleWriteStmt);
@@ -23787,6 +25746,14 @@ void Fortran90Parser::IoControlSpecListContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitIoControlSpecList(this);
+}
+
+
+std::any Fortran90Parser::IoControlSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIoControlSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -23920,6 +25887,14 @@ void Fortran90Parser::StmtFunctionStmtContext::exitRule(tree::ParseTreeListener 
     parserListener->exitStmtFunctionStmt(this);
 }
 
+
+std::any Fortran90Parser::StmtFunctionStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitStmtFunctionStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::StmtFunctionStmtContext* Fortran90Parser::stmtFunctionStmt() {
   StmtFunctionStmtContext *_localctx = _tracker.createInstance<StmtFunctionStmtContext>(_ctx, getState());
   enterRule(_localctx, 480, Fortran90Parser::RuleStmtFunctionStmt);
@@ -23989,6 +25964,14 @@ void Fortran90Parser::StmtFunctionRangeContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitStmtFunctionRange(this);
+}
+
+
+std::any Fortran90Parser::StmtFunctionRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitStmtFunctionRange(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::StmtFunctionRangeContext* Fortran90Parser::stmtFunctionRange() {
@@ -24071,6 +26054,14 @@ void Fortran90Parser::SFDummyArgNameListContext::exitRule(tree::ParseTreeListene
     parserListener->exitSFDummyArgNameList(this);
 }
 
+
+std::any Fortran90Parser::SFDummyArgNameListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSFDummyArgNameList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SFDummyArgNameListContext* Fortran90Parser::sFDummyArgNameList() {
   SFDummyArgNameListContext *_localctx = _tracker.createInstance<SFDummyArgNameListContext>(_ctx, getState());
   enterRule(_localctx, 484, Fortran90Parser::RuleSFDummyArgNameList);
@@ -24137,6 +26128,14 @@ void Fortran90Parser::SFDummyArgNameContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitSFDummyArgName(this);
 }
 
+
+std::any Fortran90Parser::SFDummyArgNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSFDummyArgName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SFDummyArgNameContext* Fortran90Parser::sFDummyArgName() {
   SFDummyArgNameContext *_localctx = _tracker.createInstance<SFDummyArgNameContext>(_ctx, getState());
   enterRule(_localctx, 486, Fortran90Parser::RuleSFDummyArgName);
@@ -24192,6 +26191,14 @@ void Fortran90Parser::ReturnStmtContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitReturnStmt(this);
+}
+
+
+std::any Fortran90Parser::ReturnStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitReturnStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ReturnStmtContext* Fortran90Parser::returnStmt() {
@@ -24274,6 +26281,14 @@ void Fortran90Parser::RewindStmtContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitRewindStmt(this);
+}
+
+
+std::any Fortran90Parser::RewindStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRewindStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::RewindStmtContext* Fortran90Parser::rewindStmt() {
@@ -24368,6 +26383,14 @@ void Fortran90Parser::ReadStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitReadStmt(this);
+}
+
+
+std::any Fortran90Parser::ReadStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitReadStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ReadStmtContext* Fortran90Parser::readStmt() {
@@ -24474,6 +26497,14 @@ void Fortran90Parser::CommaInputItemListContext::exitRule(tree::ParseTreeListene
     parserListener->exitCommaInputItemList(this);
 }
 
+
+std::any Fortran90Parser::CommaInputItemListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCommaInputItemList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CommaInputItemListContext* Fortran90Parser::commaInputItemList() {
   CommaInputItemListContext *_localctx = _tracker.createInstance<CommaInputItemListContext>(_ctx, getState());
   enterRule(_localctx, 494, Fortran90Parser::RuleCommaInputItemList);
@@ -24559,6 +26590,14 @@ void Fortran90Parser::RdFmtIdContext::exitRule(tree::ParseTreeListener *listener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitRdFmtId(this);
+}
+
+
+std::any Fortran90Parser::RdFmtIdContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRdFmtId(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::RdFmtIdContext* Fortran90Parser::rdFmtId() {
@@ -24680,6 +26719,14 @@ void Fortran90Parser::RdFmtIdExprContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitRdFmtIdExpr(this);
 }
 
+
+std::any Fortran90Parser::RdFmtIdExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRdFmtIdExpr(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::RdFmtIdExprContext* Fortran90Parser::rdFmtIdExpr() {
   RdFmtIdExprContext *_localctx = _tracker.createInstance<RdFmtIdExprContext>(_ctx, getState());
   enterRule(_localctx, 498, Fortran90Parser::RuleRdFmtIdExpr);
@@ -24747,6 +26794,14 @@ void Fortran90Parser::InputItemListContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitInputItemList(this);
+}
+
+
+std::any Fortran90Parser::InputItemListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInputItemList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::InputItemListContext* Fortran90Parser::inputItemList() {
@@ -24819,6 +26874,14 @@ void Fortran90Parser::InputItemContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitInputItem(this);
+}
+
+
+std::any Fortran90Parser::InputItemContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInputItem(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::InputItemContext* Fortran90Parser::inputItem() {
@@ -25068,6 +27131,14 @@ void Fortran90Parser::InputImpliedDoContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitInputImpliedDo(this);
 }
 
+
+std::any Fortran90Parser::InputImpliedDoContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInputImpliedDo(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::InputImpliedDoContext* Fortran90Parser::inputImpliedDo() {
   InputImpliedDoContext *_localctx = _tracker.createInstance<InputImpliedDoContext>(_ctx, getState());
   enterRule(_localctx, 504, Fortran90Parser::RuleInputImpliedDo);
@@ -25158,6 +27229,14 @@ void Fortran90Parser::RdCtlSpecContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitRdCtlSpec(this);
 }
 
+
+std::any Fortran90Parser::RdCtlSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRdCtlSpec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::RdCtlSpecContext* Fortran90Parser::rdCtlSpec() {
   RdCtlSpecContext *_localctx = _tracker.createInstance<RdCtlSpecContext>(_ctx, getState());
   enterRule(_localctx, 506, Fortran90Parser::RuleRdCtlSpec);
@@ -25242,6 +27321,14 @@ void Fortran90Parser::RdUnitIdContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitRdUnitId(this);
+}
+
+
+std::any Fortran90Parser::RdUnitIdContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRdUnitId(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::RdUnitIdContext* Fortran90Parser::rdUnitId() {
@@ -25336,6 +27423,14 @@ void Fortran90Parser::RdIoCtlSpecListContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitRdIoCtlSpecList(this);
+}
+
+
+std::any Fortran90Parser::RdIoCtlSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRdIoCtlSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -25527,6 +27622,14 @@ void Fortran90Parser::IoControlSpecContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitIoControlSpec(this);
 }
 
+
+std::any Fortran90Parser::IoControlSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIoControlSpec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IoControlSpecContext* Fortran90Parser::ioControlSpec() {
   IoControlSpecContext *_localctx = _tracker.createInstance<IoControlSpecContext>(_ctx, getState());
   enterRule(_localctx, 512, Fortran90Parser::RuleIoControlSpec);
@@ -25705,6 +27808,14 @@ void Fortran90Parser::PrintStmtContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitPrintStmt(this);
 }
 
+
+std::any Fortran90Parser::PrintStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPrintStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::PrintStmtContext* Fortran90Parser::printStmt() {
   PrintStmtContext *_localctx = _tracker.createInstance<PrintStmtContext>(_ctx, getState());
   enterRule(_localctx, 514, Fortran90Parser::RulePrintStmt);
@@ -25785,6 +27896,14 @@ void Fortran90Parser::OutputItemListContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitOutputItemList(this);
+}
+
+
+std::any Fortran90Parser::OutputItemListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOutputItemList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::OutputItemListContext* Fortran90Parser::outputItemList() {
@@ -25871,6 +27990,14 @@ void Fortran90Parser::OutputItemList1Context::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitOutputItemList1(this);
+}
+
+
+std::any Fortran90Parser::OutputItemList1Context::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOutputItemList1(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -26049,6 +28176,14 @@ void Fortran90Parser::OutputImpliedDoContext::exitRule(tree::ParseTreeListener *
     parserListener->exitOutputImpliedDo(this);
 }
 
+
+std::any Fortran90Parser::OutputImpliedDoContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOutputImpliedDo(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::OutputImpliedDoContext* Fortran90Parser::outputImpliedDo() {
   OutputImpliedDoContext *_localctx = _tracker.createInstance<OutputImpliedDoContext>(_ctx, getState());
   enterRule(_localctx, 520, Fortran90Parser::RuleOutputImpliedDo);
@@ -26174,6 +28309,14 @@ void Fortran90Parser::FormatIdentifierContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFormatIdentifier(this);
+}
+
+
+std::any Fortran90Parser::FormatIdentifierContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFormatIdentifier(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::FormatIdentifierContext* Fortran90Parser::formatIdentifier() {
@@ -26404,6 +28547,14 @@ void Fortran90Parser::PauseStmtContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitPauseStmt(this);
 }
 
+
+std::any Fortran90Parser::PauseStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPauseStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::PauseStmtContext* Fortran90Parser::pauseStmt() {
   PauseStmtContext *_localctx = _tracker.createInstance<PauseStmtContext>(_ctx, getState());
   enterRule(_localctx, 524, Fortran90Parser::RulePauseStmt);
@@ -26492,6 +28643,14 @@ void Fortran90Parser::OpenStmtContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitOpenStmt(this);
 }
 
+
+std::any Fortran90Parser::OpenStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOpenStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::OpenStmtContext* Fortran90Parser::openStmt() {
   OpenStmtContext *_localctx = _tracker.createInstance<OpenStmtContext>(_ctx, getState());
   enterRule(_localctx, 526, Fortran90Parser::RuleOpenStmt);
@@ -26565,6 +28724,14 @@ void Fortran90Parser::ConnectSpecListContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitConnectSpecList(this);
+}
+
+
+std::any Fortran90Parser::ConnectSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitConnectSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ConnectSpecListContext* Fortran90Parser::connectSpecList() {
@@ -26723,6 +28890,14 @@ void Fortran90Parser::ConnectSpecContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitConnectSpec(this);
+}
+
+
+std::any Fortran90Parser::ConnectSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitConnectSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ConnectSpecContext* Fortran90Parser::connectSpec() {
@@ -26952,6 +29127,14 @@ void Fortran90Parser::InquireStmtContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitInquireStmt(this);
 }
 
+
+std::any Fortran90Parser::InquireStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInquireStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::InquireStmtContext* Fortran90Parser::inquireStmt() {
   InquireStmtContext *_localctx = _tracker.createInstance<InquireStmtContext>(_ctx, getState());
   enterRule(_localctx, 532, Fortran90Parser::RuleInquireStmt);
@@ -27054,6 +29237,14 @@ void Fortran90Parser::InquireSpecListContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitInquireSpecList(this);
+}
+
+
+std::any Fortran90Parser::InquireSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInquireSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::InquireSpecListContext* Fortran90Parser::inquireSpecList() {
@@ -27262,6 +29453,14 @@ void Fortran90Parser::InquireSpecContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitInquireSpec(this);
+}
+
+
+std::any Fortran90Parser::InquireSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitInquireSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::InquireSpecContext* Fortran90Parser::inquireSpec() {
@@ -27623,6 +29822,14 @@ void Fortran90Parser::AssignedGotoStmtContext::exitRule(tree::ParseTreeListener 
     parserListener->exitAssignedGotoStmt(this);
 }
 
+
+std::any Fortran90Parser::AssignedGotoStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAssignedGotoStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AssignedGotoStmtContext* Fortran90Parser::assignedGotoStmt() {
   AssignedGotoStmtContext *_localctx = _tracker.createInstance<AssignedGotoStmtContext>(_ctx, getState());
   enterRule(_localctx, 538, Fortran90Parser::RuleAssignedGotoStmt);
@@ -27776,6 +29983,14 @@ void Fortran90Parser::VariableCommaContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitVariableComma(this);
 }
 
+
+std::any Fortran90Parser::VariableCommaContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitVariableComma(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::VariableCommaContext* Fortran90Parser::variableComma() {
   VariableCommaContext *_localctx = _tracker.createInstance<VariableCommaContext>(_ctx, getState());
   enterRule(_localctx, 540, Fortran90Parser::RuleVariableComma);
@@ -27841,6 +30056,14 @@ void Fortran90Parser::GotoStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitGotoStmt(this);
+}
+
+
+std::any Fortran90Parser::GotoStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitGotoStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::GotoStmtContext* Fortran90Parser::gotoStmt() {
@@ -27936,6 +30159,14 @@ void Fortran90Parser::ComputedGotoStmtContext::exitRule(tree::ParseTreeListener 
     parserListener->exitComputedGotoStmt(this);
 }
 
+
+std::any Fortran90Parser::ComputedGotoStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComputedGotoStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ComputedGotoStmtContext* Fortran90Parser::computedGotoStmt() {
   ComputedGotoStmtContext *_localctx = _tracker.createInstance<ComputedGotoStmtContext>(_ctx, getState());
   enterRule(_localctx, 544, Fortran90Parser::RuleComputedGotoStmt);
@@ -28016,6 +30247,14 @@ void Fortran90Parser::LblRefListContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLblRefList(this);
+}
+
+
+std::any Fortran90Parser::LblRefListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLblRefList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::LblRefListContext* Fortran90Parser::lblRefList() {
@@ -28106,6 +30345,14 @@ void Fortran90Parser::EndfileStmtContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitEndfileStmt(this);
+}
+
+
+std::any Fortran90Parser::EndfileStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEndfileStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::EndfileStmtContext* Fortran90Parser::endfileStmt() {
@@ -28222,6 +30469,14 @@ void Fortran90Parser::ContinueStmtContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitContinueStmt(this);
 }
 
+
+std::any Fortran90Parser::ContinueStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitContinueStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ContinueStmtContext* Fortran90Parser::continueStmt() {
   ContinueStmtContext *_localctx = _tracker.createInstance<ContinueStmtContext>(_ctx, getState());
   enterRule(_localctx, 550, Fortran90Parser::RuleContinueStmt);
@@ -28285,6 +30540,14 @@ void Fortran90Parser::CloseStmtContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCloseStmt(this);
+}
+
+
+std::any Fortran90Parser::CloseStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCloseStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CloseStmtContext* Fortran90Parser::closeStmt() {
@@ -28360,6 +30623,14 @@ void Fortran90Parser::CloseSpecListContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCloseSpecList(this);
+}
+
+
+std::any Fortran90Parser::CloseSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCloseSpecList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CloseSpecListContext* Fortran90Parser::closeSpecList() {
@@ -28480,6 +30751,14 @@ void Fortran90Parser::CloseSpecContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitCloseSpec(this);
 }
 
+
+std::any Fortran90Parser::CloseSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCloseSpec(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CloseSpecContext* Fortran90Parser::closeSpec() {
   CloseSpecContext *_localctx = _tracker.createInstance<CloseSpecContext>(_ctx, getState());
   enterRule(_localctx, 556, Fortran90Parser::RuleCloseSpec);
@@ -28586,6 +30865,14 @@ void Fortran90Parser::CExpressionContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitCExpression(this);
 }
 
+
+std::any Fortran90Parser::CExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCExpression(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CExpressionContext* Fortran90Parser::cExpression() {
   CExpressionContext *_localctx = _tracker.createInstance<CExpressionContext>(_ctx, getState());
   enterRule(_localctx, 558, Fortran90Parser::RuleCExpression);
@@ -28662,6 +30949,14 @@ void Fortran90Parser::CPrimaryContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCPrimary(this);
+}
+
+
+std::any Fortran90Parser::CPrimaryContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCPrimary(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CPrimaryContext* Fortran90Parser::cPrimary() {
@@ -28888,6 +31183,14 @@ void Fortran90Parser::COperandContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitCOperand(this);
 }
 
+
+std::any Fortran90Parser::COperandContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCOperand(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::COperandContext* Fortran90Parser::cOperand() {
   COperandContext *_localctx = _tracker.createInstance<COperandContext>(_ctx, getState());
   enterRule(_localctx, 562, Fortran90Parser::RuleCOperand);
@@ -28981,6 +31284,14 @@ void Fortran90Parser::CPrimaryConcatOpContext::exitRule(tree::ParseTreeListener 
     parserListener->exitCPrimaryConcatOp(this);
 }
 
+
+std::any Fortran90Parser::CPrimaryConcatOpContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCPrimaryConcatOp(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CPrimaryConcatOpContext* Fortran90Parser::cPrimaryConcatOp() {
   CPrimaryConcatOpContext *_localctx = _tracker.createInstance<CPrimaryConcatOpContext>(_ctx, getState());
   enterRule(_localctx, 564, Fortran90Parser::RuleCPrimaryConcatOp);
@@ -29056,6 +31367,14 @@ void Fortran90Parser::CallStmtContext::exitRule(tree::ParseTreeListener *listene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitCallStmt(this);
+}
+
+
+std::any Fortran90Parser::CallStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCallStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::CallStmtContext* Fortran90Parser::callStmt() {
@@ -29138,6 +31457,14 @@ void Fortran90Parser::SubroutineNameUseContext::exitRule(tree::ParseTreeListener
     parserListener->exitSubroutineNameUse(this);
 }
 
+
+std::any Fortran90Parser::SubroutineNameUseContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineNameUse(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubroutineNameUseContext* Fortran90Parser::subroutineNameUse() {
   SubroutineNameUseContext *_localctx = _tracker.createInstance<SubroutineNameUseContext>(_ctx, getState());
   enterRule(_localctx, 568, Fortran90Parser::RuleSubroutineNameUse);
@@ -29201,6 +31528,14 @@ void Fortran90Parser::SubroutineArgListContext::exitRule(tree::ParseTreeListener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubroutineArgList(this);
+}
+
+
+std::any Fortran90Parser::SubroutineArgListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineArgList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SubroutineArgListContext* Fortran90Parser::subroutineArgList() {
@@ -29296,6 +31631,14 @@ void Fortran90Parser::SubroutineArgContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubroutineArg(this);
+}
+
+
+std::any Fortran90Parser::SubroutineArgContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineArg(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SubroutineArgContext* Fortran90Parser::subroutineArg() {
@@ -29440,6 +31783,14 @@ void Fortran90Parser::ArithmeticIfStmtContext::exitRule(tree::ParseTreeListener 
     parserListener->exitArithmeticIfStmt(this);
 }
 
+
+std::any Fortran90Parser::ArithmeticIfStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArithmeticIfStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ArithmeticIfStmtContext* Fortran90Parser::arithmeticIfStmt() {
   ArithmeticIfStmtContext *_localctx = _tracker.createInstance<ArithmeticIfStmtContext>(_ctx, getState());
   enterRule(_localctx, 574, Fortran90Parser::RuleArithmeticIfStmt);
@@ -29509,6 +31860,14 @@ void Fortran90Parser::LblRefContext::exitRule(tree::ParseTreeListener *listener)
     parserListener->exitLblRef(this);
 }
 
+
+std::any Fortran90Parser::LblRefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLblRef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::LblRefContext* Fortran90Parser::lblRef() {
   LblRefContext *_localctx = _tracker.createInstance<LblRefContext>(_ctx, getState());
   enterRule(_localctx, 576, Fortran90Parser::RuleLblRef);
@@ -29560,6 +31919,14 @@ void Fortran90Parser::LabelContext::exitRule(tree::ParseTreeListener *listener) 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLabel(this);
+}
+
+
+std::any Fortran90Parser::LabelContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLabel(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::LabelContext* Fortran90Parser::label() {
@@ -29653,6 +32020,14 @@ void Fortran90Parser::AssignmentStmtContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAssignmentStmt(this);
+}
+
+
+std::any Fortran90Parser::AssignmentStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAssignmentStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AssignmentStmtContext* Fortran90Parser::assignmentStmt() {
@@ -29812,6 +32187,14 @@ void Fortran90Parser::SFExprListRefContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitSFExprListRef(this);
 }
 
+
+std::any Fortran90Parser::SFExprListRefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSFExprListRef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SFExprListRefContext* Fortran90Parser::sFExprListRef() {
   SFExprListRefContext *_localctx = _tracker.createInstance<SFExprListRefContext>(_ctx, getState());
   enterRule(_localctx, 582, Fortran90Parser::RuleSFExprListRef);
@@ -29894,6 +32277,14 @@ void Fortran90Parser::SFExprListContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSFExprList(this);
+}
+
+
+std::any Fortran90Parser::SFExprListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSFExprList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SFExprListContext* Fortran90Parser::sFExprList() {
@@ -30045,6 +32436,14 @@ void Fortran90Parser::CommaSectionSubscriptContext::exitRule(tree::ParseTreeList
     parserListener->exitCommaSectionSubscript(this);
 }
 
+
+std::any Fortran90Parser::CommaSectionSubscriptContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitCommaSectionSubscript(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::CommaSectionSubscriptContext* Fortran90Parser::commaSectionSubscript() {
   CommaSectionSubscriptContext *_localctx = _tracker.createInstance<CommaSectionSubscriptContext>(_ctx, getState());
   enterRule(_localctx, 586, Fortran90Parser::RuleCommaSectionSubscript);
@@ -30110,6 +32509,14 @@ void Fortran90Parser::AssignStmtContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAssignStmt(this);
+}
+
+
+std::any Fortran90Parser::AssignStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAssignStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AssignStmtContext* Fortran90Parser::assignStmt() {
@@ -30185,6 +32592,14 @@ void Fortran90Parser::BackspaceStmtContext::exitRule(tree::ParseTreeListener *li
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitBackspaceStmt(this);
+}
+
+
+std::any Fortran90Parser::BackspaceStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitBackspaceStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::BackspaceStmtContext* Fortran90Parser::backspaceStmt() {
@@ -30267,6 +32682,14 @@ void Fortran90Parser::UnitIdentifierContext::exitRule(tree::ParseTreeListener *l
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitUnitIdentifier(this);
+}
+
+
+std::any Fortran90Parser::UnitIdentifierContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUnitIdentifier(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::UnitIdentifierContext* Fortran90Parser::unitIdentifier() {
@@ -30493,6 +32916,14 @@ void Fortran90Parser::PositionSpecListContext::exitRule(tree::ParseTreeListener 
     parserListener->exitPositionSpecList(this);
 }
 
+
+std::any Fortran90Parser::PositionSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPositionSpecList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::PositionSpecListContext* Fortran90Parser::positionSpecList() {
   PositionSpecListContext *_localctx = _tracker.createInstance<PositionSpecListContext>(_ctx, getState());
   enterRule(_localctx, 594, Fortran90Parser::RulePositionSpecList);
@@ -30571,6 +33002,14 @@ void Fortran90Parser::UnitIdentifierCommaContext::exitRule(tree::ParseTreeListen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitUnitIdentifierComma(this);
+}
+
+
+std::any Fortran90Parser::UnitIdentifierCommaContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUnitIdentifierComma(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::UnitIdentifierCommaContext* Fortran90Parser::unitIdentifierComma() {
@@ -30661,6 +33100,14 @@ void Fortran90Parser::PositionSpecContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitPositionSpec(this);
+}
+
+
+std::any Fortran90Parser::PositionSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPositionSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::PositionSpecContext* Fortran90Parser::positionSpec() {
@@ -30756,6 +33203,14 @@ void Fortran90Parser::ScalarVariableContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitScalarVariable(this);
 }
 
+
+std::any Fortran90Parser::ScalarVariableContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitScalarVariable(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ScalarVariableContext* Fortran90Parser::scalarVariable() {
   ScalarVariableContext *_localctx = _tracker.createInstance<ScalarVariableContext>(_ctx, getState());
   enterRule(_localctx, 600, Fortran90Parser::RuleScalarVariable);
@@ -30836,6 +33291,14 @@ void Fortran90Parser::UFExprContext::exitRule(tree::ParseTreeListener *listener)
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitUFExpr(this);
+}
+
+
+std::any Fortran90Parser::UFExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUFExpr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -31127,6 +33590,14 @@ void Fortran90Parser::UFTermContext::exitRule(tree::ParseTreeListener *listener)
 }
 
 
+std::any Fortran90Parser::UFTermContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUFTerm(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+
 Fortran90Parser::UFTermContext* Fortran90Parser::uFTerm() {
    return uFTerm(0);
 }
@@ -31256,6 +33727,14 @@ void Fortran90Parser::UFFactorContext::exitRule(tree::ParseTreeListener *listene
     parserListener->exitUFFactor(this);
 }
 
+
+std::any Fortran90Parser::UFFactorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUFFactor(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::UFFactorContext* Fortran90Parser::uFFactor() {
   UFFactorContext *_localctx = _tracker.createInstance<UFFactorContext>(_ctx, getState());
   enterRule(_localctx, 606, Fortran90Parser::RuleUFFactor);
@@ -31352,6 +33831,14 @@ void Fortran90Parser::UFPrimaryContext::exitRule(tree::ParseTreeListener *listen
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitUFPrimary(this);
+}
+
+
+std::any Fortran90Parser::UFPrimaryContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUFPrimary(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::UFPrimaryContext* Fortran90Parser::uFPrimary() {
@@ -31461,6 +33948,14 @@ void Fortran90Parser::SubroutineSubprogramContext::exitRule(tree::ParseTreeListe
     parserListener->exitSubroutineSubprogram(this);
 }
 
+
+std::any Fortran90Parser::SubroutineSubprogramContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineSubprogram(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubroutineSubprogramContext* Fortran90Parser::subroutineSubprogram() {
   SubroutineSubprogramContext *_localctx = _tracker.createInstance<SubroutineSubprogramContext>(_ctx, getState());
   enterRule(_localctx, 610, Fortran90Parser::RuleSubroutineSubprogram);
@@ -31541,6 +34036,14 @@ void Fortran90Parser::SubroutineNameContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitSubroutineName(this);
 }
 
+
+std::any Fortran90Parser::SubroutineNameContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineName(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubroutineNameContext* Fortran90Parser::subroutineName() {
   SubroutineNameContext *_localctx = _tracker.createInstance<SubroutineNameContext>(_ctx, getState());
   enterRule(_localctx, 612, Fortran90Parser::RuleSubroutineName);
@@ -31604,6 +34107,14 @@ void Fortran90Parser::SubroutineRangeContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSubroutineRange(this);
+}
+
+
+std::any Fortran90Parser::SubroutineRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubroutineRange(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SubroutineRangeContext* Fortran90Parser::subroutineRange() {
@@ -31699,6 +34210,14 @@ void Fortran90Parser::IncludeStmtContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitIncludeStmt(this);
 }
 
+
+std::any Fortran90Parser::IncludeStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIncludeStmt(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::IncludeStmtContext* Fortran90Parser::includeStmt() {
   IncludeStmtContext *_localctx = _tracker.createInstance<IncludeStmtContext>(_ctx, getState());
   enterRule(_localctx, 616, Fortran90Parser::RuleIncludeStmt);
@@ -31760,6 +34279,14 @@ void Fortran90Parser::ImplicitStmtContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitImplicitStmt(this);
+}
+
+
+std::any Fortran90Parser::ImplicitStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitImplicitStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ImplicitStmtContext* Fortran90Parser::implicitStmt() {
@@ -31848,6 +34375,14 @@ void Fortran90Parser::ImplicitSpecListContext::exitRule(tree::ParseTreeListener 
     parserListener->exitImplicitSpecList(this);
 }
 
+
+std::any Fortran90Parser::ImplicitSpecListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitImplicitSpecList(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ImplicitSpecListContext* Fortran90Parser::implicitSpecList() {
   ImplicitSpecListContext *_localctx = _tracker.createInstance<ImplicitSpecListContext>(_ctx, getState());
   enterRule(_localctx, 620, Fortran90Parser::RuleImplicitSpecList);
@@ -31926,6 +34461,14 @@ void Fortran90Parser::ImplicitSpecContext::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitImplicitSpec(this);
+}
+
+
+std::any Fortran90Parser::ImplicitSpecContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitImplicitSpec(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ImplicitSpecContext* Fortran90Parser::implicitSpec() {
@@ -32018,6 +34561,14 @@ void Fortran90Parser::ImplicitRangesContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitImplicitRanges(this);
 }
 
+
+std::any Fortran90Parser::ImplicitRangesContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitImplicitRanges(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ImplicitRangesContext* Fortran90Parser::implicitRanges() {
   ImplicitRangesContext *_localctx = _tracker.createInstance<ImplicitRangesContext>(_ctx, getState());
   enterRule(_localctx, 624, Fortran90Parser::RuleImplicitRanges);
@@ -32105,6 +34656,14 @@ void Fortran90Parser::ImplicitRangeContext::exitRule(tree::ParseTreeListener *li
     parserListener->exitImplicitRange(this);
 }
 
+
+std::any Fortran90Parser::ImplicitRangeContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitImplicitRange(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ImplicitRangeContext* Fortran90Parser::implicitRange() {
   ImplicitRangeContext *_localctx = _tracker.createInstance<ImplicitRangeContext>(_ctx, getState());
   enterRule(_localctx, 626, Fortran90Parser::RuleImplicitRange);
@@ -32168,6 +34727,14 @@ void Fortran90Parser::ExpressionContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitExpression(this);
+}
+
+
+std::any Fortran90Parser::ExpressionContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitExpression(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -32257,6 +34824,14 @@ void Fortran90Parser::DefinedBinaryOpContext::exitRule(tree::ParseTreeListener *
     parserListener->exitDefinedBinaryOp(this);
 }
 
+
+std::any Fortran90Parser::DefinedBinaryOpContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDefinedBinaryOp(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DefinedBinaryOpContext* Fortran90Parser::definedBinaryOp() {
   DefinedBinaryOpContext *_localctx = _tracker.createInstance<DefinedBinaryOpContext>(_ctx, getState());
   enterRule(_localctx, 630, Fortran90Parser::RuleDefinedBinaryOp);
@@ -32328,6 +34903,14 @@ void Fortran90Parser::Level5ExprContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLevel5Expr(this);
+}
+
+
+std::any Fortran90Parser::Level5ExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLevel5Expr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::Level5ExprContext* Fortran90Parser::level5Expr() {
@@ -32420,6 +35003,14 @@ void Fortran90Parser::EquivOperandContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitEquivOperand(this);
 }
 
+
+std::any Fortran90Parser::EquivOperandContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitEquivOperand(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::EquivOperandContext* Fortran90Parser::equivOperand() {
   EquivOperandContext *_localctx = _tracker.createInstance<EquivOperandContext>(_ctx, getState());
   enterRule(_localctx, 634, Fortran90Parser::RuleEquivOperand);
@@ -32500,6 +35091,14 @@ void Fortran90Parser::OrOperandContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitOrOperand(this);
 }
 
+
+std::any Fortran90Parser::OrOperandContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitOrOperand(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::OrOperandContext* Fortran90Parser::orOperand() {
   OrOperandContext *_localctx = _tracker.createInstance<OrOperandContext>(_ctx, getState());
   enterRule(_localctx, 636, Fortran90Parser::RuleOrOperand);
@@ -32570,6 +35169,14 @@ void Fortran90Parser::AndOperandContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAndOperand(this);
+}
+
+
+std::any Fortran90Parser::AndOperandContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAndOperand(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AndOperandContext* Fortran90Parser::andOperand() {
@@ -32658,6 +35265,14 @@ void Fortran90Parser::RelOpContext::exitRule(tree::ParseTreeListener *listener) 
     parserListener->exitRelOp(this);
 }
 
+
+std::any Fortran90Parser::RelOpContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitRelOp(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::RelOpContext* Fortran90Parser::relOp() {
   RelOpContext *_localctx = _tracker.createInstance<RelOpContext>(_ctx, getState());
   enterRule(_localctx, 640, Fortran90Parser::RuleRelOp);
@@ -32730,6 +35345,14 @@ void Fortran90Parser::Level4ExprContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLevel4Expr(this);
+}
+
+
+std::any Fortran90Parser::Level4ExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLevel4Expr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::Level4ExprContext* Fortran90Parser::level4Expr() {
@@ -32826,6 +35449,14 @@ void Fortran90Parser::Level3ExprContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLevel3Expr(this);
+}
+
+
+std::any Fortran90Parser::Level3ExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLevel3Expr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::Level3ExprContext* Fortran90Parser::level3Expr() {
@@ -32944,6 +35575,14 @@ void Fortran90Parser::Level2ExprContext::exitRule(tree::ParseTreeListener *liste
     parserListener->exitLevel2Expr(this);
 }
 
+
+std::any Fortran90Parser::Level2ExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLevel2Expr(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::Level2ExprContext* Fortran90Parser::level2Expr() {
   Level2ExprContext *_localctx = _tracker.createInstance<Level2ExprContext>(_ctx, getState());
   enterRule(_localctx, 646, Fortran90Parser::RuleLevel2Expr);
@@ -33036,6 +35675,14 @@ void Fortran90Parser::SignContext::exitRule(tree::ParseTreeListener *listener) {
     parserListener->exitSign(this);
 }
 
+
+std::any Fortran90Parser::SignContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSign(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SignContext* Fortran90Parser::sign() {
   SignContext *_localctx = _tracker.createInstance<SignContext>(_ctx, getState());
   enterRule(_localctx, 648, Fortran90Parser::RuleSign);
@@ -33117,6 +35764,14 @@ void Fortran90Parser::AddOperandContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAddOperand(this);
+}
+
+
+std::any Fortran90Parser::AddOperandContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAddOperand(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AddOperandContext* Fortran90Parser::addOperand() {
@@ -33209,6 +35864,14 @@ void Fortran90Parser::MultOperandContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitMultOperand(this);
 }
 
+
+std::any Fortran90Parser::MultOperandContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitMultOperand(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::MultOperandContext* Fortran90Parser::multOperand() {
   MultOperandContext *_localctx = _tracker.createInstance<MultOperandContext>(_ctx, getState());
   enterRule(_localctx, 652, Fortran90Parser::RuleMultOperand);
@@ -33279,6 +35942,14 @@ void Fortran90Parser::Level1ExprContext::exitRule(tree::ParseTreeListener *liste
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitLevel1Expr(this);
+}
+
+
+std::any Fortran90Parser::Level1ExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLevel1Expr(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::Level1ExprContext* Fortran90Parser::level1Expr() {
@@ -33501,6 +36172,14 @@ void Fortran90Parser::DefinedUnaryOpContext::exitRule(tree::ParseTreeListener *l
     parserListener->exitDefinedUnaryOp(this);
 }
 
+
+std::any Fortran90Parser::DefinedUnaryOpContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitDefinedUnaryOp(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::DefinedUnaryOpContext* Fortran90Parser::definedUnaryOp() {
   DefinedUnaryOpContext *_localctx = _tracker.createInstance<DefinedUnaryOpContext>(_ctx, getState());
   enterRule(_localctx, 656, Fortran90Parser::RuleDefinedUnaryOp);
@@ -33584,6 +36263,14 @@ void Fortran90Parser::PrimaryContext::exitRule(tree::ParseTreeListener *listener
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitPrimary(this);
+}
+
+
+std::any Fortran90Parser::PrimaryContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitPrimary(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::PrimaryContext* Fortran90Parser::primary() {
@@ -33703,6 +36390,14 @@ void Fortran90Parser::ArrayConstructorContext::exitRule(tree::ParseTreeListener 
     parserListener->exitArrayConstructor(this);
 }
 
+
+std::any Fortran90Parser::ArrayConstructorContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitArrayConstructor(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ArrayConstructorContext* Fortran90Parser::arrayConstructor() {
   ArrayConstructorContext *_localctx = _tracker.createInstance<ArrayConstructorContext>(_ctx, getState());
   enterRule(_localctx, 660, Fortran90Parser::RuleArrayConstructor);
@@ -33762,6 +36457,14 @@ void Fortran90Parser::AcValueListContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAcValueList(this);
+}
+
+
+std::any Fortran90Parser::AcValueListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAcValueList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::AcValueListContext* Fortran90Parser::acValueList() {
@@ -33848,6 +36551,14 @@ void Fortran90Parser::AcValueList1Context::exitRule(tree::ParseTreeListener *lis
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitAcValueList1(this);
+}
+
+
+std::any Fortran90Parser::AcValueList1Context::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAcValueList1(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -34022,6 +36733,14 @@ void Fortran90Parser::AcImpliedDoContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitAcImpliedDo(this);
 }
 
+
+std::any Fortran90Parser::AcImpliedDoContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitAcImpliedDo(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::AcImpliedDoContext* Fortran90Parser::acImpliedDo() {
   AcImpliedDoContext *_localctx = _tracker.createInstance<AcImpliedDoContext>(_ctx, getState());
   enterRule(_localctx, 666, Fortran90Parser::RuleAcImpliedDo);
@@ -34190,6 +36909,14 @@ void Fortran90Parser::FunctionReferenceContext::exitRule(tree::ParseTreeListener
     parserListener->exitFunctionReference(this);
 }
 
+
+std::any Fortran90Parser::FunctionReferenceContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionReference(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FunctionReferenceContext* Fortran90Parser::functionReference() {
   FunctionReferenceContext *_localctx = _tracker.createInstance<FunctionReferenceContext>(_ctx, getState());
   enterRule(_localctx, 668, Fortran90Parser::RuleFunctionReference);
@@ -34280,6 +37007,14 @@ void Fortran90Parser::FunctionArgListContext::exitRule(tree::ParseTreeListener *
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitFunctionArgList(this);
+}
+
+
+std::any Fortran90Parser::FunctionArgListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionArgList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 
@@ -34397,6 +37132,14 @@ void Fortran90Parser::FunctionArgContext::exitRule(tree::ParseTreeListener *list
     parserListener->exitFunctionArg(this);
 }
 
+
+std::any Fortran90Parser::FunctionArgContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitFunctionArg(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::FunctionArgContext* Fortran90Parser::functionArg() {
   FunctionArgContext *_localctx = _tracker.createInstance<FunctionArgContext>(_ctx, getState());
   enterRule(_localctx, 672, Fortran90Parser::RuleFunctionArg);
@@ -34460,6 +37203,14 @@ void Fortran90Parser::NameDataRefContext::exitRule(tree::ParseTreeListener *list
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitNameDataRef(this);
+}
+
+
+std::any Fortran90Parser::NameDataRefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitNameDataRef(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::NameDataRefContext* Fortran90Parser::nameDataRef() {
@@ -34534,6 +37285,14 @@ void Fortran90Parser::ComplexDataRefTailContext::exitRule(tree::ParseTreeListene
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComplexDataRefTail(this);
+}
+
+
+std::any Fortran90Parser::ComplexDataRefTailContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComplexDataRefTail(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ComplexDataRefTailContext* Fortran90Parser::complexDataRefTail() {
@@ -34616,6 +37375,14 @@ void Fortran90Parser::SectionSubscriptRefContext::exitRule(tree::ParseTreeListen
     parserListener->exitSectionSubscriptRef(this);
 }
 
+
+std::any Fortran90Parser::SectionSubscriptRefContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSectionSubscriptRef(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SectionSubscriptRefContext* Fortran90Parser::sectionSubscriptRef() {
   SectionSubscriptRefContext *_localctx = _tracker.createInstance<SectionSubscriptRefContext>(_ctx, getState());
   enterRule(_localctx, 678, Fortran90Parser::RuleSectionSubscriptRef);
@@ -34683,6 +37450,14 @@ void Fortran90Parser::SectionSubscriptListContext::exitRule(tree::ParseTreeListe
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSectionSubscriptList(this);
+}
+
+
+std::any Fortran90Parser::SectionSubscriptListContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSectionSubscriptList(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SectionSubscriptListContext* Fortran90Parser::sectionSubscriptList() {
@@ -34755,6 +37530,14 @@ void Fortran90Parser::SectionSubscriptContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitSectionSubscript(this);
+}
+
+
+std::any Fortran90Parser::SectionSubscriptContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSectionSubscript(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::SectionSubscriptContext* Fortran90Parser::sectionSubscript() {
@@ -35005,6 +37788,14 @@ void Fortran90Parser::SubscriptTripletTailContext::exitRule(tree::ParseTreeListe
     parserListener->exitSubscriptTripletTail(this);
 }
 
+
+std::any Fortran90Parser::SubscriptTripletTailContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitSubscriptTripletTail(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::SubscriptTripletTailContext* Fortran90Parser::subscriptTripletTail() {
   SubscriptTripletTailContext *_localctx = _tracker.createInstance<SubscriptTripletTailContext>(_ctx, getState());
   enterRule(_localctx, 684, Fortran90Parser::RuleSubscriptTripletTail);
@@ -35118,6 +37909,14 @@ void Fortran90Parser::LogicalConstantContext::exitRule(tree::ParseTreeListener *
     parserListener->exitLogicalConstant(this);
 }
 
+
+std::any Fortran90Parser::LogicalConstantContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitLogicalConstant(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::LogicalConstantContext* Fortran90Parser::logicalConstant() {
   LogicalConstantContext *_localctx = _tracker.createInstance<LogicalConstantContext>(_ctx, getState());
   enterRule(_localctx, 686, Fortran90Parser::RuleLogicalConstant);
@@ -35219,6 +38018,14 @@ void Fortran90Parser::KindParamContext::exitRule(tree::ParseTreeListener *listen
     parserListener->exitKindParam(this);
 }
 
+
+std::any Fortran90Parser::KindParamContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitKindParam(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::KindParamContext* Fortran90Parser::kindParam() {
   KindParamContext *_localctx = _tracker.createInstance<KindParamContext>(_ctx, getState());
   enterRule(_localctx, 688, Fortran90Parser::RuleKindParam);
@@ -35303,6 +38110,14 @@ void Fortran90Parser::UnsignedArithmeticConstantContext::exitRule(tree::ParseTre
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitUnsignedArithmeticConstant(this);
+}
+
+
+std::any Fortran90Parser::UnsignedArithmeticConstantContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitUnsignedArithmeticConstant(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::UnsignedArithmeticConstantContext* Fortran90Parser::unsignedArithmeticConstant() {
@@ -35419,6 +38234,14 @@ void Fortran90Parser::ComplexConstContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitComplexConst(this);
 }
 
+
+std::any Fortran90Parser::ComplexConstContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComplexConst(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ComplexConstContext* Fortran90Parser::complexConst() {
   ComplexConstContext *_localctx = _tracker.createInstance<ComplexConstContext>(_ctx, getState());
   enterRule(_localctx, 692, Fortran90Parser::RuleComplexConst);
@@ -35492,6 +38315,14 @@ void Fortran90Parser::ComplexComponentContext::exitRule(tree::ParseTreeListener 
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitComplexComponent(this);
+}
+
+
+std::any Fortran90Parser::ComplexComponentContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitComplexComponent(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::ComplexComponentContext* Fortran90Parser::complexComponent() {
@@ -35593,6 +38424,14 @@ void Fortran90Parser::ConstantExprContext::exitRule(tree::ParseTreeListener *lis
     parserListener->exitConstantExpr(this);
 }
 
+
+std::any Fortran90Parser::ConstantExprContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitConstantExpr(this);
+  else
+    return visitor->visitChildren(this);
+}
+
 Fortran90Parser::ConstantExprContext* Fortran90Parser::constantExpr() {
   ConstantExprContext *_localctx = _tracker.createInstance<ConstantExprContext>(_ctx, getState());
   enterRule(_localctx, 696, Fortran90Parser::RuleConstantExpr);
@@ -35660,6 +38499,14 @@ void Fortran90Parser::IfStmtContext::exitRule(tree::ParseTreeListener *listener)
   auto parserListener = dynamic_cast<Fortran90ParserListener *>(listener);
   if (parserListener != nullptr)
     parserListener->exitIfStmt(this);
+}
+
+
+std::any Fortran90Parser::IfStmtContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Fortran90ParserVisitor*>(visitor))
+    return parserVisitor->visitIfStmt(this);
+  else
+    return visitor->visitChildren(this);
 }
 
 Fortran90Parser::IfStmtContext* Fortran90Parser::ifStmt() {

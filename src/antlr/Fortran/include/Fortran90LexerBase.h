@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PLSQLLEXERBASE_H
+#define PLSQLLEXERBASE_H
 
 #include "antlr4-runtime.h"
 
@@ -15,3 +16,4 @@ public:
     bool VerifyNotOperator();
 };
 
+#endif

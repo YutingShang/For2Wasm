@@ -1,11 +1,12 @@
+#include "Fortran90LexerBase.h"
 
-// Generated from ../../../grammar/Fortran90Lexer.g4 by ANTLR 4.13.2
+// Generated from Fortran90Lexer.g4 by ANTLR 4.13.2
 
 #pragma once
 
 
 #include "antlr4-runtime.h"
-#include "Fortran90LexerBase.h"
+
 
 
 
