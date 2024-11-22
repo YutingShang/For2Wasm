@@ -102,3 +102,16 @@ The runtime is needed to actually run the lexer and parser, generated from the A
     - `-I`: Specifies directories containing header files (for runtime, lexer, and parser)
     - `-L`: Specifies directories containing library files (for runtime)
     - `-lantlr4-runtime`: Links against the ANTLR4 runtime dynamic library
+
+## Visualizing the Parse Tree
+
+Instead of viewing the parse tree output in LISP form with `toStringTree`, you can use the `toDotTree` method in `main.cpp` to output the tree in DOT format (list of nodes and edges), and then view it as a gui tree using the `dot` command
+- Make sure its the only string being outputted in `main.cpp`
+
+- Make sure you have the `graphviz` package installed to view the DOT file as a gui tree.
+
+```
+make
+./main > tree.dot
+dot -Tpng tree.dot -o tree.png
+```

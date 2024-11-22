@@ -16,25 +16,100 @@
 #include "Fortran90LexerBase.h"
 #include "Fortran90Lexer.h"
 #include "Fortran90Parser.h"
-
+#include "Fortran90ParserBaseVisitor.h"
+#include "Fortran90ParserCustomVisitor.h"
+#include "tree/Trees.h"
+#include <regex>
 
 using namespace antlrcpp;
 using namespace antlr4;
 
-int main(int , const char **) {
-    ANTLRInputStream input(u8"program hello\n!this is a comment line - it is ignored by the compiler\n\treal :: x\n\tx = 7.0\n\tx = x/8\n\tprint *, 'Hello, World!', x\nend program hello\n");
-    Fortran90Lexer lexer(&input);
-    CommonTokenStream tokens(&lexer);
+std::string toDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames);
 
-  tokens.fill();
-  for (auto token : tokens.getTokens()) {
-    std::cout << token->toString() << std::endl;
+int main(int, const char **)
+{
+
+  std::ifstream file("../../../examples/summation.f90");
+  if (!file.is_open())
+  {
+    std::cerr << "Failed to open file" << std::endl;
+    return 1;
   }
 
-  Fortran90Parser parser(&tokens);
-  tree::ParseTree *tree = parser.program();
+  ANTLRInputStream input(file);
+  Fortran90Lexer lexer(&input);
+  CommonTokenStream tokens(&lexer); // create stream of tokens with lexer
 
-  std::cout << tree->toStringTree(&parser) << std::endl;
+  tokens.fill(); // process all tokens before printing
+  // for (auto token : tokens.getTokens())
+  // {
+  //   std::cout << token->toString() << std::endl;
+  // }
+
+  Fortran90Parser parser(&tokens);          // create parser that works on stream of tokens
+  tree::ParseTree *tree = parser.program(); // get first node matched by rule
+
+  // std::cout << tree->toStringTree(&parser) << std::endl;
+
+  Fortran90ParserBaseVisitor visitor;
+  tree->accept(&visitor); // dispatches call to appropriate visit method in visitor
+
+  std::string dotTree = toDotTree(tree, parser.getRuleNames());
+  std::cout << dotTree << std::endl;
 
   return 0;
+}
+
+std::string toDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames)
+{
+  std::stringstream dot; // stream to store dot file
+  dot << "digraph Tree {\n";
+  int nodeCount = 0;
+  std::unordered_map<antlr4::tree::ParseTree *, int> nodeToIndex; // map to store node and its index - used in dot file
+
+  // Use a stack to perform DFS
+  std::stack<antlr4::tree::ParseTree *> stack;
+  stack.push(root);
+
+  while (!stack.empty())
+  {
+    antlr4::tree::ParseTree *node = stack.top();
+    stack.pop();
+
+    // if node is not in the map (iterated to end of tree and did not find it), add it to the map and the dot file
+    if (nodeToIndex.find(node) == nodeToIndex.end())
+    {
+      nodeToIndex[node] = nodeCount++;
+
+      // gets text representation of node in parse tree and escapes whitespaces
+      // replace " with \"
+      std::string nodeText = antlrcpp::escapeWhitespace(antlr4::tree::Trees::getNodeText(node, ruleNames), false);
+      nodeText = std::regex_replace(nodeText, std::regex("\""), "\\\"");
+
+      dot << "node" << nodeToIndex[node] << " [label=\"" << nodeText << "\"];\n";
+    }
+
+    // add children nodes to stack
+    for (auto child : node->children)
+    {
+
+      if (nodeToIndex.find(child) == nodeToIndex.end())
+      { // create node for child if not in map
+
+        nodeToIndex[child] = nodeCount++;
+        std::string childText = antlrcpp::escapeWhitespace(antlr4::tree::Trees::getNodeText(child, ruleNames), false);
+        childText = std::regex_replace(childText, std::regex("\""), "\\\"");
+        dot << "node" << nodeToIndex[child] << " [label=\"" << childText << "\"];\n";
+      }
+
+      // add edge to dot file
+      dot << "node" << nodeToIndex[node] << " -> node" << nodeToIndex[child] << ";\n";
+
+      // add child to stack
+      stack.push(child);
+    }
+  }
+
+  dot << "}\n";
+  return dot.str();
 }
