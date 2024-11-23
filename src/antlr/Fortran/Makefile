@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++17 -I/usr/local/lib/antlr4-runtime -I./include
 LDFLAGS = -L/usr/local/lib/lib -lantlr4-runtime
 
 # Source files and directories
-SRCS = main.cpp Fortran90Lexer.cpp Fortran90Parser.cpp Fortran90LexerBase.cpp Fortran90ParserBaseVisitor.cpp Fortran90ParserCustomVisitor.cpp
+SRCS = main.cpp Fortran90Lexer.cpp Fortran90Parser.cpp Fortran90LexerBase.cpp Fortran90ParserBaseVisitor.cpp Fortran90ParserCustomVisitor.cpp Fortran90ParserASTVisitor.cpp
 BUILD_DIR = build
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.cpp=.o))
 TARGET = main

@@ -18,6 +18,7 @@
 #include "Fortran90Parser.h"
 #include "Fortran90ParserBaseVisitor.h"
 #include "Fortran90ParserCustomVisitor.h"
+#include "Fortran90ParserASTVisitor.h"
 #include "tree/Trees.h"
 #include <regex>
 
@@ -37,25 +38,53 @@ int main(int, const char **)
   }
 
   ANTLRInputStream input(file);
+
+
+  //////////////////LEXER////////////////////////////////////////////////////////
+
   Fortran90Lexer lexer(&input);
   CommonTokenStream tokens(&lexer); // create stream of tokens with lexer
-
   tokens.fill(); // process all tokens before printing
+
+  // UNCOMMENT to print all tokens
   // for (auto token : tokens.getTokens())
   // {
   //   std::cout << token->toString() << std::endl;
   // }
 
+  //////////////////PARSER////////////////////////////////////////////////////////
+
   Fortran90Parser parser(&tokens);          // create parser that works on stream of tokens
-  tree::ParseTree *tree = parser.program(); // get first node matched by rule
+  tree::ParseTree *parseTree = parser.program(); // get first node matched by rule
 
-  // std::cout << tree->toStringTree(&parser) << std::endl;
+  // UNCOMMENT to print parse tree in LISP format
+  // std::cout << parseTree->toStringTree(&parser) << std::endl;
 
-  Fortran90ParserBaseVisitor visitor;
-  tree->accept(&visitor); // dispatches call to appropriate visit method in visitor
+  // UNCOMMENT to print entire parse tree in DOT format
+  // std::string dotParseTree = toDotTree(parseTree, parser.getRuleNames());
+  // std::cout << dotParseTree << std::endl;
 
-  std::string dotTree = toDotTree(tree, parser.getRuleNames());
-  std::cout << dotTree << std::endl;
+  /////////////////CUSTOM VISITOR///////////////////////////////////////////////////
+
+  // UNCOMMENT to use custom visitor which prints out the nodes that would be in the AST
+  // Fortran90ParserCustomVisitor visitor(parser);
+  // parseTree->accept(&visitor); // dispatches call to appropriate visit method in visitor
+  
+
+  /////////////////AST VISITOR///////////////////////////////////////////////////
+
+  // UNCOMMENT to create AST of the parse tree
+  Fortran90ParserASTVisitor astVisitor(parser);
+  antlr4::tree::ParseTree *astTree = std::any_cast<antlr4::tree::ParseTree*>(parseTree->accept(&astVisitor));   // dispatches call to appropriate visit method in visitor
+  
+
+  // UNCOMMENT to print AST of the parse tree in LISP format
+  // std::cout << astTree->toStringTree(&parser) << std::endl;
+
+  // UNCOMMENT to print AST of the parse tree in DOT format
+  std::string dotASTTree = toDotTree(astTree, parser.getRuleNames());
+  std::cout << dotASTTree << std::endl;
+  
 
   return 0;
 }
