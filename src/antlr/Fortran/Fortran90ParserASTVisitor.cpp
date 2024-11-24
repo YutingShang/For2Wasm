@@ -1,6 +1,7 @@
 #include "Fortran90ParserASTVisitor.h"
 
 #include "antlr4-runtime.h"
+#include "Fortran90ContextCopy.h"
 
 std::any Fortran90ParserASTVisitor::visitChildren(antlr4::tree::ParseTree *node)
 {
@@ -22,9 +23,9 @@ std::any Fortran90ParserASTVisitor::visitChildren(antlr4::tree::ParseTree *node)
     {
 
         antlr4::ParserRuleContext *nodeToCopy = dynamic_cast<antlr4::ParserRuleContext *>(node); // cast current node to ParserRuleContext to get its metadata
-        // create new node with the same metadata as the current node
-        // will set the parent node later
-        antlr4::ParserRuleContext *newNode = new antlr4::InterpreterRuleContext(nullptr, nodeToCopy->invokingState, nodeToCopy->getRuleIndex());
+
+        // Create new node of the same concrete type using helper function
+        antlr4::ParserRuleContext *newNode = Fortran90ContextCopy::copyNode(nodeToCopy);
 
         // got rule names context from parser
         // std::string nodeText = antlrcpp::escapeWhitespace(antlr4::tree::Trees::getNodeText(node, this->parser.getRuleNames()), false);

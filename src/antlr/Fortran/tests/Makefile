@@ -7,7 +7,7 @@ LDFLAGS = -L/usr/local/lib/lib -lantlr4-runtime
 SRCS = main.cpp Fortran90Lexer.cpp Fortran90Parser.cpp Fortran90LexerBase.cpp Fortran90ParserBaseVisitor.cpp Fortran90ParserCustomVisitor.cpp Fortran90ParserASTVisitor.cpp Fortran90ParserTranslatorVisitor.cpp Fortran90ContextCopy.cpp
 BUILD_DIR = build
 OBJS = $(addprefix $(BUILD_DIR)/, $(SRCS:.cpp=.o))
-TARGET = main
+TARGET = test
 
 # Default target
 all: $(TARGET)

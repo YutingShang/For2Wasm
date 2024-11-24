@@ -19,6 +19,7 @@
 #include "Fortran90ParserBaseVisitor.h"
 #include "Fortran90ParserCustomVisitor.h"
 #include "Fortran90ParserASTVisitor.h"
+#include "Fortran90ParserTranslatorVisitor.h"
 #include "tree/Trees.h"
 #include <regex>
 
@@ -82,9 +83,22 @@ int main(int, const char **)
   // std::cout << astTree->toStringTree(&parser) << std::endl;
 
   // UNCOMMENT to print AST of the parse tree in DOT format
-  std::string dotASTTree = toDotTree(astTree, parser.getRuleNames());
-  std::cout << dotASTTree << std::endl;
+  // std::string dotASTTree = toDotTree(astTree, parser.getRuleNames());
+  // std::cout << dotASTTree << std::endl;
   
+
+  /////////////////TRANSLATOR VISITOR///////////////////////////////////////////////////
+
+  Fortran90ParserTranslatorVisitor translatorVisitor(parser);
+  astTree->accept(&translatorVisitor);
+
+
+  // print rule names
+  // const auto& ruleNames = parser.getRuleNames();
+  // std::cout << ruleNames.size() << " RULE NAMES: " << std::endl;
+  // for (size_t i = 0; i < ruleNames.size(); ++i) {
+  //     std::cout << ruleNames[i] << std::endl;
+  // }
 
   return 0;
 }
