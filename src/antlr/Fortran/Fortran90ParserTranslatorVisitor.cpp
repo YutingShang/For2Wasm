@@ -10,7 +10,6 @@ std::any Fortran90ParserTranslatorVisitor::visitChildren(antlr4::tree::ParseTree
     std::string nodeText = antlrcpp::escapeWhitespace(antlr4::tree::Trees::getNodeText(node, this->parser.getRuleNames()), false);
 
     // std::cout << "Visiting LABEL: " << nodeText << std::endl;
-    // return Fortran90ParserBaseVisitor::visitChildren(node);
 
     std::any result = defaultResult();
     size_t n = node->children.size();
@@ -35,70 +34,162 @@ std::any Fortran90ParserTranslatorVisitor::visitChildren(antlr4::tree::ParseTree
 std::any Fortran90ParserTranslatorVisitor::visitTerminal(antlr4::tree::TerminalNode *node)
 {
     // std::cout << "Processed TERMINAL: " << node->getText() << std::endl;
-    return Fortran90ParserBaseVisitor::visitTerminal(node);
+    // return Fortran90ParserBaseVisitor::visitTerminal(node);
+    return node->getText();
 }
 
 std::any Fortran90ParserTranslatorVisitor::visitAssignmentStmt(Fortran90Parser::AssignmentStmtContext *ctx)
-{   
-    //first visit children
-    std::any result = visitChildren(ctx);
+{
+    //assignmentStmt will be in the form <NAME> <ASSIGN> <expression>
+    assert(ctx->children.size() == 3); 
+
+    // first visit children - recurse on the expression
+    std::string variableName = ctx->children[0]->getText();
+    std::string expression = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
     //then process the current node
-    assert(ctx->children.size() == 3);    //<NAME> <ASSIGN> <expression>
+    std::cout << "MOV " << variableName << " " << expression << std::endl;
 
-    std::string variableName = ctx->children[0]->getText();
-    std::string expression = ctx->children[2]->getText();
-
-    std::string tempVariableName = getTempVariableName(variableName);
-
-
-    std::cout << "MOV " << tempVariableName << " " << expression << std::endl;
-
-    return result;
+    return nullptr;     //QUESTION?: what to return for assignmentStmt? - maybe an instruction block label?
 }
 
-std::any Fortran90ParserTranslatorVisitor::visitLevel2Expr(Fortran90Parser::Level2ExprContext *ctx){
-    std::any result = visitChildren(ctx);
+std::any Fortran90ParserTranslatorVisitor::visitLevel2Expr(Fortran90Parser::Level2ExprContext *ctx)
+{
+    //level2Expr will be in the form: 
+    //sign? addOperand ((PLUS | MINUS) addOperand)*
 
-    // TAC - 3 address code
-    // SUB a b c
-    // a = b - c
+    std::string lastTempVar;    //when evaluating the expression from left to right, lastTempVar stores the result of the intermediate binary operation
+    bool hadSign = false;
 
-    if (ctx->children[0]->getText() == "-"){
+    //assuming nodes with one child have already been pruned
+    
+    if (ctx->children[0]->getText() == "-"){            //check the sign, do 0-addOperand to get `-`
         std::string tempResultVar = getNewTempVariableName();
-        std::cout << "SUB " << tempResultVar << " #0 " ;
+        lastTempVar = tempResultVar;
+        hadSign = true;
+        
+        std::string addOperand1 = std::any_cast<std::string>(ctx->children[1]->accept(this));     //recurse on the addOperand
 
-        std::string operand = ctx->children[1]->getText();
-        try{
-            std::stod(operand);     //try to convert to double
-            std::cout << "#" <<operand << std::endl;
-        }catch(std::invalid_argument &e){
-            //this means it's a variable name
-            std::string tempVariableName = getTempVariableName(operand);
-            std::cout << tempVariableName << std::endl;
+        //print out the const values in the IR without # at the front
+        std::cout << "SUB " << tempResultVar << " 0 " << addOperand1 << std::endl;   
+    }
+    else{       //does not start with a `-`, process the first ADD or SUB
+      
+        std::string otherTempResultVar = getNewTempVariableName();
+        lastTempVar = otherTempResultVar;
+        std::string operation = ctx->children[1]->getText();
+        std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
+        std::string addOperand1 = std::any_cast<std::string>(ctx->children[0]->accept(this));
+        std::string addOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
+        std::cout << operationSymbol << " " << otherTempResultVar << " " << addOperand1 << " " << addOperand2 << std::endl;
+    }
+
+    //now we have the lastTempVar in both cases
+    //if we had the `-` case, then the next `addOperand` will be at the index 3
+    //otherwise, it will be at the index 4 (since we already handled the first sum)
+
+    size_t index = hadSign ? 3 : 4;
+    while (index < ctx->children.size()){
+        std::string nextAddOperand = std::any_cast<std::string>(ctx->children[index]->accept(this));
+        std::string newTempVar = getNewTempVariableName();
+
+        std::string operation = ctx->children[index-1]->getText();
+        std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
+        std::cout << operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextAddOperand << std::endl;
+
+        lastTempVar = newTempVar;
+        index += 2;
+    }
+
+    return lastTempVar;   //return the last temp variable the result of this level2Expr is stored in
+    
+}
+
+std::any Fortran90ParserTranslatorVisitor::visitAddOperand(Fortran90Parser::AddOperandContext *ctx)
+{
+   
+    if (ctx->children.size() == 1)
+    {
+        //well this case technically shouldn't happen, since all nodes with one child have already been pruned
+        return ctx->children[0]->accept(this);
+    }
+    else
+    {
+        // of the form  multOperand ((STAR | DIV) multOperand)*   
+        //(should have STAR or DIV more than once, since we already handled the case where there's only one multOperand)
+        std::string operation = ctx->children[1]->getText();
+        std::string operationSymbol = (operation == "*") ? "MUL" : "DIV";
+        std::string multOperand1 = std::any_cast<std::string>(ctx->children[0]->accept(this));
+        std::string multOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
+
+        std::string tempResultVar = getNewTempVariableName();
+        std::string lastTempVar = tempResultVar;
+        std::cout << operationSymbol << " " << tempResultVar << " " << multOperand1 << " " << multOperand2 << std::endl;
+
+        // TODO: repeat for the next multOperand
+
+        size_t index = 4;
+        while (index < ctx->children.size()){
+            std::string nextMultOperand = std::any_cast<std::string>(ctx->children[index]->accept(this));
+            std::string newTempVar = getNewTempVariableName();
+            std::string operation = ctx->children[index-1]->getText();
+            std::string operationSymbol = (operation == "*") ? "MUL" : "DIV";
+            std::cout << operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextMultOperand << std::endl;
+
+            lastTempVar = newTempVar;
+            index += 2;
         }
 
-    }else if (ctx->children[0]->getText()!="+"){      //this means first token is not a + or -, so it's a variable name
-        std::string tempResultVar = getNewTempVariableName();
-        std::string sign = ctx->children[1]->getText();
-        std::string operation = (sign == "+") ? "ADD" : "SUB";
-        std::cout << operation << " " << tempResultVar << " " << ctx->children[0]->getText() << " " << ctx->children[2]->getText() << std::endl;
-    }
 
-    return result;
+        return lastTempVar;
+    }
 }
 
-std::string Fortran90ParserTranslatorVisitor::getTempVariableName(std::string variableName){
-    std::string tempVariableName;
-    if (tempVariableMap.find(variableName) == tempVariableMap.end()){
-        tempVariableName = "t" + std::to_string(tempVariableCount++);
-        tempVariableMap[variableName] = tempVariableName;
-    }else{
-        tempVariableName = tempVariableMap[variableName];
-    }
-    return tempVariableName;
+// std::any Fortran90ParserTranslatorVisitor::visitMultOperand(Fortran90Parser::MultOperandContext *ctx){
+//     if (ctx->children.size()==1){
+//         return ctx->children[0]->accept(this);
+//     }else{
+//         // of the form level1Expr (POWER level1Expr)*
+//         //Not supported in wasm, nor my IR
+
+//     }
+
+// }
+
+// std::any Fortran90ParserTranslatorVisitor::visitLevel1Expr(Fortran90Parser::Level1ExprContext *ctx){
+
+// }
+
+// std::any Fortran90ParserTranslatorVisitor::visitDefinedUnaryOp(Fortran90Parser::DefinedUnaryOpContext *ctx){
+
+// }
+
+std::any Fortran90ParserTranslatorVisitor::visitPrimary(Fortran90Parser::PrimaryContext *ctx)
+{
+    // primary will be in the form:
+    // <LPAREN> <expression> <RPAREN>
+
+    // so we just want to return the result of visiting the expression
+
+    return ctx->children[1]->accept(this);
 }
 
-std::string Fortran90ParserTranslatorVisitor::getNewTempVariableName(){
+// std::string Fortran90ParserTranslatorVisitor::getTempVariableName(std::string variableName)
+// {
+//     std::string tempVariableName;
+//     if (tempVariableMap.find(variableName) == tempVariableMap.end())
+//     {
+//         tempVariableName = "t" + std::to_string(tempVariableCount++);
+//         tempVariableMap[variableName] = tempVariableName;
+//     }
+//     else
+//     {
+//         tempVariableName = tempVariableMap[variableName];
+//     }
+//     return tempVariableName;
+// }
+
+std::string Fortran90ParserTranslatorVisitor::getNewTempVariableName()
+{
     return "t" + std::to_string(tempVariableCount++);
 }

@@ -89,6 +89,7 @@ int main(int, const char **)
 
   /////////////////TRANSLATOR VISITOR///////////////////////////////////////////////////
 
+  // UNCOMMENT to translate the AST to three address code IR
   Fortran90ParserTranslatorVisitor translatorVisitor(parser);
   astTree->accept(&translatorVisitor);
 
