@@ -37,12 +37,16 @@ std::any Fortran90ParserTranslatorVisitor::visitTerminal(antlr4::tree::TerminalN
     // return Fortran90ParserBaseVisitor::visitTerminal(node);
     std::string text = node->getText();
 
-    // Convert text to uppercase 
+    // Convert text to uppercase
     std::string textUPPER = text;
-    std::transform(text.begin(), text.end(), textUPPER.begin(), ::toupper);   //stores upper case of text in new string
-   
-    if (textUPPER == "EXIT"){
-        std::cout<< "\t"<<textUPPER <<std::endl;        //return the 'EXIT' IR instruction, if we see 'exit' or 'EXIT' in the AST
+    std::transform(text.begin(), text.end(), textUPPER.begin(), ::toupper); // stores upper case of text in new string
+
+    // check if the terminal is a reserved keyword
+    std::vector<std::string> reservedTerminalKeywords = {"EXIT", "ENDIF"};
+    if (std::find(reservedTerminalKeywords.begin(), reservedTerminalKeywords.end(), textUPPER) != reservedTerminalKeywords.end())
+    {
+        std::cout << "\t" << textUPPER << std::endl;
+        // e.g. prints the 'EXIT' IR instruction, if we see 'exit' or 'EXIT' in the AST
     }
     return text;
 }
@@ -93,7 +97,7 @@ std::any Fortran90ParserTranslatorVisitor::visitLevel2Expr(Fortran90Parser::Leve
         std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
         std::string addOperand1 = std::any_cast<std::string>(ctx->children[0]->accept(this));
         std::string addOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
-        std::cout <<"\t"<< operationSymbol << " " << otherTempResultVar << " " << addOperand1 << " " << addOperand2 << std::endl;
+        std::cout << "\t" << operationSymbol << " " << otherTempResultVar << " " << addOperand1 << " " << addOperand2 << std::endl;
     }
 
     // now we have the lastTempVar in both cases
@@ -108,7 +112,7 @@ std::any Fortran90ParserTranslatorVisitor::visitLevel2Expr(Fortran90Parser::Leve
 
         std::string operation = ctx->children[index - 1]->getText();
         std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
-        std::cout <<"\t"<<operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextAddOperand << std::endl;
+        std::cout << "\t" << operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextAddOperand << std::endl;
 
         lastTempVar = newTempVar;
         index += 2;
@@ -138,7 +142,7 @@ std::any Fortran90ParserTranslatorVisitor::visitAddOperand(Fortran90Parser::AddO
 
         std::string tempResultVar = getNewTempVariableName();
         std::string lastTempVar = tempResultVar;
-        std::cout << "\t"<<operationSymbol << " " << tempResultVar << " " << multOperand1 << " " << multOperand2 << std::endl;
+        std::cout << "\t" << operationSymbol << " " << tempResultVar << " " << multOperand1 << " " << multOperand2 << std::endl;
 
         // repeat for the next multOperand
 
@@ -149,7 +153,7 @@ std::any Fortran90ParserTranslatorVisitor::visitAddOperand(Fortran90Parser::AddO
             std::string newTempVar = getNewTempVariableName();
             std::string operation = ctx->children[index - 1]->getText();
             std::string operationSymbol = (operation == "*") ? "MUL" : "DIV";
-            std::cout << "\t"<<operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextMultOperand << std::endl;
+            std::cout << "\t" << operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextMultOperand << std::endl;
 
             lastTempVar = newTempVar;
             index += 2;
@@ -438,7 +442,7 @@ std::any Fortran90ParserTranslatorVisitor::visitLevel4Expr(Fortran90Parser::Leve
     std::string level3Expr2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
     std::string tempResultVar = getNewTempVariableName();
     std::string lastTempVar = tempResultVar;
-    std::cout << "\t"<<operationSymbol << " " << tempResultVar << " " << level3Expr1 << " " << level3Expr2 << std::endl;
+    std::cout << "\t" << operationSymbol << " " << tempResultVar << " " << level3Expr1 << " " << level3Expr2 << std::endl;
 
     // repeat for the next level3Expr
     size_t index = 4;
@@ -450,7 +454,7 @@ std::any Fortran90ParserTranslatorVisitor::visitLevel4Expr(Fortran90Parser::Leve
 
         std::string operation = ctx->children[index - 1]->getText();
         std::string operationSymbol = getRelationalOperator(operation);
-        std::cout << "\t"<<operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextLevel3Expr << std::endl;
+        std::cout << "\t" << operationSymbol << " " << newTempVar << " " << lastTempVar << " " << nextLevel3Expr << std::endl;
 
         lastTempVar = newTempVar;
         index += 2;
@@ -461,87 +465,138 @@ std::any Fortran90ParserTranslatorVisitor::visitLevel4Expr(Fortran90Parser::Leve
 
 std::any Fortran90ParserTranslatorVisitor::visitIfConstruct(Fortran90Parser::IfConstructContext *ctx)
 {
-    // <ifThenStmt> <conditionalBody> <elseIfConstruct*> <elseConstruct?> <endIfStmt>
+    // <ifThenStmt> <conditionalBody> <elseIfConstruct>* <elseConstruct>? <endIfStmt>
 
     // process the ifThenStmt
 
-    // std::string condition = std::any_cast<std::string>(ctx->children[0]->accept(this));     //actually need to print this condition after the IF label??
-    std::string conditionIndex = "cond" + std::to_string(conditionCount++);
-    std::string thenIndex = "then" + std::to_string(thenCount++);
-    std::string elseIndex = "else" + std::to_string(elseCount++);
+    /// NOTE: ignoring <elseIfConstruct> for now
+    if (ctx->children.size() == 3)
+    { // just an <ifThenStmt> <conditionalBody> <endIfStmt>
+        std::string condLabel = "cond" + std::to_string(ifCount);
+        std::string thenLabel = "then" + std::to_string(ifCount);
+        std::string endLabel = "endif" + std::to_string(ifCount++); // increment the ifCount
+        std::cout << "\tIF " << condLabel << " " << thenLabel << " " << endLabel << std::endl;
 
-    std::cout << "\tIF " << conditionIndex << " " << thenIndex << " " << elseIndex << std::endl;
-    visitIfThenStmtWithLabel(dynamic_cast<Fortran90Parser::IfThenStmtContext *>(ctx->children[0]), conditionIndex, thenIndex);
+        // print label for ifThenStmt condition, then process the block
+        std::cout << condLabel << ": ";
+        ctx->children[0]->accept(this);
 
-    //visit the conditionalBody at index 2, if that node is a terminal, just output it (e.g. EXIT)
-    ///NOTE: visitTerminal will implement printing the EXIT statement
-    //otherwise conditionalBody can contain multiple <executionPartConstruct> it will visitChildren
-    //or conditionalBody will contain some other (non-terminal) statement (e.g. print) it will visit
-    ctx->children[1]->accept(this);
+        // visit the conditionalBody at index 1, if that node is a terminal, just output it (e.g. EXIT)
+        /// NOTE: visitTerminal will implement printing the EXIT statement
+        // otherwise conditionalBody can contain multiple <executionPartConstruct> it will visitChildren
+        // or conditionalBody will contain some other (non-terminal) statement (e.g. print) it will visit
+        std::cout << thenLabel << ": ";
+        ctx->children[1]->accept(this);
+        std::cout << "\tENDTHEN" << std::endl;
+
+        // process endIfStmt - would just print "ENDIF"
+        std::cout << endLabel << ": ";
+        ctx->children[2]->accept(this);
+    }
+    else if (ctx->children.size() == 4)
+    { // <ifThenStmt> <conditionalBody> <elseConstruct> <endIfStmt>
+        std::string condLabel = "cond" + std::to_string(ifCount);
+        std::string thenLabel = "then" + std::to_string(ifCount);
+        std::string elseLabel = "else" + std::to_string(ifCount);
+        std::string endLabel = "endif" + std::to_string(ifCount++); // increment the ifCount
+        std::cout << "\tIF " << condLabel << " " << thenLabel << " " << elseLabel << " " << endLabel << std::endl;
+
+        // print conditional block label, then process ifThenStmt block
+        std::cout << condLabel << ": ";
+        ctx->children[0]->accept(this);
+
+        std::cout << thenLabel << ": ";
+        ctx->children[1]->accept(this);
+        std::cout << "\tENDTHEN" << std::endl;
+
+        std::cout << elseLabel << ": ";
+        ctx->children[2]->accept(this); // a elseConstruct
+        std::cout << "\tENDELSE" << std::endl;
+
+        // process endIfStmt
+        std::cout << endLabel << ": ";
+        ctx->children[3]->accept(this);
+    }
 
     return nullptr;
-}
-
-// wrapper function with extra parameter to pass in the instruction label
-/// TODO: can make this into a generic wrapper function for any visit method!!
-void Fortran90ParserTranslatorVisitor::visitIfThenStmtWithLabel(Fortran90Parser::IfThenStmtContext *ctx, const std::string &condLabel, const std::string &thenLabel)
-{
-
-    // print the condition label - no std::endl
-    std::cout << condLabel << ": ";
-    ctx->accept(this);
-
-    std::cout<< thenLabel << ": ";
 }
 
 std::any Fortran90ParserTranslatorVisitor::visitIfThenStmt(Fortran90Parser::IfThenStmtContext *ctx)
 {
     // IF LPAREN expression RPAREN THEN
 
-    // process the <condition expression> and then return and print the 'cond' label
+    // process the <expression> for the condition - recurse on the expression
+    // would print the block of condition code
+    /// NOTE: this would also return the temp var which is the actual condition
+        // I can use this temp var by printing 'TEST <var>'
+    std::string conditionVar = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
-    // std::string conditionIndex = "cond" + std::to_string(conditionCount++);
-
-    // print the condition label - no std::endl
-    //  std::cout<<conditionIndex<<": ";
-
-    // process the expression - would print the block of condition code
-    /// NOTE: this would also return the temp var which is the actual condition! But not sure if it is needed anywhere
-    ctx->children[2]->accept(this);
+    std::cout << "\tTEST " << conditionVar << std::endl;
 
     return nullptr;
 }
 
-std::any Fortran90ParserTranslatorVisitor::visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx)
-{
-    return visitChildren(ctx);
-}
+///TODO: implement elseif
+// std::any Fortran90ParserTranslatorVisitor::visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx)
+// {
+//     return visitChildren(ctx);
+// }
 
-std::any Fortran90ParserTranslatorVisitor::visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx)
-{
-    return visitChildren(ctx);
-}
+// std::any Fortran90ParserTranslatorVisitor::visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx)
+// {
+//     return visitChildren(ctx);
+// }
 
 std::any Fortran90ParserTranslatorVisitor::visitElseConstruct(Fortran90Parser::ElseConstructContext *ctx)
 {
-    return visitChildren(ctx);
-}
+    //<elseStmt> <conditionalBody>
+    /// NOTE: elseStmt will just be ELSE - already printed in visitIfConstruct
+    //just visit the conditionalBody
 
-std::any Fortran90ParserTranslatorVisitor::visitElseStmt(Fortran90Parser::ElseStmtContext *ctx)
-{
-    return visitChildren(ctx);
+    ctx->children[1]->accept(this);
+    return nullptr;
 }
 
 std::any Fortran90ParserTranslatorVisitor::visitEndIfStmt(Fortran90Parser::EndIfStmtContext *ctx)
 {
-    return visitChildren(ctx);
+    std::cout << "ENDIF" << std::endl;
+    return nullptr;
 }
+
+std::any Fortran90ParserTranslatorVisitor::visitBlockDoConstruct(Fortran90Parser::BlockDoConstructContext *ctx){
+    //of the form 
+    //<nameColon>? DO <commaLoopControl>? <executionPartConstruct>* <endDoStmt>
+    ///NOTE: ignoring <commaLoopControl> for now - just doing a DO loop with no control - requires EXIT
+    ///NOTE: also ignoring <nameColon> for now - just doing a simple DO loop with no name
+
+    // so the form would be DO <executionPartConstruct>* <endDoStmt>
+
+    std::string bodyLabel = "body" + std::to_string(loopCount);
+    std::string exitLabel = "exit" + std::to_string(loopCount++);
+
+    std::cout<<"\tLOOP "<<bodyLabel<<" "<<exitLabel<<std::endl;
+
+    // print the label for the body of the loop
+    std::cout<<bodyLabel<<": ";
+    for(size_t i = 1; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct
+        ctx->children[i]->accept(this);
+    }
+
+    std::cout<<exitLabel<<": \tENDLOOP"<<std::endl;   
+    ///TODO: loop at why ENDIF was implemented really weirdly and handled twice - can you always confirm its just ENDIF
+
+    return nullptr;
+
+
+}
+
+
 
 //////////////////////HELPER FUNCTIONS//////////////////////
 
 std::string Fortran90ParserTranslatorVisitor::getNewTempVariableName()
 {
-    return "t" + std::to_string(tempVariableCount++);
+    return "_t" + std::to_string(tempVariableCount++);
 }
 
 std::string Fortran90ParserTranslatorVisitor::getStringIndex(std::string str)

@@ -3,6 +3,8 @@
 #include "Fortran90ParserBaseVisitor.h"
 #include <algorithm>  // for std::transform
 #include <cctype>     // for std::tolower
+#include <functional> // for std::function
+#include <any>
 
 class Fortran90ParserTranslatorVisitor : public Fortran90ParserBaseVisitor
 {
@@ -46,24 +48,17 @@ public:
 
     virtual std::any visitIfConstruct(Fortran90Parser::IfConstructContext *ctx) override;
 
-    /// wrapper functions - QUESTION: private or public?
-    virtual void visitIfThenStmtWithLabel(Fortran90Parser::IfThenStmtContext *ctx, const std::string &condLabel, const std::string &thenLabel);
-
     virtual std::any visitIfThenStmt(Fortran90Parser::IfThenStmtContext *ctx) override;
 
-    // virtual std::any visitConditionalBody(Fortran90Parser::ConditionalBodyContext *ctx) override;
+    // virtual std::any visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx) override;
 
-    virtual std::any visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx) override;
-
-    virtual std::any visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx) override;
+    // virtual std::any visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx) override;
 
     virtual std::any visitElseConstruct(Fortran90Parser::ElseConstructContext *ctx) override;
 
-    virtual std::any visitElseStmt(Fortran90Parser::ElseStmtContext *ctx) override;
-
     virtual std::any visitEndIfStmt(Fortran90Parser::EndIfStmtContext *ctx) override;
 
-    
+    virtual std::any visitBlockDoConstruct(Fortran90Parser::BlockDoConstructContext *ctx) override;
 
 private:
     // the parser to access the rule names
@@ -79,12 +74,10 @@ private:
     std::string getStringIndex(std::string str);
     std::string getItemToPrint(std::string outputItem);       // check if the outputItem is a string or a variable/number etc.
     std::string getRelationalOperator(std::string operation); // get the relational operator, convert from <, > to LT, GT etc.
-    int conditionCount = 0;      //for naming the block labels
-    int thenCount = 0;
-    int elseCount = 0;
+    // int conditionCount = 0;      //for naming the block labels
+    // int thenCount = 0;
+    // int elseCount = 0;
 
-    
-
-
-    
+    int ifCount = 0; // for naming the [if..else..endif] block labels, each control structure will have the same number
+    int loopCount = 0;
 };

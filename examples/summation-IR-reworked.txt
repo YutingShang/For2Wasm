@@ -2,11 +2,12 @@
         DECLARE a
         CALL    PRINT   $str1                   //"This program performs summations. Enter 0 to stop."
         MOV     sum     0                       //initialise variable 'sum_1 = 0'
-doloop: LOOP    body    exit
+        LOOP    body    exit
 body:   CALL    PRINT   $str2                   //"Add:"
         CALL    READ    a                       //read variable 'a'
         IF      cond    then    else    endif
-cond:   CMPEQ   t0      a       0               //<bool> <val1> <val2> - actual condition is t0, last variable?
+cond:   EQ   t0      a       0                  //<bool> <val1> <val2> - actual condition is t0, last variable?
+        TEST t0
 then:   JMP     exit                            //EXIT
         ENDTHEN                                 //jumps to endif
 else:   ADD     t1      sum     a               //sum + a   

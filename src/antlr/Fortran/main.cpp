@@ -30,11 +30,26 @@ std::string toDotTree(antlr4::tree::ParseTree *root, const std::vector<std::stri
 
 int main(int, const char **)
 {
+  ////////////////Setting up redirection of entire main function output to a file////////////////////////
 
-  std::ifstream file("../../../examples/summation.f90");
+  std::ofstream out("output.ir");
+  if (!out.is_open())
+  {
+    std::cerr << "Failed to open output file" << std::endl;
+    return 1;
+  }
+
+  std::streambuf *originalBuf = std::cout.rdbuf(); //save old buf
+
+  std::cout.rdbuf(out.rdbuf()); //redirect std::cout to output.ir
+
+
+  ////////////////Program to translate to IR////////////////////////////////////////
+
+  std::ifstream file("../../../examples/summation.f90");            //open the Fortran program to translate to IR
   if (!file.is_open())
   {
-    std::cerr << "Failed to open file" << std::endl;
+    std::cerr << "Failed to open input file" << std::endl;
     return 1;
   }
 
@@ -100,6 +115,13 @@ int main(int, const char **)
   // for (size_t i = 0; i < ruleNames.size(); ++i) {
   //     std::cout << ruleNames[i] << std::endl;
   // }
+
+
+  ////////////////Cleanup redirection of entire main function output to a file////////////////////////
+
+  std::cout.rdbuf(originalBuf); //reset to standard output again
+  out.close();
+
 
   return 0;
 }
