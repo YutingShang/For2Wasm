@@ -32,7 +32,8 @@ int main(int, const char **)
 {
   ////////////////Setting up redirection of entire main function output to a file////////////////////////
 
-  std::ofstream out("output.ir");
+  std::filesystem::create_directories("output");   //creates directory if it does not exist
+  std::ofstream out("output/output.ir");
   if (!out.is_open())
   {
     std::cerr << "Failed to open output file" << std::endl;
@@ -122,6 +123,23 @@ int main(int, const char **)
   std::cout.rdbuf(originalBuf); //reset to standard output again
   out.close();
 
+
+  /////////////// Write the strings from the translator visitor to a file //////////////////////////
+  
+  std::ofstream stringFile("output/index_strings.txt");
+  if (!stringFile.is_open())
+  {
+    std::cerr << "Failed to open string file" << std::endl;
+    return 1;
+  }
+
+  //write entries to file 
+  //<str_var> 
+  //<string>   (on the next line)
+  std::unordered_map<std::string, std::string> stringMap = translatorVisitor.getStringMap();
+  for (const auto& pair : stringMap){
+    stringFile << pair.first << "\n" << pair.second << std::endl;
+  }
 
   return 0;
 }

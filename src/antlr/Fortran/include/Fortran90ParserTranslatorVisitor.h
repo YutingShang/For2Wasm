@@ -60,6 +60,10 @@ public:
 
     virtual std::any visitBlockDoConstruct(Fortran90Parser::BlockDoConstructContext *ctx) override;
 
+    std::unordered_map<std::string, std::string> getStringMap(){
+        return stringIndexMap;
+    };
+
 private:
     // the parser to access the rule names
     Fortran90Parser &parser;

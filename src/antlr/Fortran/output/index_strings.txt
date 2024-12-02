@@ -1,0 +1,6 @@
+$str1
+This program performs summations. Enter 0 to stop.
+$str2
+Add:
+$str3
+Summation =
