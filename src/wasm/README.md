@@ -9,3 +9,5 @@ which converts the `output.ir` file from the `src/antlr/Fortran` directory into 
 4. Then ensure `program.js` has the `output.wasm` file, and install any node packages (e.g. `prompt-sync`)
    - `npm install prompt-sync`
    - Or if the `package.json` file exists, simply run `npm install` to get dependencies
+     
+5. run `node program.js`
