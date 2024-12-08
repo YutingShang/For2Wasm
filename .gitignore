@@ -1,10 +1,7 @@
 *.DS_Store
 *.vscode/
-src/antlr/build
-examples/fortran
 *node_modules
-*Lexer-with-line-num.g4
-src/antlr/TLexer
 *.antlr
-*.bak
-*.o
+.rough
+build
+

@@ -19,4 +19,4 @@ program summation
     end do
 
     print *, "Summation =", sum
-end
+end program summation

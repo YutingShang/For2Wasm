@@ -10,7 +10,7 @@ int processLine(const std::vector<std::vector<std::string>> &lines, std::unorder
 int main(int, const char **)
 {
     // open the IR file
-    std::ifstream inFile("../antlr/Fortran/output/output.ir");
+    std::ifstream inFile("../output/output.ir");
 
     if (!inFile.is_open())
     {
@@ -79,7 +79,7 @@ int main(int, const char **)
 
     /////////////////// retrieve strings from the translator visitor
 
-    std::ifstream stringFile("../antlr/Fortran/output/index_strings.txt");
+    std::ifstream stringFile("../output/index_strings.txt");
     if (!stringFile.is_open())
     {
         std::cerr << "Failed to open string file" << std::endl;
