@@ -20,49 +20,57 @@
 #include "Fortran90ParserCustomVisitor.h"
 #include "Fortran90ParserASTVisitor.h"
 #include "Fortran90ParserTranslatorVisitor.h"
+#include "Fortran90ParserIRTreeVisitor.h"
 #include "tree/Trees.h"
 #include <regex>
 #include <filesystem>
 using namespace antlrcpp;
 using namespace antlr4;
 
-std::string toDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames);
+std::string parseTreeToDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames);
+std::string irTreeToDotTree(BaseNode *root);
 
-int main(int, const char **)
+int main(int argc, const char **argv)
 {
   ////////////////Setting up redirection of entire main function output to a file////////////////////////
 
-  std::filesystem::create_directories("output");   //creates directory if it does not exist
-  std::ofstream out("output/output.ir");
-  if (!out.is_open())
-  {
-    std::cerr << "Failed to open output file" << std::endl;
-    return 1;
-  }
+  // std::filesystem::create_directories("output");   //creates directory if it does not exist
+  // std::ofstream out("output/output.ir");
+  // if (!out.is_open())
+  // {
+  //   std::cerr << "Failed to open output file" << std::endl;
+  //   return 1;
+  // }
 
-  std::streambuf *originalBuf = std::cout.rdbuf(); //save old buf
+  // std::streambuf *originalBuf = std::cout.rdbuf(); //save old buf
 
-  std::cout.rdbuf(out.rdbuf()); //redirect std::cout to output.ir
-
+  // std::cout.rdbuf(out.rdbuf()); //redirect std::cout to output.ir
 
   ////////////////Program to translate to IR////////////////////////////////////////
 
-  std::cout << "CWD: " << std::filesystem::current_path() << std::endl;
-  std::ifstream file("../examples/summation.f90");            //open the Fortran program to translate to IR
-  if (!file.is_open())
+  std::ifstream file;
+  if (argc >= 2)
   {
-    std::cerr << "Failed to open input file" << std::endl;
+    file.open(argv[1]); // open the Fortran program to translate to IR
+    if (!file.is_open())
+    {
+      std::cerr << "Failed to open input file" << std::endl;
+      return 1;
+    }
+  }
+  else
+  {
+    std::cerr << "No input file provided" << std::endl;
     return 1;
   }
 
   ANTLRInputStream input(file);
 
-
   //////////////////LEXER////////////////////////////////////////////////////////
 
   Fortran90Lexer lexer(&input);
   CommonTokenStream tokens(&lexer); // create stream of tokens with lexer
-  tokens.fill(); // process all tokens before printing
+  tokens.fill();                    // process all tokens before printing
 
   // UNCOMMENT to print all tokens
   // for (auto token : tokens.getTokens())
@@ -72,14 +80,14 @@ int main(int, const char **)
 
   //////////////////PARSER////////////////////////////////////////////////////////
 
-  Fortran90Parser parser(&tokens);          // create parser that works on stream of tokens
+  Fortran90Parser parser(&tokens);               // create parser that works on stream of tokens
   tree::ParseTree *parseTree = parser.program(); // get first node matched by rule
 
   // UNCOMMENT to print parse tree in LISP format
   // std::cout << parseTree->toStringTree(&parser) << std::endl;
 
   // UNCOMMENT to print entire parse tree in DOT format
-  // std::string dotParseTree = toDotTree(parseTree, parser.getRuleNames());
+  // std::string dotParseTree = parseTreeToDotTree(parseTree, parser.getRuleNames());
   // std::cout << dotParseTree << std::endl;
 
   /////////////////CUSTOM VISITOR///////////////////////////////////////////////////
@@ -87,29 +95,28 @@ int main(int, const char **)
   // UNCOMMENT to use custom visitor which prints out the nodes that would be in the AST
   // Fortran90ParserCustomVisitor visitor(parser);
   // parseTree->accept(&visitor); // dispatches call to appropriate visit method in visitor
-  
 
   /////////////////AST VISITOR///////////////////////////////////////////////////
 
   // UNCOMMENT to create AST of the parse tree
   Fortran90ParserASTVisitor astVisitor(parser);
-  antlr4::tree::ParseTree *astTree = std::any_cast<antlr4::tree::ParseTree*>(parseTree->accept(&astVisitor));   // dispatches call to appropriate visit method in visitor
-  
+  antlr4::tree::ParseTree *astTree = std::any_cast<antlr4::tree::ParseTree *>(parseTree->accept(&astVisitor)); // dispatches call to appropriate visit method in visitor
 
   // UNCOMMENT to print AST of the parse tree in LISP format
   // std::cout << astTree->toStringTree(&parser) << std::endl;
 
   // UNCOMMENT to print AST of the parse tree in DOT format
-  // std::string dotASTTree = toDotTree(astTree, parser.getRuleNames());
+  // std::string dotASTTree = parseTreeToDotTree(astTree, parser.getRuleNames());
   // std::cout << dotASTTree << std::endl;
-  
 
   /////////////////TRANSLATOR VISITOR///////////////////////////////////////////////////
 
   // UNCOMMENT to translate the AST to three address code IR
-  Fortran90ParserTranslatorVisitor translatorVisitor(parser);
-  astTree->accept(&translatorVisitor);
-
+  if (argc >= 3 && std::string(argv[2]) == "-irPrint")
+  {
+    Fortran90ParserTranslatorVisitor translatorVisitor(parser);
+    astTree->accept(&translatorVisitor);
+  }
 
   // print rule names
   // const auto& ruleNames = parser.getRuleNames();
@@ -118,34 +125,119 @@ int main(int, const char **)
   //     std::cout << ruleNames[i] << std::endl;
   // }
 
+  ////////////////IR TREE VISITOR///////////////////////////////////////////////////
+
+  if (argc >= 3 && (std::string(argv[2]) == "-irTree" || std::string(argv[2]) == "-irDot"))
+  {
+    SimpleNode *entryNode = new SimpleNode("ENTRY");
+    Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
+    astTree->accept(&irTreeVisitor);
+
+    if (std::string(argv[2]) == "-irTree")
+    {
+
+      std::cout << entryNode->stringifyIRTree() << std::endl;
+      // traverse the IR tree and print it
+      // std::vector<BaseNode *> nodesToPrint = {entryNode};
+
+      // while (nodesToPrint.size() > 0)
+      // {
+      //   BaseNode *currentNode = nodesToPrint.back();
+      //   nodesToPrint.pop_back();
+      //   std::cout << currentNode->getText() << std::endl; // pre-order traversal
+
+      //   std::vector<BaseNode *> children = currentNode->getChildren();
+      //   // add children in reverse order so that the first child is added last and then visited first (left to right tree traversal)
+      //   for (std::vector<BaseNode *>::reverse_iterator riter = children.rbegin(); riter != children.rend(); ++riter)
+      //   {
+      //     nodesToPrint.push_back(*riter);
+      //   }
+      // }
+    }
+    else
+    {
+      std::string dotIRTree = irTreeToDotTree(entryNode);
+      std::cout << dotIRTree << std::endl;
+    }
+  }
 
   ////////////////Cleanup redirection of entire main function output to a file////////////////////////
 
-  std::cout.rdbuf(originalBuf); //reset to standard output again
-  out.close();
-
+  // std::cout.rdbuf(originalBuf); //reset to standard output again
+  // out.close();
 
   /////////////// Write the strings from the translator visitor to a file //////////////////////////
-  
-  std::ofstream stringFile("output/index_strings.txt");
-  if (!stringFile.is_open())
-  {
-    std::cerr << "Failed to open string file" << std::endl;
-    return 1;
-  }
 
-  //write entries to file 
-  //<str_var> 
-  //<string>   (on the next line)
-  std::unordered_map<std::string, std::string> stringMap = translatorVisitor.getStringMap();
-  for (const auto& pair : stringMap){
-    stringFile << pair.first << "\n" << pair.second << std::endl;
-  }
+  // std::ofstream stringFile("output/index_strings.txt");
+  // if (!stringFile.is_open())
+  // {
+  //   std::cerr << "Failed to open string file" << std::endl;
+  //   return 1;
+  // }
+
+  // //write entries to file
+  // //<str_var>
+  // //<string>   (on the next line)
+  // std::unordered_map<std::string, std::string> stringMap = translatorVisitor.getStringMap();
+  // for (const auto& pair : stringMap){
+  //   stringFile << pair.first << "\n" << pair.second << std::endl;
+  // }
 
   return 0;
 }
 
-std::string toDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames)
+std::string irTreeToDotTree(BaseNode *root)
+{
+
+  std::stringstream dot;
+  dot << "digraph Tree {\n";
+
+  int nodeCount = 0;
+  std::unordered_map<BaseNode *, int> nodeToIndex; // map to store node and its index - used in dot file
+
+  std::stack<BaseNode *> stack;
+  stack.push(root);
+
+  while (!stack.empty())
+  {
+    BaseNode *currentNode = stack.top();
+    stack.pop();
+
+    if (nodeToIndex.find(currentNode) == nodeToIndex.end())
+    {
+      nodeToIndex[currentNode] = nodeCount++; // add node to map if not already in it
+
+      // get text representation of node
+      std::string nodeText = currentNode->getText();
+      nodeText = std::regex_replace(nodeText, std::regex("\""), "\\\""); // escape quotes for printing
+      dot << "node" << nodeToIndex[currentNode] << " [label=\"" << nodeText << "\"];\n";
+    }
+
+    // add children to stack
+    for (BaseNode *child : currentNode->getChildren())
+    {
+      // create child node if not in map
+      if (nodeToIndex.find(child) == nodeToIndex.end())
+      {
+        nodeToIndex[child] = nodeCount++;
+        std::string childText = child->getText();
+        childText = std::regex_replace(childText, std::regex("\""), "\\\"");
+        dot << "node" << nodeToIndex[child] << " [label=\"" << childText << "\"];\n";
+      }
+
+      // add edge to dot file
+      dot << "node" << nodeToIndex[currentNode] << " -> node" << nodeToIndex[child] << ";\n";
+
+      // add child to stack
+      stack.push(child);
+    }
+  }
+
+  dot << "}\n";
+  return dot.str();
+}
+
+std::string parseTreeToDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames)
 {
   std::stringstream dot; // stream to store dot file
   dot << "digraph Tree {\n";
@@ -198,3 +290,8 @@ std::string toDotTree(antlr4::tree::ParseTree *root, const std::vector<std::stri
   dot << "}\n";
   return dot.str();
 }
+
+
+// std::string printIRTree(BaseNode *root){
+
+// }
