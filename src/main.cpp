@@ -21,6 +21,7 @@
 #include "Fortran90ParserASTVisitor.h"
 #include "Fortran90ParserTranslatorVisitor.h"
 #include "Fortran90ParserIRTreeVisitor.h"
+#include "IRTreeTools.h"
 #include "tree/Trees.h"
 #include <regex>
 #include <filesystem>
@@ -28,7 +29,7 @@ using namespace antlrcpp;
 using namespace antlr4;
 
 std::string parseTreeToDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames);
-std::string irTreeToDotTree(BaseNode *root);
+
 
 int main(int argc, const char **argv)
 {
@@ -127,7 +128,7 @@ int main(int argc, const char **argv)
 
   ////////////////IR TREE VISITOR///////////////////////////////////////////////////
 
-  if (argc >= 3 && (std::string(argv[2]) == "-irTree" || std::string(argv[2]) == "-irDot"))
+  if (argc >= 3 && (std::string(argv[2]) == "-irTree" || std::string(argv[2]) == "-irDot" || std::string(argv[2]) == "-irWASM"))
   {
     SimpleNode *entryNode = new SimpleNode("ENTRY");
     Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
@@ -135,29 +136,21 @@ int main(int argc, const char **argv)
 
     if (std::string(argv[2]) == "-irTree")
     {
+      std::cout << entryNode->stringifyIRTree() << std::endl;      //print out IR in text form, including labels
 
-      std::cout << entryNode->stringifyIRTree() << std::endl;
-      // traverse the IR tree and print it
-      // std::vector<BaseNode *> nodesToPrint = {entryNode};
-
-      // while (nodesToPrint.size() > 0)
-      // {
-      //   BaseNode *currentNode = nodesToPrint.back();
-      //   nodesToPrint.pop_back();
-      //   std::cout << currentNode->getText() << std::endl; // pre-order traversal
-
-      //   std::vector<BaseNode *> children = currentNode->getChildren();
-      //   // add children in reverse order so that the first child is added last and then visited first (left to right tree traversal)
-      //   for (std::vector<BaseNode *>::reverse_iterator riter = children.rbegin(); riter != children.rend(); ++riter)
-      //   {
-      //     nodesToPrint.push_back(*riter);
-      //   }
-      // }
     }
-    else
+    else if (std::string(argv[2]) == "-irDot")
     {
-      std::string dotIRTree = irTreeToDotTree(entryNode);
+      IRTreeTools irTreeTools;
+      std::string dotIRTree = irTreeTools.irTreeToDotTree(entryNode);
       std::cout << dotIRTree << std::endl;
+    }
+    else if (std::string(argv[2]) == "-irWASM")
+    {
+      std::unordered_map<std::string, std::string> stringMap = irTreeVisitor.getStringMap();
+      IRTreeTools irTreeTools;
+      std::string wasm = irTreeTools.irTreeToWASM(entryNode, stringMap);
+      std::cout << wasm << std::endl;
     }
   }
 
@@ -186,56 +179,6 @@ int main(int argc, const char **argv)
   return 0;
 }
 
-std::string irTreeToDotTree(BaseNode *root)
-{
-
-  std::stringstream dot;
-  dot << "digraph Tree {\n";
-
-  int nodeCount = 0;
-  std::unordered_map<BaseNode *, int> nodeToIndex; // map to store node and its index - used in dot file
-
-  std::stack<BaseNode *> stack;
-  stack.push(root);
-
-  while (!stack.empty())
-  {
-    BaseNode *currentNode = stack.top();
-    stack.pop();
-
-    if (nodeToIndex.find(currentNode) == nodeToIndex.end())
-    {
-      nodeToIndex[currentNode] = nodeCount++; // add node to map if not already in it
-
-      // get text representation of node
-      std::string nodeText = currentNode->getText();
-      nodeText = std::regex_replace(nodeText, std::regex("\""), "\\\""); // escape quotes for printing
-      dot << "node" << nodeToIndex[currentNode] << " [label=\"" << nodeText << "\"];\n";
-    }
-
-    // add children to stack
-    for (BaseNode *child : currentNode->getChildren())
-    {
-      // create child node if not in map
-      if (nodeToIndex.find(child) == nodeToIndex.end())
-      {
-        nodeToIndex[child] = nodeCount++;
-        std::string childText = child->getText();
-        childText = std::regex_replace(childText, std::regex("\""), "\\\"");
-        dot << "node" << nodeToIndex[child] << " [label=\"" << childText << "\"];\n";
-      }
-
-      // add edge to dot file
-      dot << "node" << nodeToIndex[currentNode] << " -> node" << nodeToIndex[child] << ";\n";
-
-      // add child to stack
-      stack.push(child);
-    }
-  }
-
-  dot << "}\n";
-  return dot.str();
-}
 
 std::string parseTreeToDotTree(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames)
 {

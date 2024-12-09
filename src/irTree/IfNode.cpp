@@ -24,8 +24,5 @@ std::string IfNode::stringifyIRTree() const {
         tree += "\n" + this->textVector[i] +": " + this->children[i-1]->stringifyIRTree();
     }
 
-    // for (BaseNode* child : this->children){
-    //     tree += "\n" + child->stringifyIRTree();
-    // }
     return tree;
 }

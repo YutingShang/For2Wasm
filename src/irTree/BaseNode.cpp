@@ -1,6 +1,7 @@
 #include "BaseNode.h"
 
-BaseNode::BaseNode(std::string text){
+BaseNode::BaseNode(std::string text)
+{
 
     std::istringstream stream(text);
     std::string token;
@@ -9,35 +10,43 @@ BaseNode::BaseNode(std::string text){
     { // split the line into tokens, removing whitespaces
         this->textVector.push_back(token);
     }
-    
 }
 
-std::string BaseNode::getText() const {
+std::string BaseNode::getText() const
+{
     std::string text = "";
-    for (std::string token : this->textVector) {
+    for (std::string token : this->textVector)
+    {
         text += token + " ";
     }
     return text;
 }
 
-// std::string BaseNode::getTextAt(int index) const {
-//     return this->textVector[index];
-// }
+std::vector<std::string> BaseNode::getTextVector() const
+{
+    return this->textVector;
+}
 
-// void BaseNode::addLabel(std::string label) {
-//     this->label = label;
-// }
-
-
-std::vector<BaseNode*> BaseNode::getChildren() const {
+std::vector<BaseNode *> BaseNode::getChildren() const
+{
     return this->children;
 }
 
-std::string BaseNode::stringifyIRTree() const {
+std::string BaseNode::stringifyIRTree() const
+{
     std::string tree = "\t" + getText();
 
-    for (BaseNode* child : this->children){
+    for (BaseNode *child : this->children)
+    {
         tree += "\n" + child->stringifyIRTree();
     }
     return tree;
+}
+
+bool BaseNode::getVisited() const {
+    return this->visited;
+}
+
+void BaseNode::setVisited(bool visited) {
+    this->visited = visited;
 }

@@ -1,21 +1,25 @@
-! sum.f90
-! Performs summations using in a loop using EXIT statement
-! Saves input information and the summation in a data file
-
-program summation
+program factorial
     implicit none
-    integer :: sum, q
-
-    print *, "Triangular number"
-    q=5
-    sum = 0
-    do
-        if (q == 0) then
-            exit
-        endif
-        sum = sum + q
-        q = q -1 
-    enddo
-
-    print *, "TADA here is sum", sum
-end
+    integer :: num, i, resultThing
+    ! Get user input
+    print *, "Enter a positive integer:"
+    read *, num
+    ! Check if the input is valid (positive integer)
+    if (num < 0) then
+        print *, "Factorial is not defined for negative numbers."
+    else
+        ! Initialize resultThing
+        resultThing = 1
+        i = 1
+        ! Calculate factorial using do (true) and exit
+        do
+            resultThing = resultThing * i
+            i = i + 1
+            if (i > num) then
+                exit
+            endif
+        end do
+        ! Display the resultThing
+        print *, "The factorial of ", num, " is: ", resultThing
+    end if
+end program factorial

@@ -28,7 +28,8 @@ SRCS = src/main.cpp \
 	src/irTree/BaseNode.cpp \
 	src/irTree/SimpleNode.cpp \
 	src/irTree/LoopNode.cpp \
-	src/irTree/IfNode.cpp
+	src/irTree/IfNode.cpp \
+	src/irTree/IRTreeTools.cpp
 
 # Get the directories of the source files
 SRC_DIRS = $(sort $(dir $(SRCS)))   
@@ -51,7 +52,7 @@ $(TARGET): $(OBJS) | $(BUILD_DIR)/bin
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
 
 # Ensure the bin directory exists
-$(BUILD_DIR)/bin: $(BUILD_DIR)
+$(BUILD_DIR)/bin: 
 	mkdir -p $(BUILD_DIR)/bin
 
 

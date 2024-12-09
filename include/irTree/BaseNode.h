@@ -12,23 +12,22 @@ class BaseNode {
 
         virtual std::string getText() const;
 
-        // virtual std::string getTextAt(int index) const;
+        virtual std::vector<std::string> getTextVector() const;
 
         virtual void addChild(BaseNode* child) = 0;
 
-        virtual std::string stringifyIRTree() const;
+        virtual std::string stringifyIRTree() const;    //print out IR in text form, including labels and indentation
 
         virtual std::vector<BaseNode*> getChildren() const;
 
-        // virtual void addLabel(std::string label);
+        virtual bool getVisited() const;
+
+        virtual void setVisited(bool visited);
         
     protected:
         std::vector<std::string> textVector;     //vector of tokens in the instruction, first will contain the operation e.g. MOV a b
 
         std::vector<BaseNode*> children = {};    //vector of children of the node
 
-        // std::string label = "";                  //label of the node if it has one
-
-        
-
+        bool visited = false;
 };

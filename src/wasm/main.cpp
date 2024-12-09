@@ -352,6 +352,7 @@ int processLine(const std::vector<std::vector<std::string>> &lines, std::unorder
         
         std::string exitLabel = exitStack.back();
         // exitStack.pop_back();
+        ///QUESTION: do I need to pop back??
 
         std::cout << "br $" << exitLabel << std::endl;
     }

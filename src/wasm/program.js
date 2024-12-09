@@ -23,11 +23,19 @@ const importObject = {
         log: (val) => console.log(val),
         promptSync : () => Number(prompt('')),
     },
-    
 };
+
+// Get WASM file path from command line arguments, e.g. node program.js ./output.wasm
+const wasmFile = process.argv[2] || './output.wasm';    
+
+// Check if file exists
+if (!fs.existsSync(wasmFile)) {
+    console.error(`Error: WASM file '${wasmFile}' not found!`);
+    process.exit(1);
+}
 
 /////runs wasm binary with import object, calls exported main function////////////////////////////////////
 
 WebAssembly.instantiate(
-    fs.readFileSync('./output.wasm'), importObject
-).then(obj => obj.instance.exports.main())
+    fs.readFileSync(wasmFile), importObject
+).then(obj => obj.instance.exports.main());
