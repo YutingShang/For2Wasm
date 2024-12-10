@@ -1,53 +1,33 @@
 # For2Wasm
-Fortran to WebAssembly Compiler 
+Fortran to WebAssembly Compiler
 
-To build the project, run `make` in the root directory.
+**Building the Project**
 
-This will output the executable to the `build/bin` directory.
+To build the project, run `make` in the root directory. This will output the executable to the `build/bin` directory.
 
-To clean the project, run `make clean` in the root directory.
-This will remove the `build` directory and all its contents.
+**Cleaning the Project**
 
------
+To clean the project, run `make clean` in the root directory. This will remove the `build` directory and all its contents.
 
-Currently my program works to compile Fortran to WASM by first compiling the main program, which you can run with the desired example program:
+**Using the Build Script**
 
+You can simply run the script `./build.sh` and it will compile the program and run it. For example:
 ```
-make
-./build/bin/main examples/summation.f90 -irWASM > output.wat
-wat2wasm output.wat -o output.wasm
-
+./build.sh examples/summation.f90 -irWASM
 ```
-*then move output.wasm to folder where program.js is, and `cd` to that directory*
+**Output Options**
 
-```
-node program.js
-```
+The third argument is a flag that determines what to output. The available options are:
 
-This will run the program and produce the execution behavior.
+* `-irWASM` - (*default*) output the IR tree in WASM format and run the program
+* `-irPrint` - output the IR tree in text format
+* `-irDot` - output the IR tree in dot format and convert to png
+* `-astDot` - output the AST tree in dot format and convert to png
+* `-parseDot` - output the parse tree in dot format and convert to png
 
----
+**Maintenance**
 
-Okay I've put this all in a bash script, so you can just run `./build.sh` and it will compile the program and run it.
-
-e.g. 
-```
-./build.sh examples/summation.f90
-```
-
-This will compile the program and run it.
-
-The output will be in the `dist` directory.
-And then it automatically runs `node program.js` on this output.
-
-Run `make clean` when necessary.
-
----
-
-You can also run `./build.sh examples/summation.f90 -irDot` to get the IR tree in dot format and png.
-
-Options:
-`-irDot` - output the IR tree in dot format and convert to png
-`-irWASM` - output the IR tree in WASM format and run the program
-`-irTree` - output the IR tree in text format
+* Run `make clean` when necessary.
+* Run `rm -rf dist/` to clean the dist (output) directory.
+* Run `./build.sh -help` to get help on the build script.
 

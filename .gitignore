@@ -4,4 +4,6 @@
 *.antlr
 .rough
 build
+dist
+
 

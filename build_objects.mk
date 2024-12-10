@@ -9,7 +9,7 @@ OBJ_DIR = $(BUILD_DIR)/obj
 
 # EDIT: change the antlr4-runtime and lib path to the one on your system
 CXX = g++
-INCLUDE_DIRS = /usr/local/lib/antlr4-runtime ./include/visitor ./include/irTree $(GENERATED_ANTLR_DIR) $(THIRD_PARTY_DIR)/fortran
+INCLUDE_DIRS = /usr/local/lib/antlr4-runtime ./include/visitor ./include/irTree ./include/utils $(GENERATED_ANTLR_DIR) $(THIRD_PARTY_DIR)/fortran
 CXXFLAGS = -std=c++17 $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
 LDFLAGS = -L/usr/local/lib/lib -lantlr4-runtime
 
@@ -21,7 +21,8 @@ SRCS = src/main.cpp \
 	$(THIRD_PARTY_DIR)/fortran/Fortran90LexerBase.cpp \
 	$(GENERATED_SRCS) \
 	$(wildcard src/irTree/*.cpp) \
-	$(wildcard src/visitor/*.cpp)
+	$(wildcard src/visitor/*.cpp) \
+	$(wildcard src/utils/*.cpp)
 
 # Get the directories of the source files
 SRC_DIRS = $(sort $(dir $(SRCS)))   
