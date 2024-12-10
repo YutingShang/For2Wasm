@@ -3,6 +3,22 @@
 #include "antlr4-runtime.h"
 #include <cstdlib>
 
+//need to include the other nodes here, where they are actually used, so not overshadowed by forward declarations
+#include "IfNode.h"
+#include "LoopNode.h"
+#include "SimpleNode.h"
+#include "LogicNotNode.h"
+#include "LogicBinOpNode.h"
+#include "ArithOpNode.h"
+#include "RelOpNode.h"
+#include "MovNode.h"
+#include "EndBlockNode.h"
+#include "ExitNode.h"
+#include "GhostNode.h"
+#include "DeclareNode.h"
+#include "PrintNode.h"
+#include "ReadNode.h"
+
 std::any Fortran90ParserIRTreeVisitor::visitChildren(antlr4::tree::ParseTree *node)
 {
 
@@ -45,10 +61,20 @@ std::any Fortran90ParserIRTreeVisitor::visitTerminal(antlr4::tree::TerminalNode 
     std::vector<std::string> reservedTerminalKeywords = {"EXIT", "ENDIF"};
     if (std::find(reservedTerminalKeywords.begin(), reservedTerminalKeywords.end(), textUPPER) != reservedTerminalKeywords.end())
     {
-        std::string instruction = "\t" + textUPPER;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\t" + textUPPER;
+        SimpleNode *instructionNode;
+
+        if (textUPPER == "EXIT")
+        {
+            instructionNode = new ExitNode();
+        }
+        else
+        {
+            instructionNode = new EndBlockNode(textUPPER);
+        }
+
+        previousParentNode->addChild(instructionNode);
+        previousParentNode = instructionNode;
         // e.g. prints the 'EXIT' IR instruction, if we see 'exit' or 'EXIT' in the AST
     }
     return text;
@@ -64,17 +90,17 @@ std::any Fortran90ParserIRTreeVisitor::visitAssignmentStmt(Fortran90Parser::Assi
     std::string expression = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
     // then process the current node
-    std::string instruction = "\tMOV " + variableName + " " + expression;
+    // std::string instruction = "\tMOV " + variableName + " " + expression;
 
     // create a new SimpleNode with the instruction
-    SimpleNode *simpleNode = new SimpleNode(instruction);
+    MovNode *movNode = new MovNode(variableName, expression);
 
     // assign the previous parent node as the parent of the current node
     // in this case, the previous parent node would be the expression evaluated
-    previousParentNode->addChild(simpleNode);
+    previousParentNode->addChild(movNode);
 
     // update the previous parent node to be the current node
-    previousParentNode = simpleNode;
+    previousParentNode = movNode;
 
     return nullptr;
     /// QUESTION: what to return for assignmentStmt? - maybe an instruction block label?
@@ -99,10 +125,10 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel2Expr(Fortran90Parser::Level2Ex
         std::string addOperand1 = std::any_cast<std::string>(ctx->children[1]->accept(this)); // recurse on the addOperand
 
         // print out the const values in the IR without # at the front
-        std::string instruction = "\tSUB " + tempResultVar + " 0 " + addOperand1;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\tSUB " + tempResultVar + " 0 " + addOperand1;
+        ArithOpNode *arithOpNode = new ArithOpNode("SUB", tempResultVar, "0", addOperand1);
+        previousParentNode->addChild(arithOpNode);
+        previousParentNode = arithOpNode;
     }
     else
     { // does not start with a `-`, process the first ADD or SUB
@@ -113,10 +139,10 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel2Expr(Fortran90Parser::Level2Ex
         std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
         std::string addOperand1 = std::any_cast<std::string>(ctx->children[0]->accept(this));
         std::string addOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
-        std::string instruction = "\t" + operationSymbol + " " + otherTempResultVar + " " + addOperand1 + " " + addOperand2;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\t" + operationSymbol + " " + otherTempResultVar + " " + addOperand1 + " " + addOperand2;
+        ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, otherTempResultVar, addOperand1, addOperand2);
+        previousParentNode->addChild(arithOpNode);
+        previousParentNode = arithOpNode;
     }
 
     // now we have the lastTempVar in both cases
@@ -131,10 +157,10 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel2Expr(Fortran90Parser::Level2Ex
 
         std::string operation = ctx->children[index - 1]->getText();
         std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
-        std::string instruction = "\t" + operationSymbol + " " + newTempVar + " " + lastTempVar + " " + nextAddOperand;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\t" + operationSymbol + " " + newTempVar + " " + lastTempVar + " " + nextAddOperand;
+        ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, newTempVar, lastTempVar, nextAddOperand);
+        previousParentNode->addChild(arithOpNode);
+        previousParentNode = arithOpNode;
 
         lastTempVar = newTempVar;
         index += 2;
@@ -164,10 +190,10 @@ std::any Fortran90ParserIRTreeVisitor::visitAddOperand(Fortran90Parser::AddOpera
 
         std::string tempResultVar = getNewTempVariableName();
         std::string lastTempVar = tempResultVar;
-        std::string instruction = "\t" + operationSymbol + " " + tempResultVar + " " + multOperand1 + " " + multOperand2;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\t" + operationSymbol + " " + tempResultVar + " " + multOperand1 + " " + multOperand2;
+        ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, tempResultVar, multOperand1, multOperand2);
+        previousParentNode->addChild(arithOpNode);
+        previousParentNode = arithOpNode;
 
         // repeat for the next multOperand
 
@@ -178,10 +204,10 @@ std::any Fortran90ParserIRTreeVisitor::visitAddOperand(Fortran90Parser::AddOpera
             std::string newTempVar = getNewTempVariableName();
             std::string operation = ctx->children[index - 1]->getText();
             std::string operationSymbol = (operation == "*") ? "MUL" : "DIV";
-            std::string instruction = "\t" + operationSymbol + " " + newTempVar + " " + lastTempVar + " " + nextMultOperand;
-            SimpleNode *simpleNode = new SimpleNode(instruction);
-            previousParentNode->addChild(simpleNode);
-            previousParentNode = simpleNode;
+            // std::string instruction = "\t" + operationSymbol + " " + newTempVar + " " + lastTempVar + " " + nextMultOperand;
+            ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, newTempVar, lastTempVar, nextMultOperand);
+            previousParentNode->addChild(arithOpNode);
+            previousParentNode = arithOpNode;
 
             lastTempVar = newTempVar;
             index += 2;
@@ -214,10 +240,10 @@ std::any Fortran90ParserIRTreeVisitor::visitPrintStmt(Fortran90Parser::PrintStmt
         std::string outputItem = ctx->children[3]->getText();
 
         // check if the outputItem is a string or a variable/number etc and print accordingly
-        std::string instruction = "\tCALL PRINT " + getItemToPrint(outputItem);
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\tCALL PRINT " + getItemToPrint(outputItem);
+        PrintNode *printNode = new PrintNode(getItemToPrint(outputItem));
+        previousParentNode->addChild(printNode);
+        previousParentNode = printNode;
     }
     else
     { // explore the outputItemList1 node
@@ -228,10 +254,9 @@ std::any Fortran90ParserIRTreeVisitor::visitPrintStmt(Fortran90Parser::PrintStmt
         // print out each item in the list
         for (std::string item : outputList)
         {
-            std::string instruction = "\tCALL PRINT " + item;
-            SimpleNode *simpleNode = new SimpleNode(instruction);
-            previousParentNode->addChild(simpleNode);
-            previousParentNode = simpleNode;
+            PrintNode *printNode = new PrintNode(item);
+            previousParentNode->addChild(printNode);
+            previousParentNode = printNode;
         }
     }
 
@@ -284,10 +309,10 @@ std::any Fortran90ParserIRTreeVisitor::visitReadStmt(Fortran90Parser::ReadStmtCo
     if (ctx->children[2]->children.size() == 0)
     {
         std::string inputVar = ctx->children[2]->getText();
-        std::string instruction = "\tCALL READ " + inputVar;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\tCALL READ " + inputVar;
+        ReadNode *readNode = new ReadNode(inputVar);
+        previousParentNode->addChild(readNode);
+        previousParentNode = readNode;
     }
     else
     {
@@ -296,10 +321,10 @@ std::any Fortran90ParserIRTreeVisitor::visitReadStmt(Fortran90Parser::ReadStmtCo
 
         for (std::string item : inputItemList)
         {
-            std::string instruction = "\tCALL READ " + item;
-            SimpleNode *simpleNode = new SimpleNode(instruction);
-            previousParentNode->addChild(simpleNode);
-            previousParentNode = simpleNode;
+            // std::string instruction = "\tCALL READ " + item;
+            ReadNode *readNode = new ReadNode(item);
+            previousParentNode->addChild(readNode);
+            previousParentNode = readNode;
         }
     }
 
@@ -357,10 +382,10 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
     {
 
         std::string variable = ctx->children[entityDeclListIndex]->getText();
-        std::string instruction = "\tDECLARE " + variable;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\tDECLARE " + variable;
+        DeclareNode *declareNode = new DeclareNode(variable);
+        previousParentNode->addChild(declareNode);
+        previousParentNode = declareNode;
     }
     else
     {
@@ -368,10 +393,10 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
         std::vector<std::string> variables = std::any_cast<std::vector<std::string>>(ctx->children[entityDeclListIndex]->accept(this));
         for (std::string variable : variables)
         {
-            std::string instruction = "\tDECLARE " + variable;
-            SimpleNode *simpleNode = new SimpleNode(instruction);
-            previousParentNode->addChild(simpleNode);
-            previousParentNode = simpleNode;
+            // std::string instruction = "\tDECLARE " + variable;
+            DeclareNode *declareNode = new DeclareNode(variable);
+            previousParentNode->addChild(declareNode);
+            previousParentNode = declareNode;
         }
     }
 
@@ -409,10 +434,10 @@ std::any Fortran90ParserIRTreeVisitor::visitEquivOperand(Fortran90Parser::EquivO
     std::string orOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
     std::string tempResultVar = getNewTempVariableName();
     std::string lastTempVar = tempResultVar;
-    std::string instruction = std::string("\tOR") + " " + tempResultVar + " " + orOperand1 + " " + orOperand2;
-    SimpleNode *simpleNode = new SimpleNode(instruction);
-    previousParentNode->addChild(simpleNode);
-    previousParentNode = simpleNode;
+    // std::string instruction = std::string("\tOR") + " " + tempResultVar + " " + orOperand1 + " " + orOperand2;
+    LogicBinOpNode *orNode = new LogicBinOpNode("OR", tempResultVar, orOperand1, orOperand2);
+    previousParentNode->addChild(orNode);
+    previousParentNode = orNode;
 
     // repeat for the next multOperand
     size_t index = 4;
@@ -420,10 +445,10 @@ std::any Fortran90ParserIRTreeVisitor::visitEquivOperand(Fortran90Parser::EquivO
     {
         std::string nextOrOperand = std::any_cast<std::string>(ctx->children[index]->accept(this));
         std::string newTempVar = getNewTempVariableName();
-        std::string instruction = std::string("\tOR") + " " + newTempVar + " " + lastTempVar + " " + nextOrOperand;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = std::string("\tOR") + " " + newTempVar + " " + lastTempVar + " " + nextOrOperand;
+        LogicBinOpNode *orNode = new LogicBinOpNode("OR", newTempVar, lastTempVar, nextOrOperand);
+        previousParentNode->addChild(orNode);
+        previousParentNode = orNode;
 
         lastTempVar = newTempVar;
         index += 2;
@@ -443,10 +468,10 @@ std::any Fortran90ParserIRTreeVisitor::visitOrOperand(Fortran90Parser::OrOperand
     std::string andOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
     std::string tempResultVar = getNewTempVariableName();
     std::string lastTempVar = tempResultVar;
-    std::string instruction = std::string("\tAND") + " " + tempResultVar + " " + andOperand1 + " " + andOperand2;
-    SimpleNode *simpleNode = new SimpleNode(instruction);
-    previousParentNode->addChild(simpleNode);
-    previousParentNode = simpleNode;
+    // std::string instruction = std::string("\tAND") + " " + tempResultVar + " " + andOperand1 + " " + andOperand2;
+    LogicBinOpNode *andNode = new LogicBinOpNode("AND", tempResultVar, andOperand1, andOperand2);
+    previousParentNode->addChild(andNode);
+    previousParentNode = andNode;
 
     // repeat for the next andOperand
     size_t index = 4;
@@ -454,10 +479,10 @@ std::any Fortran90ParserIRTreeVisitor::visitOrOperand(Fortran90Parser::OrOperand
     {
         std::string nextAndOperand = std::any_cast<std::string>(ctx->children[index]->accept(this));
         std::string newTempVar = getNewTempVariableName();
-        std::string instruction = std::string("\tAND") + " " + newTempVar + " " + lastTempVar + " " + nextAndOperand;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = std::string("\tAND") + " " + newTempVar + " " + lastTempVar + " " + nextAndOperand;
+        LogicBinOpNode *andNode = new LogicBinOpNode("AND", newTempVar, lastTempVar, nextAndOperand);
+        previousParentNode->addChild(andNode);
+        previousParentNode = andNode;
 
         lastTempVar = newTempVar;
         index += 2;
@@ -478,10 +503,10 @@ std::any Fortran90ParserIRTreeVisitor::visitAndOperand(Fortran90Parser::AndOpera
 
     std::string expr = std::any_cast<std::string>(ctx->children[1]->accept(this));
     std::string tempVar = getNewTempVariableName();
-    std::string instruction = std::string("\tNOT") + " " + tempVar + " " + expr;
-    SimpleNode *simpleNode = new SimpleNode(instruction);
-    previousParentNode->addChild(simpleNode);
-    previousParentNode = simpleNode;
+    // std::string instruction = std::string("\tNOT") + " " + tempVar + " " + expr;
+    LogicNotNode *logicNotNode = new LogicNotNode(tempVar, expr);
+    previousParentNode->addChild(logicNotNode);
+    previousParentNode = logicNotNode;
 
     return tempVar;
 }
@@ -502,10 +527,10 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel4Expr(Fortran90Parser::Level4Ex
     std::string level3Expr2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
     std::string tempResultVar = getNewTempVariableName();
     std::string lastTempVar = tempResultVar;
-    std::string instruction = "\t" + operationSymbol + " " + tempResultVar + " " + level3Expr1 + " " + level3Expr2;
-    SimpleNode *simpleNode = new SimpleNode(instruction);
-    previousParentNode->addChild(simpleNode);
-    previousParentNode = simpleNode;
+    // std::string instruction = "\t" + operationSymbol + " " + tempResultVar + " " + level3Expr1 + " " + level3Expr2;
+    RelOpNode *relOpNode = new RelOpNode(operationSymbol, tempResultVar, level3Expr1, level3Expr2);
+    previousParentNode->addChild(relOpNode);
+    previousParentNode = relOpNode;
 
     // repeat for the next level3Expr
     size_t index = 4;
@@ -517,10 +542,10 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel4Expr(Fortran90Parser::Level4Ex
 
         std::string operation = ctx->children[index - 1]->getText();
         std::string operationSymbol = getRelationalOperator(operation);
-        std::string instruction = "\t" + operationSymbol + " " + newTempVar + " " + lastTempVar + " " + nextLevel3Expr;
-        SimpleNode *simpleNode = new SimpleNode(instruction);
-        previousParentNode->addChild(simpleNode);
-        previousParentNode = simpleNode;
+        // std::string instruction = "\t" + operationSymbol + " " + newTempVar + " " + lastTempVar + " " + nextLevel3Expr;
+        RelOpNode *relOpNode = new RelOpNode(operationSymbol, newTempVar, lastTempVar, nextLevel3Expr);
+        previousParentNode->addChild(relOpNode);
+        previousParentNode = relOpNode;
 
         lastTempVar = newTempVar;
         index += 2;
@@ -558,7 +583,7 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
         // or conditionalBody will contain some other (non-terminal) statement (e.g. print) it will visit
         // std::cout << thenLabel << ": ";
         ctx->children[1]->accept(this);
-        SimpleNode *endThenNode = new SimpleNode("\tENDTHEN");
+        EndBlockNode *endThenNode = new EndBlockNode("ENDTHEN");
         previousParentNode->addChild(endThenNode);
         previousParentNode = ifNode;
 
@@ -587,13 +612,13 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
 
         // std::cout << thenLabel << ": ";
         ctx->children[1]->accept(this);
-        SimpleNode *endThenNode = new SimpleNode("\tENDTHEN");
+        EndBlockNode *endThenNode = new EndBlockNode("ENDTHEN");
         previousParentNode->addChild(endThenNode);
         previousParentNode = ifNode;
 
         // std::cout << elseLabel << ": ";
         ctx->children[2]->accept(this); // a elseConstruct
-        SimpleNode *endElseNode = new SimpleNode("\tENDELSE");
+        EndBlockNode *endElseNode = new EndBlockNode("ENDELSE");
         previousParentNode->addChild(endElseNode);
         previousParentNode = ifNode;
 
@@ -617,10 +642,10 @@ std::any Fortran90ParserIRTreeVisitor::visitIfThenStmt(Fortran90Parser::IfThenSt
         // I can use this temp var by printing 'TEST <var>'
     std::string conditionVar = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
-    std::string instruction = "\tTEST " + conditionVar;
-    SimpleNode *simpleNode = new SimpleNode(instruction);
-    previousParentNode->addChild(simpleNode);
-    previousParentNode = simpleNode;
+    // std::string instruction = "\tTEST " + conditionVar;
+    GhostNode *testNode = new GhostNode(conditionVar);
+    previousParentNode->addChild(testNode);
+    previousParentNode = testNode;
 
     return nullptr;
 }
@@ -648,9 +673,9 @@ std::any Fortran90ParserIRTreeVisitor::visitElseConstruct(Fortran90Parser::ElseC
 
 std::any Fortran90ParserIRTreeVisitor::visitEndIfStmt(Fortran90Parser::EndIfStmtContext *ctx)
 {
-    SimpleNode *simpleNode = new SimpleNode("\tENDIF");
-    previousParentNode->addChild(simpleNode);
-    previousParentNode = simpleNode;
+    EndBlockNode *endIfNode = new EndBlockNode("ENDIF");
+    previousParentNode->addChild(endIfNode);
+    previousParentNode = endIfNode;
     return nullptr;
 }
 
@@ -665,8 +690,7 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
     std::string bodyLabel = "body" + std::to_string(loopCount);
     std::string exitLabel = "exit" + std::to_string(loopCount++);
 
-    std::string instruction = "\tLOOP " + bodyLabel + " " + exitLabel;
-    LoopNode *loopNode = new LoopNode(instruction);
+    LoopNode *loopNode = new LoopNode(bodyLabel, exitLabel);
     previousParentNode->addChild(loopNode);
     previousParentNode = loopNode;
 
@@ -678,9 +702,9 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
 
     previousParentNode = loopNode;
 
-    SimpleNode *simpleNode = new SimpleNode("\tENDLOOP");
-    previousParentNode->addChild(simpleNode);
-    previousParentNode = simpleNode;
+    EndBlockNode *endLoopNode = new EndBlockNode("ENDLOOP");
+    previousParentNode->addChild(endLoopNode);
+    previousParentNode = endLoopNode;
     ///TODO: loop at why ENDIF was implemented really weirdly and handled twice - can you always confirm its just ENDIF
 
     return nullptr;

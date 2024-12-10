@@ -42,3 +42,12 @@ And then it automatically runs `node program.js` on this output.
 
 Run `make clean` when necessary.
 
+---
+
+You can also run `./build.sh examples/summation.f90 -irDot` to get the IR tree in dot format and png.
+
+Options:
+`-irDot` - output the IR tree in dot format and convert to png
+`-irWASM` - output the IR tree in WASM format and run the program
+`-irTree` - output the IR tree in text format
+

@@ -1,9 +1,10 @@
 #pragma once
 #include "antlr4-runtime.h"
 #include "Fortran90ParserBaseVisitor.h"
-#include "IfNode.h"
-#include "LoopNode.h"
-#include "SimpleNode.h"
+
+// add includes for the other nodes in the .cpp file
+#include "BaseNode.h"
+
 #include <algorithm>  // for std::transform
 #include <cctype>     // for std::tolower
 #include <functional> // for std::function

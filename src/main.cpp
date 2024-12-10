@@ -22,6 +22,8 @@
 #include "Fortran90ParserTranslatorVisitor.h"
 #include "Fortran90ParserIRTreeVisitor.h"
 #include "IRTreeTools.h"
+#include "IrWasmVisitor.h"
+#include "GhostNode.h"
 #include "tree/Trees.h"
 #include <regex>
 #include <filesystem>
@@ -130,7 +132,7 @@ int main(int argc, const char **argv)
 
   if (argc >= 3 && (std::string(argv[2]) == "-irTree" || std::string(argv[2]) == "-irDot" || std::string(argv[2]) == "-irWASM"))
   {
-    SimpleNode *entryNode = new SimpleNode("ENTRY");
+    GhostNode *entryNode = new GhostNode("ENTRY");    //will be used to store the IR tree
     Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
     astTree->accept(&irTreeVisitor);
 
@@ -148,8 +150,10 @@ int main(int argc, const char **argv)
     else if (std::string(argv[2]) == "-irWASM")
     {
       std::unordered_map<std::string, std::string> stringMap = irTreeVisitor.getStringMap();
-      IRTreeTools irTreeTools;
-      std::string wasm = irTreeTools.irTreeToWASM(entryNode, stringMap);
+      // IRTreeTools irTreeTools;
+      // std::string wasm = irTreeTools.irTreeToWASM(entryNode, stringMap);
+      IrWasmVisitor wasmVisitor(stringMap);
+      std::string wasm = wasmVisitor.getEntireProgramCode(entryNode);
       std::cout << wasm << std::endl;
     }
   }

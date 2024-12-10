@@ -1,9 +1,7 @@
 #include "LoopNode.h"
 
-LoopNode::LoopNode(std::string text) : BaseNode(text) {
-    if (this->textVector.size() != 3) {
-        throw std::runtime_error("LoopNode must have 3 tokens");
-    }
+LoopNode::LoopNode(std::string body, std::string exit){
+    this->textVector = {"LOOP", body, exit};
 }
 
 void LoopNode::addChild(BaseNode* child) {
@@ -21,3 +19,14 @@ std::string LoopNode::stringifyIRTree() const {
     return tree;
 }
 
+std::string LoopNode::accept(IrBaseVisitor* visitor) {
+    return visitor->visitLoopNode(this);
+}
+
+std::string LoopNode::getBodyLabel() const {
+    return this->textVector[1];
+}
+
+std::string LoopNode::getExitLabel() const {
+    return this->textVector[2];
+}

@@ -1,0 +1,16 @@
+// #include "ArithOpNode.h"
+// #include "LogicBinOpNode.h"
+// #include "LogicNotNode.h"
+// #include "RelOpNode.h"
+// #include "MovNode.h"
+// #include "EndBlockNode.h"
+// #include "ExitNode.h"
+// #include "LoopNode.h"
+// #include "IfNode.h"
+// #include "GhostNode.h"
+// #include "DeclareNode.h"
+// #include "PrintNode.h"
+// #include "ReadNode.h"
+
+#include "IrBaseVisitor.h"
+

@@ -20,16 +20,8 @@ TARGET = $(BUILD_DIR)/bin/main
 SRCS = src/main.cpp \
 	$(THIRD_PARTY_DIR)/fortran/Fortran90LexerBase.cpp \
 	$(GENERATED_SRCS) \
-	src/visitor/Fortran90ParserCustomVisitor.cpp \
-	src/visitor/Fortran90ParserASTVisitor.cpp \
-	src/visitor/Fortran90ParserTranslatorVisitor.cpp \
-	src/visitor/Fortran90ContextCopy.cpp \
-	src/visitor/Fortran90ParserIRTreeVisitor.cpp \
-	src/irTree/BaseNode.cpp \
-	src/irTree/SimpleNode.cpp \
-	src/irTree/LoopNode.cpp \
-	src/irTree/IfNode.cpp \
-	src/irTree/IRTreeTools.cpp
+	$(wildcard src/irTree/*.cpp) \
+	$(wildcard src/visitor/*.cpp)
 
 # Get the directories of the source files
 SRC_DIRS = $(sort $(dir $(SRCS)))   

@@ -1,3 +1,4 @@
+#pragma once
 #include "BaseNode.h"
 #include <stack>
 #include <regex>

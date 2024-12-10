@@ -1,5 +1,7 @@
 #include "SimpleNode.h"
 
+SimpleNode::SimpleNode() : BaseNode() {}
+
 SimpleNode::SimpleNode(std::string text) : BaseNode(text) {}
 
 void SimpleNode::addChild(BaseNode* child) {

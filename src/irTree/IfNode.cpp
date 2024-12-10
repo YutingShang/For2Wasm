@@ -26,3 +26,7 @@ std::string IfNode::stringifyIRTree() const {
 
     return tree;
 }
+
+std::string IfNode::accept(IrBaseVisitor* visitor) {
+    return visitor->visitIfNode(this);
+}
