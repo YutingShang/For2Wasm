@@ -23,7 +23,8 @@
 #include "Fortran90ParserIRTreeVisitor.h"
 #include "DotTreeTools.h"
 #include "IrWasmVisitor.h"
-#include "GhostNode.h"
+#include "EntryNode.h"
+#include "IrFlowgraphVisitor.h"
 #include "tree/Trees.h"
 #include <regex>
 #include <filesystem>
@@ -122,7 +123,7 @@ int main(int argc, const char **argv)
 
   if (argc >= 3 && (std::string(argv[2]) == "-irPrint" || std::string(argv[2]) == "-irDot" || std::string(argv[2]) == "-irWASM"))
   {
-    GhostNode *entryNode = new GhostNode("ENTRY");    //will be used to store the IR tree
+    EntryNode *entryNode = new EntryNode();    //will be used to store the IR tree
     Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
     astTree->accept(&irTreeVisitor);
 
@@ -144,6 +145,25 @@ int main(int argc, const char **argv)
       std::string wasm = wasmVisitor.getEntireProgramCode(entryNode);
       std::cout << wasm << std::endl;
     }
+  }
+
+  /////////////////FLOWGRAPH VISITOR///////////////////////////////////////////////////
+
+  if (argc >= 3 && std::string(argv[2]) == "-flowgraph") {
+
+    //first need to create the IR tree
+    EntryNode *entryNode = new EntryNode();    //will be used to store the IR tree
+    Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
+    astTree->accept(&irTreeVisitor);
+
+    //then need to create the flowgraph
+    BasicBlock* startBasicBlock = new BasicBlock();
+    IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
+    entryNode->accept(&flowgraphVisitor);
+
+    //then need to print the flowgraph
+    std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
+    std::cout << dotFlowgraph << std::endl;
   }
 
   return 0;

@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseNode.h"
 
-// SimpleNode is a class for nodes that have a single child node
+// SimpleNode is a class for nodes that have a single child node (at most)
 class SimpleNode : public BaseNode
 {
 public:

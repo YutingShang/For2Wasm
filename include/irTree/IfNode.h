@@ -2,13 +2,14 @@
 
 #include "BaseNode.h"
 
+// IF condition thenLabel endLabel
+///NOTE: see IfElseNode.h for the other case
+
 class IfNode : public BaseNode {
 
     public:
-        ///NOTE:IF node varies in constructor, so you should provide the whole instruction when creating
-        // e.g. IF condLabel thenLabel elseLabel endLabel
-        // or IF condLabel thenLabel endLabel
-        IfNode(std::string text);     
+    
+        IfNode(std::string condition, std::string thenLabel, std::string endLabel);     
         ~IfNode() override = default;
 
         void addChild(BaseNode* child) override;

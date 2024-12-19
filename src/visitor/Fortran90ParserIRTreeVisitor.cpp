@@ -5,6 +5,9 @@
 
 //need to include the other nodes here, where they are actually used, so not overshadowed by forward declarations
 #include "IfNode.h"
+#include "EntryNode.h"
+#include "IfElseNode.h"
+#include "TestNode.h"
 #include "LoopNode.h"
 #include "SimpleNode.h"
 #include "LogicNotNode.h"
@@ -14,7 +17,6 @@
 #include "MovNode.h"
 #include "EndBlockNode.h"
 #include "ExitNode.h"
-#include "GhostNode.h"
 #include "DeclareNode.h"
 #include "PrintNode.h"
 #include "ReadNode.h"
@@ -542,8 +544,8 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
         std::string condLabel = "cond" + std::to_string(ifCount);
         std::string thenLabel = "then" + std::to_string(ifCount);
         std::string endLabel = "endif" + std::to_string(ifCount++); // increment the ifCount
-        std::string instruction = "\tIF " + condLabel + " " + thenLabel + " " + endLabel;
-        IfNode *ifNode = new IfNode(instruction);
+    
+        IfNode *ifNode = new IfNode(condLabel, thenLabel, endLabel);
         previousParentNode->addChild(ifNode);
         previousParentNode = ifNode;
 
@@ -572,8 +574,8 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
         std::string thenLabel = "then" + std::to_string(ifCount);
         std::string elseLabel = "else" + std::to_string(ifCount);
         std::string endLabel = "endif" + std::to_string(ifCount++); // increment the ifCount
-        std::string instruction = "\tIF " + condLabel + " " + thenLabel + " " + elseLabel + " " + endLabel;
-        IfNode *ifNode = new IfNode(instruction);
+      
+        IfElseNode *ifNode = new IfElseNode(condLabel, thenLabel, elseLabel, endLabel);
         previousParentNode->addChild(ifNode);
         previousParentNode = ifNode;
 
@@ -612,8 +614,8 @@ std::any Fortran90ParserIRTreeVisitor::visitIfThenStmt(Fortran90Parser::IfThenSt
     // I can use this temp var by printing 'TEST <var>'
     std::string conditionVar = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
-    // TEST <var> ghost node - not actually used in conversion to WASM
-    GhostNode *testNode = new GhostNode(conditionVar);
+    // TEST <var>  - not actually used in conversion to WASM
+    TestNode *testNode = new TestNode(conditionVar);
     previousParentNode->addChild(testNode);
     previousParentNode = testNode;
 

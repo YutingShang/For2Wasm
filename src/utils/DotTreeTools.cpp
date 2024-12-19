@@ -106,3 +106,61 @@ std::string DotTreeTools::parseTreeToDot(antlr4::tree::ParseTree *root, const st
   dot << "}\n";
   return dot.str();
 }
+
+///NOTE: this is a graph, not a tree, so need to maintain list of seen basic blocks
+std::string DotTreeTools::flowgraphToDot(BasicBlock* root) {
+
+   std::stringstream dot;
+    dot << "digraph Tree {\n";
+
+    int nodeCount = 0;
+    std::unordered_map<BasicBlock *, int> nodeToIndex; // map to store node and its index - used in dot file
+
+    std::stack<BasicBlock *> stack;
+    stack.push(root);
+
+    std::vector<BasicBlock*> seenBasicBlocks;
+   
+    while (!stack.empty())
+    {
+        BasicBlock *currentNode = stack.top();
+        stack.pop();
+
+        if (nodeToIndex.find(currentNode) == nodeToIndex.end())
+        {
+            nodeToIndex[currentNode] = nodeCount++; // add node to map if not already in it
+
+            // get text representation of node
+            std::string nodeText = currentNode->getText();
+            dot << "node" << nodeToIndex[currentNode] << " [label=\"" << nodeText << "\"];\n";
+        }
+
+        // add children to stack
+        for (BasicBlock *child : currentNode->get_successors())
+        {
+           
+            // create child node if not in map
+            if (nodeToIndex.find(child) == nodeToIndex.end())
+            {
+                nodeToIndex[child] = nodeCount++;
+                std::string childText = child->getText();
+                dot << "node" << nodeToIndex[child] << " [label=\"" << childText << "\"];\n";
+            }
+
+            // add edge to dot file - even if the child has already been seen, this edge is still needed
+            dot << "node" << nodeToIndex[currentNode] << " -> node" << nodeToIndex[child] << ";\n";
+
+            // add child to stack if it has not been visited yet
+            if (std::find(seenBasicBlocks.begin(), seenBasicBlocks.end(), child) == seenBasicBlocks.end()) {
+                stack.push(child);
+                seenBasicBlocks.push_back(child);     //now you have seen this basic block
+            }
+             
+
+        }
+    }
+
+    dot << "}\n";
+    return dot.str();
+
+}

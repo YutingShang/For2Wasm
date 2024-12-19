@@ -1,19 +1,15 @@
 #include "IfNode.h"
 
-IfNode::IfNode(std::string text) : BaseNode(text) {
+IfNode::IfNode(std::string condition, std::string thenLabel, std::string endLabel) {
 
-    if (this->textVector.size() != 4 && this->textVector.size() != 5) {
-        throw std::runtime_error("IfNode must have 4 or 5 tokens");
-    }
+    this->textVector = {"IF", condition, thenLabel, endLabel};
 }
 
 void IfNode::addChild(BaseNode* child) {
-    if (this->textVector.size() == 4 && this->children.size() < 3) {
-        this->children.push_back(child);
-    } else if (this->textVector.size() == 5 && this->children.size() < 4) {
+    if (this->children.size() < 3) {
         this->children.push_back(child);
     } else {
-        throw std::runtime_error("IfNode can only have 3 or 4 children");
+        throw std::runtime_error("IfNode can only have 3 children");
     }
 }
 

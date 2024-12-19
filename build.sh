@@ -35,12 +35,12 @@ if [ "$FLAG" == "-irWASM" ]; then
     node $PROGRAM_FILE $WASM_FILE
 fi
 
-if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" ]]; then
+if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" ]]; then
     DOT_FILE=$OUTPUT_DIR/tree.dot
     IMAGE_FILE=$OUTPUT_DIR/tree.png
     $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG > $DOT_FILE
     dot -Tpng $DOT_FILE -o $IMAGE_FILE
-    code $IMAGE_FILE     #open in vscode
+    cursor $IMAGE_FILE     #open in vscode
 fi
 
 if [ "$FLAG" == "-irPrint" ]; then          #just run with the original command line inputs, no extra processes

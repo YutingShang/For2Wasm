@@ -21,6 +21,8 @@ std::string BaseNode::getText() const
     {
         text += token + " ";
     }
+    //trim the last whitespace
+    text = text.substr(0, text.size() - 1);
     return text;
 }
 

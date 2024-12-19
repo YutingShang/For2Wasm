@@ -11,11 +11,13 @@ class EndBlockNode;
 class ExitNode;
 class LoopNode;
 class IfNode;
-class GhostNode;
 class DeclareNode;
 class PrintNode;
 class ReadNode;
 class BaseNode;
+class EntryNode;
+class IfElseNode;
+class TestNode;
 
 // a visitor interface for the IR tree, visit methods will be used in double dispatch in the nodes 'accept' method
 
@@ -39,7 +41,7 @@ class IrBaseVisitor {
 
         virtual std::string visitIfNode(IfNode* node) = 0;
 
-        virtual std::string visitGhostNode(GhostNode* node) = 0;
+        virtual std::string visitIfElseNode(IfElseNode* node) = 0;
 
         virtual std::string visitDeclareNode(DeclareNode* node) = 0;
 
@@ -48,4 +50,8 @@ class IrBaseVisitor {
         virtual std::string visitPrintNode(PrintNode* node) = 0;
 
         virtual std::string visitReadNode(ReadNode* node) = 0;
+
+        virtual std::string visitTestNode(TestNode* node) = 0;
+
+        virtual std::string visitEntryNode(EntryNode* node) = 0;
 };

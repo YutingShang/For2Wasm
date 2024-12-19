@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IrBaseVisitor.h"
-
+#include <stack>
 class IrWasmVisitor : public IrBaseVisitor {
 
     public:
@@ -32,13 +32,17 @@ class IrWasmVisitor : public IrBaseVisitor {
 
         std::string visitIfNode(IfNode* node) override;
 
-        std::string visitGhostNode(GhostNode* node) override;
+        std::string visitIfElseNode(IfElseNode* node) override;
 
         std::string visitDeclareNode(DeclareNode* node) override;
 
         std::string visitPrintNode(PrintNode* node) override;
 
         std::string visitReadNode(ReadNode* node) override;
+
+        std::string visitTestNode(TestNode* node) override;
+
+        std::string visitEntryNode(EntryNode* node) override;
 
         std::string getMemoryImportCode();
 
@@ -54,7 +58,7 @@ class IrWasmVisitor : public IrBaseVisitor {
         // e.g. where str_var = $str1, start_offset = 50, length = 4
         std::unordered_map<std::string, std::array<unsigned long, 2>> stringMapIndicies;
        
-        std::vector<std::string> exitStack;
+        std::stack<std::string> exitStack;
 
         bool importPrint = false;
         bool importPrintString = false;

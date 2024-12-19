@@ -9,14 +9,16 @@
 #include "ExitNode.h"
 #include "LoopNode.h"
 #include "IfNode.h"
-#include "GhostNode.h"
+#include "IfElseNode.h"
+#include "TestNode.h"
+#include "EntryNode.h"
 #include "DeclareNode.h"
 #include "PrintNode.h"
 #include "ReadNode.h"
 #include "BaseNode.h"
 
 IrWasmVisitor::IrWasmVisitor(std::unordered_map<std::string, std::string> &stringMap){
-    // TODO: convert stringMap to stringMapIndicies
+    // constructor that converts stringMap to stringMapIndicies
     unsigned long base_offset = 0;
     bool importedMemory = false; // only import memory once, and only if there is at least one string
    
@@ -151,8 +153,8 @@ std::string IrWasmVisitor::visitEndBlockNode(EndBlockNode* node) {
 }
 
 std::string IrWasmVisitor::visitExitNode(ExitNode* node) {
-    std::string exitLabel = exitStack.back();
-    exitStack.pop_back();
+    std::string exitLabel = exitStack.top();
+    exitStack.pop();
     std::string wasmCode = "br $" + exitLabel + "\n";
 
     if (node->getChildren().size() == 1) {
@@ -166,7 +168,7 @@ std::string IrWasmVisitor::visitLoopNode(LoopNode* node) {
 
     std::string wasmCode = "(block $" + node->getExitLabel() + "\n";
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
-    exitStack.push_back(node->getExitLabel());
+    exitStack.push(node->getExitLabel());
     wasmCode += node->getChildren()[0]->accept(this);    // process the body of the loop
     wasmCode += "br $" + node->getBodyLabel() + "\n)\n";     // for end of one of the block statement
     
@@ -178,22 +180,19 @@ std::string IrWasmVisitor::visitIfNode(IfNode* node) {
     std::string conditionCode = node->getChildren()[0]->accept(this);
     std::string thenCode = node->getChildren()[1]->accept(this);
 
-    if (node->getChildren().size() == 4) {
-        std::string elseCode = node->getChildren()[2]->accept(this);
-        std::string endCode = node->getChildren()[3]->accept(this);    //also contains rest of code
-        return conditionCode + "(if\n(then\n" + thenCode + "(else\n" + elseCode + endCode;
-    } else {
-        std::string endCode = node->getChildren()[2]->accept(this);
-        return conditionCode + "(if\n(then\n" + thenCode + endCode;
-    }
+    
+    std::string endCode = node->getChildren()[2]->accept(this);
+    return conditionCode + "(if\n(then\n" + thenCode + endCode;
 }
 
-std::string IrWasmVisitor::visitGhostNode(GhostNode* node) {
-    // just skip this node
-    if (node->getChildren().size() == 1) {
-        return node->getChildren()[0]->accept(this);
-    }
-    return "";
+std::string IrWasmVisitor::visitIfElseNode(IfElseNode* node) {
+
+    std::string conditionCode = node->getChildren()[0]->accept(this);
+    std::string thenCode = node->getChildren()[1]->accept(this);
+
+    std::string elseCode = node->getChildren()[2]->accept(this);
+    std::string endCode = node->getChildren()[3]->accept(this);    //also contains rest of code
+    return conditionCode + "(if\n(then\n" + thenCode + "(else\n" + elseCode + endCode;
 }
 
 std::string IrWasmVisitor::visitDeclareNode(DeclareNode* node) {
@@ -234,6 +233,26 @@ std::string IrWasmVisitor::visitReadNode(ReadNode* node) {
         return wasmCode + restOfCode;
     }
     return wasmCode;
+}
+
+// Nodes in this class are part of the IR tree purely for annotation purposes
+// They have no equivalent in the wasm code generation
+
+std::string IrWasmVisitor::visitTestNode(TestNode* node) {
+    if (node->getChildren().size() == 1) {
+        return node->getChildren()[0]->accept(this);
+    }
+    // just skip this node - TEST probably shouldn't have a child
+    return "";
+}
+
+std::string IrWasmVisitor::visitEntryNode(EntryNode* node) {
+    // just skip the ENTRY node, and process its child
+    if (node->getChildren().size() == 1) {
+        return node->getChildren()[0]->accept(this);
+    }
+    // in case it has no children, empty program
+    return "";
 }
 
 ////////////////////////////////////////////////

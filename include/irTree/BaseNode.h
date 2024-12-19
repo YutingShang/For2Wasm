@@ -14,13 +14,13 @@ class BaseNode {
         
         virtual ~BaseNode() = default;
 
-        virtual std::string getText() const;
+        virtual std::string getText() const;       //get the text of the node
 
         virtual std::vector<std::string> getTextVector() const;
 
         virtual void addChild(BaseNode* child) = 0;
 
-        virtual std::string stringifyIRTree() const;    //print out IR in text form, including labels and indentation
+        virtual std::string stringifyIRTree() const;    //print out entire IR tree in text form, including labels and indentation
 
         virtual std::vector<BaseNode*> getChildren() const;
 
