@@ -24,8 +24,15 @@ std::vector<BasicBlock*> BasicBlock::get_successors() {
     return successors;
 }
 
-// std::vector<BaseNode*> BasicBlock::get_instructions() {
-//     return instructions;
-// }
+std::list<BaseNode*> BasicBlock::get_instructions() {
+    return instructions;
+}
+
+void BasicBlock::set_instructions(std::list<BaseNode*> instructions) {
+    this->instructions = instructions;
+}
+
+
+
 
 

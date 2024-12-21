@@ -10,13 +10,15 @@
 class DotTreeTools
 {
 public:
+
+    DotTreeTools() = delete;    // no constructor, class just contains static methods
+
     static std::string irTreeToDot(BaseNode *root);
 
     static std::string parseTreeToDot(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames);
 
     static std::string flowgraphToDot(BasicBlock* root);
 
-private:
-    DotTreeTools() = default;    // no constructor, class just contains static methods
+    
 
 };

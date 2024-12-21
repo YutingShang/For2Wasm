@@ -18,4 +18,6 @@ class LoopNode : public BaseNode {
         std::string getBodyLabel() const;
         std::string getExitLabel() const;
 
+        std::set<std::string> getReferencedVariables() const override;
+        std::set<std::string> getDefinedVariables() const override;
 };

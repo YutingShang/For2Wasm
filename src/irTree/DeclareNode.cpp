@@ -11,3 +11,11 @@ std::string DeclareNode::getVar() const {
 std::string DeclareNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitDeclareNode(this);
 }
+
+std::set<std::string> DeclareNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> DeclareNode::getDefinedVariables() const {
+    return {};
+}

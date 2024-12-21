@@ -23,3 +23,18 @@ std::string RelOpNode::getSrc2() const {
 std::string RelOpNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitRelOpNode(this);
 }
+
+std::set<std::string> RelOpNode::getReferencedVariables() const {
+    std::set<std::string> referencedVariables;
+    if (isVariable(getSrc1())) {
+        referencedVariables.insert(getSrc1());
+    }
+    if (isVariable(getSrc2())) {
+        referencedVariables.insert(getSrc2());
+    }
+    return referencedVariables;
+}
+
+std::set<std::string> RelOpNode::getDefinedVariables() const {
+    return {getDest()};
+}

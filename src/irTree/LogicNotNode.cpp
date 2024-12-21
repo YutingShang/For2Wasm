@@ -15,3 +15,15 @@ std::string LogicNotNode::getSrc() const {
 std::string LogicNotNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitLogicNotNode(this);
 }
+
+std::set<std::string> LogicNotNode::getReferencedVariables() const {
+    std::set<std::string> referencedVariables;
+    if (isVariable(getSrc())) {
+        referencedVariables.insert(getSrc());
+    }
+    return referencedVariables;
+}
+
+std::set<std::string> LogicNotNode::getDefinedVariables() const {
+    return {getDest()};
+}

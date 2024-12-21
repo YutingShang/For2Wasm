@@ -23,3 +23,18 @@ std::string ArithOpNode::getSrc2() const {
 std::string ArithOpNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitArithOpNode(this);
 }
+
+std::set<std::string> ArithOpNode::getReferencedVariables() const {
+    std::set<std::string> referencedVariables;
+    if (isVariable(getSrc1())) {
+        referencedVariables.insert(getSrc1());
+    }
+    if (isVariable(getSrc2())) {
+        referencedVariables.insert(getSrc2());
+    }
+    return referencedVariables;
+}
+
+std::set<std::string> ArithOpNode::getDefinedVariables() const {
+    return {getDest()};
+}

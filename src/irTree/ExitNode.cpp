@@ -7,3 +7,11 @@ ExitNode::ExitNode()
 std::string ExitNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitExitNode(this);
 }
+
+std::set<std::string> ExitNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> ExitNode::getDefinedVariables() const {
+    return {};
+}

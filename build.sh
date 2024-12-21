@@ -35,7 +35,7 @@ if [ "$FLAG" == "-irWASM" ]; then
     node $PROGRAM_FILE $WASM_FILE
 fi
 
-if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" ]]; then
+if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" || "$FLAG" == "-DCE" ]]; then
     DOT_FILE=$OUTPUT_DIR/tree.dot
     IMAGE_FILE=$OUTPUT_DIR/tree.png
     $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG > $DOT_FILE

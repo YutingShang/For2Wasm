@@ -23,3 +23,18 @@ std::string LogicBinOpNode::getSrc2() const {
 std::string LogicBinOpNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitLogicBinOpNode(this);
 }
+
+std::set<std::string> LogicBinOpNode::getReferencedVariables() const {
+    std::set<std::string> referencedVariables;
+    if (isVariable(getSrc1())) {
+        referencedVariables.insert(getSrc1());
+    }
+    if (isVariable(getSrc2())) {
+        referencedVariables.insert(getSrc2());
+    }
+    return referencedVariables;
+}
+
+std::set<std::string> LogicBinOpNode::getDefinedVariables() const {
+    return {getDest()};
+}

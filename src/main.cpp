@@ -25,6 +25,7 @@
 #include "IrWasmVisitor.h"
 #include "EntryNode.h"
 #include "IrFlowgraphVisitor.h"
+#include "DeadCodeElimination.h"
 #include "tree/Trees.h"
 #include <regex>
 #include <filesystem>
@@ -149,7 +150,7 @@ int main(int argc, const char **argv)
 
   /////////////////FLOWGRAPH VISITOR///////////////////////////////////////////////////
 
-  if (argc >= 3 && std::string(argv[2]) == "-flowgraph") {
+  if (argc >= 3 && std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE") {
 
     //first need to create the IR tree
     EntryNode *entryNode = new EntryNode();    //will be used to store the IR tree
@@ -162,9 +163,17 @@ int main(int argc, const char **argv)
     entryNode->accept(&flowgraphVisitor);
 
     //then need to print the flowgraph
-    std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
-    std::cout << dotFlowgraph << std::endl;
+    if (std::string(argv[2]) == "-flowgraph") {
+      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
+      std::cout << dotFlowgraph << std::endl;
+    }
+    else if (std::string(argv[2]) == "-DCE") {
+      DeadCodeElimination::deadCodeElimination(startBasicBlock);     //removes dead code, modifies the flowgraph directly
+      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
+      std::cout << dotFlowgraph << std::endl;
+    }
   }
+
 
   return 0;
 }

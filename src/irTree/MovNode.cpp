@@ -18,3 +18,15 @@ std::string MovNode::getSrc() const
 std::string MovNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitMovNode(this);
 }
+
+std::set<std::string> MovNode::getReferencedVariables() const {
+    std::set<std::string> referencedVariables;
+    if (isVariable(getSrc())) {
+        referencedVariables.insert(getSrc());
+    }
+    return referencedVariables;
+}
+
+std::set<std::string> MovNode::getDefinedVariables() const {
+    return {getDest()};
+}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <set>
+#include <list>
 #include <string>
 #include "BaseNode.h"
 
@@ -15,39 +15,32 @@ class BasicBlock {
 
         void add_successor(BasicBlock* successor);
 
-        void add_ref(std::string ref);
-
-        void add_def(std::string def);
-
-        void add_live(std::string live);
-
-        std::vector<BaseNode*> get_instructions();
+        std::string getText();
 
         std::vector<BasicBlock*> get_successors();
 
-        std::set<std::string> get_ref_set();
+        std::list<BaseNode*> get_instructions();
 
-        std::set<std::string> get_def_set();
+        void set_instructions(std::list<BaseNode*> instructions);
 
-        std::set<std::string> get_live_set();
+ 
 
-        std::string getText();
+        // std::set<std::string> get_live_set();
 
-        // std::string stringifyBasicBlock();
+        // void compute_live_set();
+
+     /// NOTE: should only be used with the dead code elimination
+        // void remove_instruction();
 
 
     private:
         
-        std::vector<BaseNode*> instructions;
+        //NOTE: using a (doubly linked) list instead of a vector to allow for easy removal of instructions
+        std::list<BaseNode*> instructions;
 
         std::vector<BasicBlock*> successors;
-        // std::vector<BasicBlock*> predecessors;    ///NOTE: is this needed?
 
-        std::set<std::string> ref_set;
-
-        std::set<std::string> def_set;
-
-        std::set<std::string> live_set;
+        // std::set<std::string> live_set;
 
 
 };

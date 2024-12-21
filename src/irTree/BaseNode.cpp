@@ -21,14 +21,9 @@ std::string BaseNode::getText() const
     {
         text += token + " ";
     }
-    //trim the last whitespace
+    // trim the last whitespace
     text = text.substr(0, text.size() - 1);
     return text;
-}
-
-std::vector<std::string> BaseNode::getTextVector() const
-{
-    return this->textVector;
 }
 
 std::vector<BaseNode *> BaseNode::getChildren() const
@@ -47,10 +42,18 @@ std::string BaseNode::stringifyIRTree() const
     return tree;
 }
 
-bool BaseNode::getVisited() const {
-    return this->visited;
-}
+//checks if the item is a variable (temp or user-defined), false if it is a string or positive integer constant
+bool BaseNode::isVariable(std::string item) const{
 
-void BaseNode::setVisited(bool visited) {
-    this->visited = visited;
+    bool isPositiveInteger = true;
+    for (char c : item) {
+        if (!isdigit(c)) {
+            isPositiveInteger = false;
+            break;
+        }
+    }
+    //it is a variable if it is not a positive integer and is not a string const $
+    bool isVariable = !isPositiveInteger && item[0] != '$';
+
+    return isVariable;
 }

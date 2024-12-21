@@ -30,3 +30,11 @@ std::string LoopNode::getBodyLabel() const {
 std::string LoopNode::getExitLabel() const {
     return this->textVector[2];
 }
+
+std::set<std::string> LoopNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> LoopNode::getDefinedVariables() const {
+    return {};
+}

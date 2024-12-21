@@ -26,3 +26,11 @@ std::string IfNode::stringifyIRTree() const {
 std::string IfNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitIfNode(this);
 }
+
+std::set<std::string> IfNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> IfNode::getDefinedVariables() const {
+    return {};
+}

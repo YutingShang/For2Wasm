@@ -24,6 +24,7 @@ The third argument is a flag that determines what to output. The available optio
 * `-irDot` - output the IR tree in dot format and convert to png
 * `-astDot` - output the AST tree in dot format and convert to png
 * `-parseDot` - output the parse tree in dot format and convert to png
+* `-flowgraph` - output the flowgraph in dot format and convert to png
 
 **Maintenance**
 

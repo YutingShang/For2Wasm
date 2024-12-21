@@ -243,7 +243,7 @@ std::any Fortran90ParserIRTreeVisitor::visitPrintStmt(Fortran90Parser::PrintStmt
         // print out each item in the list
         for (std::string item : outputList)
         {
-            PrintNode *printNode = new PrintNode(item);
+            PrintNode *printNode = new PrintNode(item);      //already called getItemToPrint when retrieving the outputList
             previousParentNode->addChild(printNode);
             previousParentNode = printNode;
         }

@@ -12,3 +12,11 @@ std::string ReadNode::getVar() const {
 std::string ReadNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitReadNode(this);
 }
+
+std::set<std::string> ReadNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> ReadNode::getDefinedVariables() const {
+    return {getVar()};
+}

@@ -11,3 +11,15 @@ std::string PrintNode::getSrc() const {
 std::string PrintNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitPrintNode(this);
 }
+
+std::set<std::string> PrintNode::getReferencedVariables() const {
+    std::set<std::string> referencedVariables;
+    if (isVariable(getSrc())) {
+        referencedVariables.insert(getSrc());
+    }
+    return referencedVariables;
+}
+
+std::set<std::string> PrintNode::getDefinedVariables() const {
+    return {};
+}
