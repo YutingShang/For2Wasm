@@ -1,27 +1,33 @@
 #include "DeadCodeElimination.h"
 #include <iostream>
-void DeadCodeElimination::deadCodeElimination(BasicBlock *entryBasicBlock)
+
+void DeadCodeElimination::iterateDeadCodeElimination(BasicBlock *entryBasicBlock)
+{
+    bool runDCE = true;
+    while (runDCE)
+    {
+        runDCE = deadCodeEliminationOnce(entryBasicBlock);
+    }
+}
+
+bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
 {
     // Analysis: LVA
     std::vector<BasicBlock *> basicBlocks = getBasicBlocks(entryBasicBlock);
     std::vector<std::set<std::string>> liveSets = computeLiveSets(basicBlocks);
 
     // Transformation: Remove dead code
+    bool removed = false;
     for (BasicBlock *basicBlock : basicBlocks)
     {
         // the live sets have already converged now, so we just pass through the iteration one more time
         // compute the live set for each instruction and check if any instructions are dead code
-        bool modified = basicBlockRemoveDeadCode(basicBlock, basicBlocks, liveSets);
+        removed |= basicBlockRemoveDeadCode(basicBlock, basicBlocks, liveSets);
 
-        //keep removing dead code until no more dead code is found - removing dead code may create new dead code
-        ///CAREFUL: do I repeat just removing dead code within the same basic block, or do I repeat the whole process including LVA
-        // incase the sets at the boundaries also change??
-        while (modified) {       
-            modified = basicBlockRemoveDeadCode(basicBlock, basicBlocks, liveSets);
-        }
     }
 
-    /// TODO: handle case if an entire basic block is removed
+    return removed;
+    /// TODO: handle case if an entire basic block is removed??
 }
 
 std::vector<BasicBlock *> DeadCodeElimination::getBasicBlocks(BasicBlock *entryBasicBlock)
@@ -156,8 +162,10 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
     }
 
     // then we process all the instructions in the basic block linearly upwards
-    // first remove the def, then add the ref
-    std::list<BaseNode *> instructions = basicBlock->get_instructions(); // gets a copy of the instructions
+
+    // gets a REFERENCE of the instructions
+    ///NOTE: modifies the instructions directly with remove_instruction_node method
+    std::list<BaseNode *>& instructions = basicBlock->get_instructions(); 
     std::reverse(instructions.begin(), instructions.end());              // reverse the instructions to iterate from the bottom up
     for (auto it = instructions.begin(); it != instructions.end();)
     {
@@ -177,9 +185,9 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
 
             if (out_live_set.find(var) == out_live_set.end())
             { // variable is not live after this instruction
-                // this instruction is dead code and we can remove it
+                // this instruction is dead code and we can remove it - from the instruction list and also the ir tree
                 // don't increment the iterator
-                it = instructions.erase(it);
+                it = basicBlock->remove_instruction_node(it);
                 modified = true;
             }
             else
@@ -206,11 +214,8 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
         }
     }
 
-    // after any/all modifications with the iterator, set the instructions to the new instructions
-    if (modified) {
-        std::reverse(instructions.begin(), instructions.end()); // reverse the instructions back to the original order
-        basicBlock->set_instructions(instructions);
-    }
+    ///NOTE: reversing the instructions again to restore the original order
+    std::reverse(instructions.begin(), instructions.end());
 
     return modified;
 }

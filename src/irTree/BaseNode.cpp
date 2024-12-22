@@ -57,3 +57,15 @@ bool BaseNode::isVariable(std::string item) const{
 
     return isVariable;
 }
+
+void BaseNode::setParent(BaseNode* parent) {
+    this->parent = parent;
+}
+
+BaseNode* BaseNode::getParent() const {
+    return this->parent;
+}
+
+void BaseNode::removeChild(BaseNode* child) {
+    this->children.erase(std::remove(this->children.begin(), this->children.end(), child), this->children.end());
+}

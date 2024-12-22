@@ -1,22 +1,11 @@
 program simple
     implicit none
-    integer :: a, b, c, x, y, z
- 
-    ! x = 1
-    ! y = 2
+    integer :: x
 
-    ! do 
-    !     z = 1
-    !     print *, "x=", x
-    !     if (1==1) then
-    !         exit
-    !     end if
-    ! end do
-
-    ! print *, "z=", z
-
-    do 
-        z=1
+    x=0
+    do
+        x=x+1
     end do
+
 
 end program simple

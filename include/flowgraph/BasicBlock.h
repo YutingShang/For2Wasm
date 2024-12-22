@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <iterator>
 #include "BaseNode.h"
 
 class BasicBlock {
@@ -19,18 +20,15 @@ class BasicBlock {
 
         std::vector<BasicBlock*> get_successors();
 
-        std::list<BaseNode*> get_instructions();
+        ///WARNING: returns reference for modification of the instructions list
+        ///if I want a copy, overload get_instructions() with a const version
+        std::list<BaseNode*>& get_instructions();
 
-        void set_instructions(std::list<BaseNode*> instructions);
-
- 
-
-        // std::set<std::string> get_live_set();
-
-        // void compute_live_set();
-
-     /// NOTE: should only be used with the dead code elimination
-        // void remove_instruction();
+        // removes an instruction from the basic block (a doubly linked list)
+        // takes an iterator pointing to the instruction to remove, and returns a new iterator to the next instruction
+        // useful for removing instructions from the basic block in a loop
+        /// NOTE: this will DELETE the instruction node, not just from the basic block, but also the ir tree
+        std::list<BaseNode*>::iterator remove_instruction_node(std::list<BaseNode*>::iterator it);
 
 
     private:
@@ -39,8 +37,5 @@ class BasicBlock {
         std::list<BaseNode*> instructions;
 
         std::vector<BasicBlock*> successors;
-
-        // std::set<std::string> live_set;
-
 
 };

@@ -32,8 +32,6 @@
 using namespace antlrcpp;
 using namespace antlr4;
 
-
-
 int main(int argc, const char **argv)
 {
   ////////////////Program to translate to IR////////////////////////////////////////
@@ -77,7 +75,8 @@ int main(int argc, const char **argv)
   // std::cout << parseTree->toStringTree(&parser) << std::endl;
 
   // UNCOMMENT to print entire parse tree in DOT format
-  if (argc >= 3 && std::string(argv[2]) == "-parseDot"){
+  if (argc >= 3 && std::string(argv[2]) == "-parseDot")
+  {
     std::string dotParseTree = DotTreeTools::parseTreeToDot(parseTree, parser.getRuleNames());
     std::cout << dotParseTree << std::endl;
   }
@@ -98,7 +97,8 @@ int main(int argc, const char **argv)
   // std::cout << astTree->toStringTree(&parser) << std::endl;
 
   // UNCOMMENT to print AST of the parse tree in DOT format
-  if (argc >= 3 && std::string(argv[2]) == "-astDot"){
+  if (argc >= 3 && std::string(argv[2]) == "-astDot")
+  {
     std::string dotASTTree = DotTreeTools::parseTreeToDot(astTree, parser.getRuleNames());
     std::cout << dotASTTree << std::endl;
   }
@@ -108,7 +108,6 @@ int main(int argc, const char **argv)
   // UNCOMMENT to translate the AST to three address code IR
   // Fortran90ParserTranslatorVisitor translatorVisitor(parser);
   // astTree->accept(&translatorVisitor);
-  
 
   // print rule names
   // const auto& ruleNames = parser.getRuleNames();
@@ -119,19 +118,18 @@ int main(int argc, const char **argv)
 
   ////////////////IR TREE VISITOR///////////////////////////////////////////////////
 
-  ///NOTE: this is an upgraded TranslatorVisitor, instead of printing out the IR
-  ///it stores the IR in a tree structure then you can print it out in different formats or convert to WASM
+  /// NOTE: this is an upgraded TranslatorVisitor, instead of printing out the IR
+  /// it stores the IR in a tree structure then you can print it out in different formats or convert to WASM
 
   if (argc >= 3 && (std::string(argv[2]) == "-irPrint" || std::string(argv[2]) == "-irDot" || std::string(argv[2]) == "-irWASM"))
   {
-    EntryNode *entryNode = new EntryNode();    //will be used to store the IR tree
+    EntryNode *entryNode = new EntryNode(); // will be used to store the IR tree
     Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
     astTree->accept(&irTreeVisitor);
 
     if (std::string(argv[2]) == "-irPrint")
     {
-      std::cout << entryNode->stringifyIRTree() << std::endl;      //print out IR in text form, including labels
-
+      std::cout << entryNode->stringifyIRTree() << std::endl; // print out IR in text form, including labels
     }
     else if (std::string(argv[2]) == "-irDot")
     {
@@ -150,31 +148,61 @@ int main(int argc, const char **argv)
 
   /////////////////FLOWGRAPH VISITOR///////////////////////////////////////////////////
 
-  if (argc >= 3 && std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE") {
+  if (argc >= 3 && (std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE" || std::string(argv[2]) == "-DCE-ir" || std::string(argv[2]) == "-DCE-WASM"))
+  {
 
-    //first need to create the IR tree
-    EntryNode *entryNode = new EntryNode();    //will be used to store the IR tree
+    // first need to create the IR tree
+    EntryNode *entryNode = new EntryNode(); // will be used to store the IR tree
     Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
     astTree->accept(&irTreeVisitor);
 
-    //then need to create the flowgraph
-    BasicBlock* startBasicBlock = new BasicBlock();
+    // then need to create the flowgraph
+    BasicBlock *startBasicBlock = new BasicBlock();
     IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
     entryNode->accept(&flowgraphVisitor);
 
-    //then need to print the flowgraph
-    if (std::string(argv[2]) == "-flowgraph") {
+    // then need to print the flowgraph
+    if (std::string(argv[2]) == "-flowgraph")
+    {
       std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
       std::cout << dotFlowgraph << std::endl;
     }
-    else if (std::string(argv[2]) == "-DCE") {
-      DeadCodeElimination::deadCodeElimination(startBasicBlock);     //removes dead code, modifies the flowgraph directly
+    else if (std::string(argv[2]) == "-DCE")
+    {
+      DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock); // removes dead code, modifies the flowgraph directly
+
+      // after running DCE, redraw the flowgraph (might remove basic blocks that are empty) and print it
+      /// QUESTION: do I need this- will any basic blocks be empty?
+      // BasicBlock* newFlowgraphStart = new BasicBlock();
+      // IrFlowgraphVisitor flowgraphVisitor(newFlowgraphStart);
+      // entryNode->accept(&flowgraphVisitor);
+      // std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newFlowgraphStart);
+
       std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
       std::cout << dotFlowgraph << std::endl;
+    }
+    else if (std::string(argv[2]) == "-DCE-ir")
+    {
+      // dce
+      DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
+      // then print the IR tree
+      // tree still has the entryNode
+      std::string dotIRTree = DotTreeTools::irTreeToDot(entryNode);
+      std::cout << dotIRTree << std::endl;
+    }
+    else if (std::string(argv[2]) == "-DCE-WASM")
+    {
+      // dce
+      DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
+      
+      // then run the wasm code
+      std::unordered_map<std::string, std::string> stringMap = irTreeVisitor.getStringMap();
+      IrWasmVisitor wasmVisitor(stringMap);
+      std::string wasm = wasmVisitor.getEntireProgramCode(entryNode);
+      std::cout << wasm << std::endl;
+
     }
   }
 
-
   return 0;
 }
-

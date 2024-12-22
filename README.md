@@ -25,10 +25,14 @@ The third argument is a flag that determines what to output. The available optio
 * `-astDot` - output the AST tree in dot format and convert to png
 * `-parseDot` - output the parse tree in dot format and convert to png
 * `-flowgraph` - output the flowgraph in dot format and convert to png
+* `-DCE` - output the flowgraph after dead code elimination and convert to png
+* `-DCE-ir` - output the IR tree after dead code elimination and convert to png
+* `-DCE-WASM` - output the WASM code after dead code elimination and run the program
 
 **Maintenance**
 
 * Run `make clean` when necessary.
 * Run `rm -rf dist/` to clean the dist (output) directory.
 * Run `./build.sh -help` to get help on the build script.
+* Run `time ./build.sh` to get the time taken to run the program.
 

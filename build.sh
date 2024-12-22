@@ -26,16 +26,16 @@ else
 fi
 
 
-if [ "$FLAG" == "-irWASM" ]; then
+if [[ "$FLAG" == "-irWASM" || "$FLAG" == "-DCE-WASM" ]]; then
     WAT_FILE=$OUTPUT_DIR/output.wat
     WASM_FILE=$OUTPUT_DIR/output.wasm
     PROGRAM_FILE=src/wasm/program.js
-    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE -irWASM > $WAT_FILE
+    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG > $WAT_FILE
     wat2wasm $WAT_FILE -o $WASM_FILE
     node $PROGRAM_FILE $WASM_FILE
 fi
 
-if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" || "$FLAG" == "-DCE" ]]; then
+if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" || "$FLAG" == "-DCE" || "$FLAG" == "-DCE-ir" ]]; then
     DOT_FILE=$OUTPUT_DIR/tree.dot
     IMAGE_FILE=$OUTPUT_DIR/tree.png
     $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG > $DOT_FILE

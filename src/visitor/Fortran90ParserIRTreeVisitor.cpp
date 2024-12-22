@@ -670,6 +670,8 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
     for(size_t i = 1; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct into sequential nodes
         ctx->children[i]->accept(this);
     }
+    EndBlockNode *endBodyNode = new EndBlockNode("ENDBODY");    //add an ENDBODY at the end of the loop body
+    previousParentNode->addChild(endBodyNode);
 
     previousParentNode = loopNode;
 

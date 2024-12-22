@@ -10,8 +10,11 @@ class DeadCodeElimination {
 
         DeadCodeElimination() = delete;
 
-        //runs LVA then checks for dead code
-        static void deadCodeElimination(BasicBlock* entryBasicBlock);
+        static void iterateDeadCodeElimination(BasicBlock* entryBasicBlock);
+
+        //runs LVA then checks for dead code - ONCE
+        //returns true if code was deleted, false otherwise
+        static bool deadCodeEliminationOnce(BasicBlock* entryBasicBlock);
 
 
     private:

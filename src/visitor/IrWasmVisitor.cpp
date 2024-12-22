@@ -71,7 +71,7 @@ std::string IrWasmVisitor::visitArithOpNode(ArithOpNode* node) {
     else if (arithOp == "MUL")
         wasmCode += "i32.mul\n";
     else if (arithOp == "DIV")
-        wasmCode += "i32.div\n";
+        wasmCode += "i32.div_s\n";    //signed division
 
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);
@@ -143,7 +143,10 @@ std::string IrWasmVisitor::visitMovNode(MovNode* node) {
 }
 
 std::string IrWasmVisitor::visitEndBlockNode(EndBlockNode* node) {
-    std::string wasmCode = ")\n";
+    std::string wasmCode = "";
+    if (node->getText() != "ENDBODY") {     //in the case of ENDBODY, we add br $bodyLabel when we process the ENDLOOP node
+        wasmCode = ")\n";
+    }
 
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);

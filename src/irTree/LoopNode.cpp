@@ -5,8 +5,19 @@ LoopNode::LoopNode(std::string body, std::string exit){
 }
 
 void LoopNode::addChild(BaseNode* child) {
+    child->setParent(this);
+
     if (this->children.size() < 2) {
         this->children.push_back(child);
+    } else {
+        throw std::runtime_error("LoopNode can only have two children");
+    }
+}
+
+void LoopNode::insertChild(BaseNode* child, int index) {
+    child->setParent(this);
+    if (this->children.size() < 2 && index < 2) {
+        this->children.insert(this->children.begin() + index, child);
     } else {
         throw std::runtime_error("LoopNode can only have two children");
     }
