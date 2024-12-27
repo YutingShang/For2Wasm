@@ -665,34 +665,36 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
     //process the child at index 1 - might be commaLoopControl
     if (dynamic_cast<Fortran90Parser::CommaLoopControlContext*>(ctx->children[1]) || dynamic_cast<Fortran90Parser::LoopControlContext*>(ctx->children[1])){
 
-        doLoopStruct loopControl = std::any_cast<doLoopStruct>(ctx->children[1]->accept(this));
-
         //create a LoopCondNode with the loopControl
+        std::string initLabel = "init" + std::to_string(loopCount);
         std::string bodyLabel = "body" + std::to_string(loopCount);
         std::string condLabel = "cond" + std::to_string(loopCount);
         std::string stepLabel = "step" + std::to_string(loopCount);
         std::string endloopLabel = "endloop" + std::to_string(loopCount++);
 
-        LoopCondNode *loopNode = new LoopCondNode(condLabel, bodyLabel, stepLabel, endloopLabel);
-        //remove the connections between the initialisationNode, condition block and the step block
-        loopControl.initialisationNode->removeChild(loopControl.condTopNode);
+        //create the new LoopCondNode first, attach to the previousParentNode
+        LoopCondNode *loopNode = new LoopCondNode(initLabel, condLabel, bodyLabel, stepLabel, endloopLabel);
+        previousParentNode->addChild(loopNode);
+        previousParentNode = loopNode;
+
+        //process the commaLoopControl or loopControl, add as first child of the loopNode
+        //but capture the loopControl struct, so I can break away the connections between the initialisationNode, condition block and the step block
+        doLoopStruct loopControl = std::any_cast<doLoopStruct>(ctx->children[1]->accept(this));
+        loopControl.initialisationEndNode->removeChild(loopControl.condTopNode);
         loopControl.condEndNode->removeChild(loopControl.stepTopNode);
 
-        //add the loopNode after initialisationNode
-        loopControl.initialisationNode->addChild(loopNode);
-
-        //add the condition as the first child of the loopNode
+        //add the condition as the second child of the loopNode
         loopNode->addChild(loopControl.condTopNode);    
 
-        //add the body to the loopNode as a child, by processing the body at index 2 of the BlockDoConstruct
+        //add the body to the loopNode as the third child, by processing the body at index 2 of the BlockDoConstruct
         previousParentNode = loopNode;
         for(size_t i = 2; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct into sequential nodes
             ctx->children[i]->accept(this);
         }
         EndBlockNode *endBodyNode = new EndBlockNode("ENDBODY");    //add an ENDBODY at the end of the loop body
         previousParentNode->addChild(endBodyNode);
-
-        //add the step block to the loopNode as a child
+ 
+        //add the step block to the loopNode as the fourth child
         loopNode->addChild(loopControl.stepTopNode);
 
         //reset the previousParentNode to the loopNode
@@ -746,6 +748,9 @@ std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopCon
     //the second expression is the terminating value of the loop variable
     //where commaExpr is the 'step' expression
 
+    //create a struct to store the loopControl, which we will return to the BlockDoConstruct
+    doLoopStruct loopControl;
+
     //process the variableName and the initialisation expression
     std::string variableName = std::any_cast<std::string>(ctx->children[0]->accept(this));
     std::string initialisationExpression = std::any_cast<std::string>(ctx->children[2]->accept(this));
@@ -755,8 +760,8 @@ std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopCon
     previousParentNode->addChild(movNode);
     previousParentNode = movNode;
 
-    doLoopStruct loopControl;
-    loopControl.initialisationNode = movNode;
+    //store the MovNode as the initialisationEndNode
+    loopControl.initialisationEndNode = movNode;    
 
     //process the terminating expression, create a TestNode
     std::string terminatingExpression = std::any_cast<std::string>(ctx->children[4]->accept(this));
@@ -794,7 +799,6 @@ std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopCon
     //the stepTopNode is the child of the condEndNode
     //and the stepEndNode is the MovNode
     loopControl.stepTopNode = testNode->getChildren()[0];
-    // loopControl.stepEndNode = stepMovNode;
 
     //return a struct in order to construct a LoopCondNode in BlockDoConstruct
     return loopControl;

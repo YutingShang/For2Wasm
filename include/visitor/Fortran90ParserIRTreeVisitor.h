@@ -97,10 +97,9 @@ private:
 
     // for constructing the LoopCondNode
     struct doLoopStruct {
-        BaseNode *initialisationNode; // will be a MoveNode
-        BaseNode *condTopNode; 
+        BaseNode *initialisationEndNode; // will be a MoveNode
+        BaseNode *condTopNode;
         BaseNode *condEndNode;        //will be a > test node
         BaseNode *stepTopNode;
-        // BaseNode *stepEndNode;        //will be an incrementation, so probably ArithOp, and then MoveNode or something
     };
 };

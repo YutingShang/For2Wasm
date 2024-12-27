@@ -183,15 +183,20 @@ std::string IrWasmVisitor::visitLoopNode(LoopNode* node) {
 
 std::string IrWasmVisitor::visitLoopCondNode(LoopCondNode* node) {
     std::string wasmCode = "(block $" + node->getEndLoopLabel() + "\n";
+    
+    //sandwich the initialisation code between the block and the loop - unnecessary but might make it clearer it is the initialisation logic
+    std::string initCode = node->getChildren()[0]->accept(this);       
+    wasmCode += initCode;
+
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
-    std::string conditionCode = node->getChildren()[0]->accept(this);
+    std::string conditionCode = node->getChildren()[1]->accept(this);
     //does not need to use exitStack here, since we know where the EXIT is 
     //we are adding it at the start of the loop, after the termination condition check
     std::string extraTerminationCode = "(if \n(then \n br $" + node->getEndLoopLabel() + "\n)\n)\n";
-    std::string bodyCode = node->getChildren()[1]->accept(this);
-    std::string stepCode = node->getChildren()[2]->accept(this);
+    std::string bodyCode = node->getChildren()[2]->accept(this);
+    std::string stepCode = node->getChildren()[3]->accept(this);
     std::string extraEndloopCode = "br $" + node->getBodyLabel() + "\n)\n";
-    std::string afterEndNodeCode = node->getChildren()[3]->accept(this);
+    std::string afterEndNodeCode = node->getChildren()[4]->accept(this);
     wasmCode += conditionCode + extraTerminationCode + bodyCode + stepCode + extraEndloopCode + afterEndNodeCode;
     return wasmCode;
 }

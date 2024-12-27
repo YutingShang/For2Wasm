@@ -128,18 +128,18 @@ std::string IrFlowgraphVisitor::visitLoopNode(LoopNode *node)
 std::string IrFlowgraphVisitor::visitLoopCondNode(LoopCondNode *node)
 {
 
-    //add the LOOP instruction to the current basic block
+    //add the LOOP instruction to the current basic block, add the initialisation code also the the same basic block
     currentBasicBlock->add_instruction(node);
-
+    node->getChildren()[0]->accept(this);
     //create a new basic block for the termination condition of the loop
     startNewBasicBlockSuccessor();
     BasicBlock *terminationConditionBasicBlock = currentBasicBlock;     //save the basic block for later
-    node->getChildren()[0]->accept(this);
+    node->getChildren()[1]->accept(this);
 
     //create a new basic block for the loop body+step code, process the two children
     startNewBasicBlockSuccessor();
-    node->getChildren()[1]->accept(this);
     node->getChildren()[2]->accept(this);
+    node->getChildren()[3]->accept(this);
 
     //connect the loop body+step code to the termination condition basic block
     currentBasicBlock->add_successor(terminationConditionBasicBlock);
@@ -148,7 +148,7 @@ std::string IrFlowgraphVisitor::visitLoopCondNode(LoopCondNode *node)
     //and create a new basic block for the ENDLOOP instruction
     currentBasicBlock = terminationConditionBasicBlock;
     startNewBasicBlockSuccessor();
-    node->getChildren()[3]->accept(this);
+    node->getChildren()[4]->accept(this);
 
     return "";
 }

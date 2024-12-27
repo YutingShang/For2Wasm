@@ -3,10 +3,10 @@
 #include "BaseNode.h"
 
 
-// LOOP <termination condition> <loop body> <step> <endloop>
+// LOOP <initialiser> <termination condition> <loop body> <step> <endloop>
 class LoopCondNode : public BaseNode {
     public:
-        LoopCondNode(std::string cond, std::string body, std::string step, std::string endloop);
+        LoopCondNode(std::string init, std::string cond, std::string body, std::string step, std::string endloop);
 
         ~LoopCondNode() override = default;
 
