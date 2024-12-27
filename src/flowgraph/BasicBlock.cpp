@@ -42,26 +42,12 @@ std::list<BaseNode*>::iterator BasicBlock::remove_instruction_node(std::list<Bas
     if (parent == nullptr) {
         throw std::runtime_error("Parent node is null. Why are you removing this node?");
     }
-    const auto parentChildren = parent->getChildren();
- 
-
-    //get the index of the current instruction in the parent node as an iterator
-    auto instructionIterator = std::find(parentChildren.begin(), parentChildren.end(), instruction);
-    auto instructionIndex = std::distance(parentChildren.begin(), instructionIterator);
+    
+    int instructionInParentIndex = instruction->getPositionInParent();
 
     //edit the ir tree to remove the instruction node 
     //bypass the current node, add its children to the parent node
-    std::vector<BaseNode*> currentChildren = instruction->getChildren();
-    parent->removeChild(instruction);    //remove the current instruction from the parent node to make space
-
-    for (BaseNode* child : currentChildren) {
-        child->setParent(parent);
-        parent->insertChild(child, instructionIndex);
-        instructionIndex++;
-    }
-
-    // delete the instruction node from memory
-    delete instruction;
+    instruction->removeCurrentNodeFromIRTree(instructionInParentIndex);
 
     // return the iterator to the next instruction
     return it;

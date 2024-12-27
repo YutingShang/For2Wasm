@@ -69,3 +69,32 @@ BaseNode* BaseNode::getParent() const {
 void BaseNode::removeChild(BaseNode* child) {
     this->children.erase(std::remove(this->children.begin(), this->children.end(), child), this->children.end());
 }
+
+int BaseNode::getPositionInParent() const {
+    if (this->parent == nullptr) {
+        throw std::runtime_error("Parent node is null, cannot get position in parent");
+    }
+    std::vector<BaseNode*> parentChildren = this->parent->getChildren();
+
+    //get the index of the current instruction in the parent node as an iterator
+    auto childrenIterator = std::find(parentChildren.begin(), parentChildren.end(), this);
+    int indexInParent = std::distance(parentChildren.begin(), childrenIterator);
+
+    return indexInParent;
+}
+
+void BaseNode::removeCurrentNodeFromIRTree(int indexInParent) {
+    //remove the node from the parent node
+    this->parent->removeChild(this);
+
+    //add the children to the parent node
+    int insertIndex = indexInParent;
+    for (BaseNode* child : this->children) {
+        child->setParent(this->parent);
+        this->parent->insertChild(child, insertIndex);
+        insertIndex++;
+    }
+
+    // delete the current node from memory
+    delete this;
+}

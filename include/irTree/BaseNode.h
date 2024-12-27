@@ -40,6 +40,12 @@ class BaseNode {
         //visitor pattern - must be implemented by all nodes
         virtual std::string accept(IrBaseVisitor* visitor) = 0;     
 
+        virtual int getPositionInParent() const;
+
+        //edits IR tree by removing the node, and adding its children to the parent node
+        //takes in the index of the current node in the parent node, so its children can be inserted in the correct position
+        virtual void removeCurrentNodeFromIRTree(int indexInParent);
+
 
 
 
