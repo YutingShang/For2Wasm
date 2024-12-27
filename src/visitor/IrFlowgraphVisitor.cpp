@@ -8,6 +8,7 @@
 #include "EndBlockNode.h"
 #include "ExitNode.h"
 #include "LoopNode.h"
+#include "LoopCondNode.h"
 #include "IfNode.h"
 #include "IfElseNode.h"
 #include "TestNode.h"
@@ -28,6 +29,7 @@ IrFlowgraphVisitor::IrFlowgraphVisitor(BasicBlock *startBasicBlock)
 
 std::string IrFlowgraphVisitor::visitSimpleNode(SimpleNode *node)
 {
+    //for simple nodes with 1 child, just add the instruction to the current basic block, and process the child if it exists
     currentBasicBlock->add_instruction(node);
 
     if (node->getChildren().size() == 1)
@@ -119,6 +121,34 @@ std::string IrFlowgraphVisitor::visitLoopNode(LoopNode *node)
     // process the end of the loop, i.e. ENDLOOP or the exitLabel of the loop
     currentBasicBlock = loopExit;
     node->getChildren()[1]->accept(this);
+
+    return "";
+}
+
+std::string IrFlowgraphVisitor::visitLoopCondNode(LoopCondNode *node)
+{
+
+    //add the LOOP instruction to the current basic block
+    currentBasicBlock->add_instruction(node);
+
+    //create a new basic block for the termination condition of the loop
+    startNewBasicBlockSuccessor();
+    BasicBlock *terminationConditionBasicBlock = currentBasicBlock;     //save the basic block for later
+    node->getChildren()[0]->accept(this);
+
+    //create a new basic block for the loop body+step code, process the two children
+    startNewBasicBlockSuccessor();
+    node->getChildren()[1]->accept(this);
+    node->getChildren()[2]->accept(this);
+
+    //connect the loop body+step code to the termination condition basic block
+    currentBasicBlock->add_successor(terminationConditionBasicBlock);
+
+    //set the current basic block to the termination condition basic block
+    //and create a new basic block for the ENDLOOP instruction
+    currentBasicBlock = terminationConditionBasicBlock;
+    startNewBasicBlockSuccessor();
+    node->getChildren()[3]->accept(this);
 
     return "";
 }

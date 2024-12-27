@@ -9,6 +9,7 @@
 #include "IfElseNode.h"
 #include "TestNode.h"
 #include "LoopNode.h"
+#include "LoopCondNode.h"
 #include "SimpleNode.h"
 #include "LogicNotNode.h"
 #include "LogicBinOpNode.h"
@@ -83,7 +84,7 @@ std::any Fortran90ParserIRTreeVisitor::visitAssignmentStmt(Fortran90Parser::Assi
     assert(ctx->children.size() == 3);
 
     // first visit children - recurse on the expression
-    std::string variableName = ctx->children[0]->getText();
+    std::string variableName = std::any_cast<std::string>(ctx->children[0]->accept(this));
     std::string expression = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
     // then process the current node
@@ -654,27 +655,70 @@ std::any Fortran90ParserIRTreeVisitor::visitEndIfStmt(Fortran90Parser::EndIfStmt
 std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::BlockDoConstructContext *ctx){
     //of the form 
     //<nameColon>? DO <commaLoopControl>? <executionPartConstruct>* <endDoStmt>
-    ///NOTE: ignoring <commaLoopControl> for now - just doing a DO loop with no control - requires EXIT
+    // if it is a DO loop with no control - requires EXIT
     ///NOTE: also ignoring <nameColon> for now - just doing a simple DO loop with no name
 
     // so the form would be DO <executionPartConstruct>* <endDoStmt>
 
-    std::string bodyLabel = "body" + std::to_string(loopCount);
-    std::string exitLabel = "exit" + std::to_string(loopCount++);
+   
 
-    LoopNode *loopNode = new LoopNode(bodyLabel, exitLabel);
-    previousParentNode->addChild(loopNode);
-    previousParentNode = loopNode;
+    //process the child at index 1 - might be commaLoopControl
+    if (dynamic_cast<Fortran90Parser::CommaLoopControlContext*>(ctx->children[1]) || dynamic_cast<Fortran90Parser::LoopControlContext*>(ctx->children[1])){
 
-    // process the body of the loop
-    for(size_t i = 1; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct into sequential nodes
-        ctx->children[i]->accept(this);
+        doLoopStruct loopControl = std::any_cast<doLoopStruct>(ctx->children[1]->accept(this));
+
+        //create a LoopCondNode with the loopControl
+        std::string bodyLabel = "body" + std::to_string(loopCount);
+        std::string condLabel = "cond" + std::to_string(loopCount);
+        std::string stepLabel = "step" + std::to_string(loopCount);
+        std::string endloopLabel = "endloop" + std::to_string(loopCount++);
+
+        LoopCondNode *loopNode = new LoopCondNode(condLabel, bodyLabel, stepLabel, endloopLabel);
+        //remove the connections between the initialisationNode, condition block and the step block
+        loopControl.initialisationNode->removeChild(loopControl.condTopNode);
+        loopControl.condEndNode->removeChild(loopControl.stepTopNode);
+
+        //add the loopNode after initialisationNode
+        loopControl.initialisationNode->addChild(loopNode);
+
+        //add the condition as the first child of the loopNode
+        loopNode->addChild(loopControl.condTopNode);    
+
+        //add the body to the loopNode as a child, by processing the body at index 2 of the BlockDoConstruct
+        previousParentNode = loopNode;
+        for(size_t i = 2; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct into sequential nodes
+            ctx->children[i]->accept(this);
+        }
+        EndBlockNode *endBodyNode = new EndBlockNode("ENDBODY");    //add an ENDBODY at the end of the loop body
+        previousParentNode->addChild(endBodyNode);
+
+        //add the step block to the loopNode as a child
+        loopNode->addChild(loopControl.stepTopNode);
+
+        //reset the previousParentNode to the loopNode
+        previousParentNode = loopNode;
+
+    }else{
+
+        //create a normal LoopNode
+        std::string bodyLabel = "body" + std::to_string(loopCount);
+        std::string exitLabel = "exit" + std::to_string(loopCount++);
+
+        LoopNode *loopNode = new LoopNode(bodyLabel, exitLabel);
+        previousParentNode->addChild(loopNode);
+        previousParentNode = loopNode;
+
+        // process the body of the loop, either starting at index 1 
+        for(size_t i = 1; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct into sequential nodes
+            ctx->children[i]->accept(this);
+        }
+        EndBlockNode *endBodyNode = new EndBlockNode("ENDBODY");    //add an ENDBODY at the end of the loop body
+        previousParentNode->addChild(endBodyNode);
+
+        previousParentNode = loopNode;
     }
-    EndBlockNode *endBodyNode = new EndBlockNode("ENDBODY");    //add an ENDBODY at the end of the loop body
-    previousParentNode->addChild(endBodyNode);
 
-    previousParentNode = loopNode;
-
+    //add the ENDLOOP at the end of the loop
     EndBlockNode *endLoopNode = new EndBlockNode("ENDLOOP");
     previousParentNode->addChild(endLoopNode);
     previousParentNode = endLoopNode;
@@ -683,6 +727,78 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
 
 }
 
+std::any Fortran90ParserIRTreeVisitor::visitCommaLoopControl(Fortran90Parser::CommaLoopControlContext *ctx) {
+    //COMMA? loopControl
+    
+
+    if (ctx->children.size() == 2) {
+        //ignore the comma and just visit the loopControl, return the doLoopStruct
+        return ctx->children[1]->accept(this);
+    }
+    return nullptr;
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopControlContext *ctx) {
+    //loopControl
+    //of the form: variableName ASSIGN expression COMMA expression commaExpr?
+    ///NOTE: the following should probably all be integers:
+    //the first expression is the initial value of the loop variable
+    //the second expression is the terminating value of the loop variable
+    //where commaExpr is the 'step' expression
+
+    //process the variableName and the initialisation expression
+    std::string variableName = std::any_cast<std::string>(ctx->children[0]->accept(this));
+    std::string initialisationExpression = std::any_cast<std::string>(ctx->children[2]->accept(this));
+
+    //create a MovNode to initialise the loop variable
+    MovNode *movNode = new MovNode(variableName, initialisationExpression);
+    previousParentNode->addChild(movNode);
+    previousParentNode = movNode;
+
+    doLoopStruct loopControl;
+    loopControl.initialisationNode = movNode;
+
+    //process the terminating expression, create a TestNode
+    std::string terminatingExpression = std::any_cast<std::string>(ctx->children[4]->accept(this));
+    //create a GT RelOpNode, and a TestNode
+    //since the terminating condition for the do loop is when loop variable > terminatingExpression
+    std::string tempBoolVar = getNewTempVariableName();
+    RelOpNode *relOpNode = new RelOpNode("GT", tempBoolVar, variableName, terminatingExpression);
+    previousParentNode->addChild(relOpNode);
+    previousParentNode = relOpNode;
+    TestNode *testNode = new TestNode(tempBoolVar);
+    previousParentNode->addChild(testNode);
+    previousParentNode = testNode;
+
+    //whichever is the child of the movNode is the start of the 'terminating condition expression'
+    //while the TEST node is the end of the 'terminating condition expression'
+    loopControl.condTopNode = movNode->getChildren()[0];
+    loopControl.condEndNode = testNode;
+
+    //process the step commaExpr if it exists, otherwise set to 1
+    std::string stepExpression = "1";
+    if (ctx->children.size() == 6) {
+        stepExpression = std::any_cast<std::string>(ctx->children[5]->accept(this));
+    } 
+
+    //create a ArithOpNode for the step expression
+    std::string tempLoopVar = getNewTempVariableName();
+    ArithOpNode *arithOpNode = new ArithOpNode("ADD", tempLoopVar, variableName, stepExpression);
+    previousParentNode->addChild(arithOpNode);
+    previousParentNode = arithOpNode;
+    //then MOVE the tempLoopVar back to the loop variable
+    MovNode *stepMovNode = new MovNode(variableName, tempLoopVar);
+    previousParentNode->addChild(stepMovNode);
+    previousParentNode = stepMovNode;
+
+    //the stepTopNode is the child of the condEndNode
+    //and the stepEndNode is the MovNode
+    loopControl.stepTopNode = testNode->getChildren()[0];
+    // loopControl.stepEndNode = stepMovNode;
+
+    //return a struct in order to construct a LoopCondNode in BlockDoConstruct
+    return loopControl;
+}
 
 
 //////////////////////HELPER FUNCTIONS//////////////////////

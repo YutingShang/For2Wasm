@@ -30,6 +30,8 @@ class IrFlowgraphVisitor : public IrBaseVisitor {
 
         std::string visitLoopNode(LoopNode* node) override;
 
+        std::string visitLoopCondNode(LoopCondNode* node) override;
+
         std::string visitIfNode(IfNode* node) override;
 
         std::string visitIfElseNode(IfElseNode* node) override;

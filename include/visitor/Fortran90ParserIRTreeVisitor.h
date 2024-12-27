@@ -64,6 +64,10 @@ public:
 
     virtual std::any visitBlockDoConstruct(Fortran90Parser::BlockDoConstructContext *ctx) override;
 
+    virtual std::any visitCommaLoopControl(Fortran90Parser::CommaLoopControlContext *ctx) override;
+
+    virtual std::any visitLoopControl(Fortran90Parser::LoopControlContext *ctx) override;
+
     std::unordered_map<std::string, std::string> getStringMap(){
         return stringIndexMap;
     };
@@ -90,4 +94,13 @@ private:
     int loopCount = 0;
 
     BaseNode* previousParentNode;     // store the previous parent node in the flow diagram, so we can assign the current node as a child of the previous parent node
+
+    // for constructing the LoopCondNode
+    struct doLoopStruct {
+        BaseNode *initialisationNode; // will be a MoveNode
+        BaseNode *condTopNode; 
+        BaseNode *condEndNode;        //will be a > test node
+        BaseNode *stepTopNode;
+        // BaseNode *stepEndNode;        //will be an incrementation, so probably ArithOp, and then MoveNode or something
+    };
 };

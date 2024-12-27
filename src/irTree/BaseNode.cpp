@@ -67,6 +67,7 @@ BaseNode* BaseNode::getParent() const {
 }
 
 void BaseNode::removeChild(BaseNode* child) {
+    child->setParent(nullptr);       //also set the parent of the child to nullptr
     this->children.erase(std::remove(this->children.begin(), this->children.end(), child), this->children.end());
 }
 
@@ -85,13 +86,14 @@ int BaseNode::getPositionInParent() const {
 
 void BaseNode::removeCurrentNodeFromIRTree(int indexInParent) {
     //remove the node from the parent node
-    this->parent->removeChild(this);
+    BaseNode* parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
+    this->parent->removeChild(this);          //remove child to make space for the new nodes
 
     //add the children to the parent node
     int insertIndex = indexInParent;
     for (BaseNode* child : this->children) {
-        child->setParent(this->parent);
-        this->parent->insertChild(child, insertIndex);
+        child->setParent(parent);
+        parent->insertChild(child, insertIndex);
         insertIndex++;
     }
 

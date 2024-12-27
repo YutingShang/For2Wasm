@@ -10,6 +10,7 @@ class MovNode;
 class EndBlockNode;
 class ExitNode;
 class LoopNode;
+class LoopCondNode;
 class IfNode;
 class DeclareNode;
 class PrintNode;
@@ -38,6 +39,8 @@ class IrBaseVisitor {
         virtual std::string visitExitNode(ExitNode* node) = 0;
 
         virtual std::string visitLoopNode(LoopNode* node) = 0;
+
+        virtual std::string visitLoopCondNode(LoopCondNode* node) = 0;
 
         virtual std::string visitIfNode(IfNode* node) = 0;
 
