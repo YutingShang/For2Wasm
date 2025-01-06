@@ -42,12 +42,10 @@ std::list<BaseNode*>::iterator BasicBlock::remove_instruction_node(std::list<Bas
     if (parent == nullptr) {
         throw std::runtime_error("Parent node is null. Why are you removing this node?");
     }
-    
-    int instructionInParentIndex = instruction->getPositionInParent();
 
     //edit the ir tree to remove the instruction node 
     //bypass the current node, add its children to the parent node
-    instruction->removeCurrentNodeFromIRTree(instructionInParentIndex);
+    instruction->removeCurrentNodeFromIRTree();
 
     // return the iterator to the next instruction
     return it;

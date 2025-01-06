@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseNode.h"
+#include "EndBlockNode.h"
 
 // IF condition thenLabel elseLabel endLabel
 
@@ -18,4 +19,6 @@ public:
 
     std::set<std::string> getReferencedVariables() const override;
     std::set<std::string> getDefinedVariables() const override;
+
+    BaseNode* removeCurrentNodeFromIRTree() override;
 }; 

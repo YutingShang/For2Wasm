@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseNode.h"
+#include "EndBlockNode.h"
 
 
 // LOOP <initialiser> <termination condition> <loop body> <step> <endloop>
@@ -23,4 +24,5 @@ class LoopCondNode : public BaseNode {
         std::set<std::string> getReferencedVariables() const override;
         std::set<std::string> getDefinedVariables() const override;
 
+        BaseNode* removeCurrentNodeFromIRTree() override;
 };

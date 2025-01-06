@@ -27,6 +27,7 @@
 #include "IrFlowgraphVisitor.h"
 #include "DeadCodeElimination.h"
 #include "tree/Trees.h"
+#include "SimplificationOptimisations.h"
 #include <regex>
 #include <filesystem>
 using namespace antlrcpp;
@@ -178,7 +179,15 @@ int main(int argc, const char **argv)
       // entryNode->accept(&flowgraphVisitor);
       // std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newFlowgraphStart);
 
-      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
+      if (argc >= 4 && std::string(argv[3]) == "-simplify") {
+        SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
+      }
+      //create the flowgraph again, since IR tree has been modified
+      BasicBlock* newFlowgraphStart = new BasicBlock();
+      IrFlowgraphVisitor flowgraphVisitor(newFlowgraphStart);
+      entryNode->accept(&flowgraphVisitor);
+
+      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newFlowgraphStart);
       std::cout << dotFlowgraph << std::endl;
     }
     else if (std::string(argv[2]) == "-DCE-ir")
@@ -187,6 +196,9 @@ int main(int argc, const char **argv)
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
       // then print the IR tree
       // tree still has the entryNode
+      if (argc >= 4 && std::string(argv[3]) == "-simplify") {
+        SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
+      }
       std::string dotIRTree = DotTreeTools::irTreeToDot(entryNode);
       std::cout << dotIRTree << std::endl;
     }
@@ -194,6 +206,10 @@ int main(int argc, const char **argv)
     {
       // dce
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
+
+      if (argc >= 4 && std::string(argv[3]) == "-simplify") {
+        SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
+      }
       
       // then run the wasm code
       std::unordered_map<std::string, std::string> stringMap = irTreeVisitor.getStringMap();

@@ -27,7 +27,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
     }
 
     return removed;
-    /// TODO: handle case if an entire basic block is removed??
+    /// TODO: handle case if an entire basic block is removed - now possible with the `-simplify` flag? Or just draw the flowgraph again?
 }
 
 std::vector<BasicBlock *> DeadCodeElimination::getBasicBlocks(BasicBlock *entryBasicBlock)

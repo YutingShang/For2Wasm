@@ -53,3 +53,35 @@ std::set<std::string> LoopCondNode::getDefinedVariables() const {
     return {};
 }
 
+BaseNode* LoopCondNode::removeCurrentNodeFromIRTree() {
+    //first assert that the loop body is empty, if not throw error
+    // if (dynamic_cast<EndBlockNode*>(this->children[2]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[2]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[2])->getText()!="ENDBODY")) {
+    //     throw std::runtime_error("LoopCondNode cannot be removed from IR tree, BODY of loop statement is not empty");
+    // }
+
+    //get the position of the LOOPCOND node in the parent node
+    int indexInParent = this->getPositionInParent();
+
+    BaseNode* parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
+    this->parent->removeChild(this);          //remove child to make space for the new nodes
+
+    //get what is after the ENDLOOP and attach it to the parent node
+    assert(dynamic_cast<EndBlockNode*>(this->children[4]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[4])->getText()=="ENDLOOP");
+    EndBlockNode* endLoopNode = dynamic_cast<EndBlockNode*>(this->children[4]);
+
+    BaseNode* child = nullptr;
+    if (endLoopNode->getChildren().size() == 1) {        //get the single child of the ENDLOOP node
+        child = endLoopNode->getChildren()[0];
+        endLoopNode->removeChild(child);   //detach the child from the ENDLOOP node, so it doesn't get deleted
+        parent->insertChild(child, indexInParent);
+    }
+    //otherwise no children to attach to the parent node, just delete the current node
+ 
+    // delete the current node from memory, and recursively any children it is still attached to
+    delete this;
+ 
+
+    //return the child node that has replaced the current node
+    return child;
+}
+

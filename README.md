@@ -25,9 +25,11 @@ The third argument is a flag that determines what to output. The available optio
 * `-astDot` - output the AST tree in dot format and convert to png
 * `-parseDot` - output the parse tree in dot format and convert to png
 * `-flowgraph` - output the flowgraph in dot format and convert to png
+---
 * `-DCE` - output the flowgraph after dead code elimination and convert to png
 * `-DCE-ir` - output the IR tree after dead code elimination and convert to png
 * `-DCE-WASM` - output the WASM code after dead code elimination and run the program
+    * `-simplify` - fourth argument, if present, will run simplification on the IR tree after DCE (e.g. removes empty control flow constructs)
 
 **Maintenance**
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BaseNode.h"
+#include "EndBlockNode.h"
 
 // IF condition thenLabel endLabel
 ///NOTE: see IfElseNode.h for the other case
@@ -22,4 +23,5 @@ class IfNode : public BaseNode {
         std::set<std::string> getReferencedVariables() const override;
         std::set<std::string> getDefinedVariables() const override;
 
+        BaseNode* removeCurrentNodeFromIRTree() override;
 };

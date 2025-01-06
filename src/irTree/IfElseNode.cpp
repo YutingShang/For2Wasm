@@ -47,3 +47,37 @@ std::set<std::string> IfElseNode::getReferencedVariables() const {
 std::set<std::string> IfElseNode::getDefinedVariables() const {
     return {};
 }
+
+BaseNode* IfElseNode::removeCurrentNodeFromIRTree() {
+    //first assert that the then and else statements are empty, if not throw error
+    if (dynamic_cast<EndBlockNode*>(this->children[1]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[1]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[1])->getText()!="ENDTHEN")) {
+        throw std::runtime_error("IfNode cannot be removed from IR tree, body of THEN statement is not empty");
+    }
+    if (dynamic_cast<EndBlockNode*>(this->children[2]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[2]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[2])->getText()!="ENDELSE")) {
+        throw std::runtime_error("IfNode cannot be removed from IR tree, body of ELSE statement is not empty");
+    }
+
+    //get the position of the IF node in the parent node
+    int indexInParent = this->getPositionInParent();
+
+    BaseNode* parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
+    this->parent->removeChild(this);          //remove child to make space for the new nodes
+
+    //get what is after the ENDIF and attach it to the parent node
+    assert(dynamic_cast<EndBlockNode*>(this->children[3]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[3])->getText()=="ENDIF");
+    EndBlockNode* endIfNode = dynamic_cast<EndBlockNode*>(this->children[3]);
+
+    BaseNode* child = nullptr;
+    if (endIfNode->getChildren().size() == 1) {        //get the single child of the ENDIF node
+        child = endIfNode->getChildren()[0];
+        endIfNode->removeChild(child);           //remove the child from the ENDIF node, so it doesn't get deleted
+        parent->insertChild(child, indexInParent);
+    } 
+    //otherwise no children to attach to the parent node, just delete the current node
+
+    // delete the current node from memory
+    delete this;
+
+    //return the child node that has replaced the current node
+    return child;
+}

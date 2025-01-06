@@ -15,6 +15,8 @@ public:
     void addChild(BaseNode *child) override;
     void insertChild(BaseNode* child, int index) override;
 
+    BaseNode* removeCurrentNodeFromIRTree() override;
+
     //accept method for visitor pattern must be implemented by child nodes
     //getReferencedVariables and getDefinedVariables must be implemented by child nodes
     //this makes SimpleNode an abstract class for all nodes that have a single child

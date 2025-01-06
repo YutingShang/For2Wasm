@@ -2,6 +2,12 @@
 
 BaseNode::BaseNode() {}
 
+BaseNode::~BaseNode() {
+    for (BaseNode* child : this->children) {
+        delete child;
+    }
+}
+
 BaseNode::BaseNode(std::string text)
 {
 
@@ -82,21 +88,4 @@ int BaseNode::getPositionInParent() const {
     int indexInParent = std::distance(parentChildren.begin(), childrenIterator);
 
     return indexInParent;
-}
-
-void BaseNode::removeCurrentNodeFromIRTree(int indexInParent) {
-    //remove the node from the parent node
-    BaseNode* parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
-    this->parent->removeChild(this);          //remove child to make space for the new nodes
-
-    //add the children to the parent node
-    int insertIndex = indexInParent;
-    for (BaseNode* child : this->children) {
-        child->setParent(parent);
-        parent->insertChild(child, insertIndex);
-        insertIndex++;
-    }
-
-    // delete the current node from memory
-    delete this;
 }

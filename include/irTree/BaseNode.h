@@ -13,7 +13,7 @@ class BaseNode {
 
         BaseNode(std::string text);
         
-        virtual ~BaseNode() = default;
+        virtual ~BaseNode();
 
         //returns the text of the node
         virtual std::string getText() const;      
@@ -42,9 +42,11 @@ class BaseNode {
 
         virtual int getPositionInParent() const;
 
-        //edits IR tree by removing the node, and adding its children to the parent node
-        //takes in the index of the current node in the parent node, so its children can be inserted in the correct position
-        virtual void removeCurrentNodeFromIRTree(int indexInParent);
+        //edits IR tree by removing the node, and adding its children to the parent node (calls getPositionInParent to find the correct position)
+        ///NOTE: must be implemented by simple node, and then how to remove IF and LOOP nodes etc.
+        ///RETURNS: this will return the child node that has replaced the current node - could be nullptr if the node has no children!!
+        ///CAREFUL: the caller of this function must not use the current node after it has been removed from the IR tree to avoid use-after-free errors
+        virtual BaseNode* removeCurrentNodeFromIRTree() = 0;
 
 
 
