@@ -18,7 +18,7 @@ public:
     BaseNode* removeCurrentNodeFromIRTree() override;
 
     //accept method for visitor pattern must be implemented by child nodes
-    //getReferencedVariables and getDefinedVariables must be implemented by child nodes
+    //getReferencedVariables and getDefinedVariables and getGeneratedExpressions must be implemented by child nodes
     //this makes SimpleNode an abstract class for all nodes that have a single child
 
 };

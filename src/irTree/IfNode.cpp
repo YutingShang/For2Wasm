@@ -45,6 +45,10 @@ std::set<std::string> IfNode::getDefinedVariables() const {
     return {};
 }
 
+std::set<std::string> IfNode::getGeneratedExpressions() const {
+    return {};
+}
+
 BaseNode* IfNode::removeCurrentNodeFromIRTree() {
     //first assert that the then statement is empty, if not throw error
     if (dynamic_cast<EndBlockNode*>(this->children[1]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[1]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[1])->getText()!="ENDTHEN")) {

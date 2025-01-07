@@ -1,5 +1,4 @@
 #include "DeadCodeElimination.h"
-#include <iostream>
 
 void DeadCodeElimination::iterateDeadCodeElimination(BasicBlock *entryBasicBlock)
 {
@@ -13,7 +12,7 @@ void DeadCodeElimination::iterateDeadCodeElimination(BasicBlock *entryBasicBlock
 bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
 {
     // Analysis: LVA
-    std::vector<BasicBlock *> basicBlocks = getBasicBlocks(entryBasicBlock);
+    std::vector<BasicBlock *> basicBlocks = getBasicBlocksReverse(entryBasicBlock);
     std::vector<std::set<std::string>> liveSets = computeLiveSets(basicBlocks);
 
     // Transformation: Remove dead code
@@ -30,7 +29,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
     /// TODO: handle case if an entire basic block is removed - now possible with the `-simplify` flag? Or just draw the flowgraph again?
 }
 
-std::vector<BasicBlock *> DeadCodeElimination::getBasicBlocks(BasicBlock *entryBasicBlock)
+std::vector<BasicBlock *> DeadCodeElimination::getBasicBlocksReverse(BasicBlock *entryBasicBlock)
 {
     // first get a list of all the basic blocks in the flowgraph
     // we actually want to propagate information back up the flowgraph

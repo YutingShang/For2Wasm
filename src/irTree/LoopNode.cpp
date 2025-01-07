@@ -50,6 +50,10 @@ std::set<std::string> LoopNode::getDefinedVariables() const {
     return {};
 }
 
+std::set<std::string> LoopNode::getGeneratedExpressions() const {
+    return {};
+}
+
 BaseNode* LoopNode::removeCurrentNodeFromIRTree() {
 
     //first assert that the loop body is empty, if not throw error

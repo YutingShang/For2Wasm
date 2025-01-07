@@ -19,10 +19,12 @@ class DeadCodeElimination {
 
     private:
 
-        static std::vector<BasicBlock*> getBasicBlocks(BasicBlock* entryBasicBlock);
+        //returns a vector of all the basic blocks in the flowgraph
+        //uses BFS to get the basic blocks roughly in flowgraph order, then reverses it for backwards analysis
+        static std::vector<BasicBlock*> getBasicBlocksReverse(BasicBlock* entryBasicBlock);
 
         //computes all the live sets for instructions in the flowgraph
-        //takes the start/entry basic block, which contains the entire flowgraph
+        //takes in a vector of basic blocks, returns a vector of live sets for each basic block
         static std::vector<std::set<std::string>> computeLiveSets(std::vector<BasicBlock*> &basicBlocks);
 
         //finds and removes dead code in the flowgraph after the LVA converges

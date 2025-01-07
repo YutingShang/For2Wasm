@@ -15,3 +15,7 @@ std::set<std::string> ExitNode::getReferencedVariables() const {
 std::set<std::string> ExitNode::getDefinedVariables() const {
     return {};
 }
+
+std::set<std::string> ExitNode::getGeneratedExpressions() const {
+    return {};
+}

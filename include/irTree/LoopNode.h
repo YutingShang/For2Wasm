@@ -24,6 +24,7 @@ class LoopNode : public BaseNode {
 
         std::set<std::string> getReferencedVariables() const override;
         std::set<std::string> getDefinedVariables() const override;
+        std::set<std::string> getGeneratedExpressions() const override;
 
         BaseNode* removeCurrentNodeFromIRTree() override;
 };

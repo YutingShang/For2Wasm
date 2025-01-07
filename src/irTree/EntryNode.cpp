@@ -13,3 +13,7 @@ std::set<std::string> EntryNode::getReferencedVariables() const {
 std::set<std::string> EntryNode::getDefinedVariables() const {
     return {};
 }
+
+std::set<std::string> EntryNode::getGeneratedExpressions() const {
+    return {};
+}

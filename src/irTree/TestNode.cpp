@@ -23,3 +23,7 @@ std::set<std::string> TestNode::getReferencedVariables() const {
 std::set<std::string> TestNode::getDefinedVariables() const {
     return {};
 }
+
+std::set<std::string> TestNode::getGeneratedExpressions() const {
+    return {};
+}

@@ -53,6 +53,10 @@ std::set<std::string> LoopCondNode::getDefinedVariables() const {
     return {};
 }
 
+std::set<std::string> LoopCondNode::getGeneratedExpressions() const {
+    return {};
+}
+
 BaseNode* LoopCondNode::removeCurrentNodeFromIRTree() {
     //first assert that the loop body is empty, if not throw error
     // if (dynamic_cast<EndBlockNode*>(this->children[2]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[2]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[2])->getText()!="ENDBODY")) {

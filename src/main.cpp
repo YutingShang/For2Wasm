@@ -26,6 +26,7 @@
 #include "EntryNode.h"
 #include "IrFlowgraphVisitor.h"
 #include "DeadCodeElimination.h"
+#include "CSE.h"
 #include "tree/Trees.h"
 #include "SimplificationOptimisations.h"
 #include <regex>
@@ -149,7 +150,7 @@ int main(int argc, const char **argv)
 
   /////////////////FLOWGRAPH VISITOR///////////////////////////////////////////////////
 
-  if (argc >= 3 && (std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE" || std::string(argv[2]) == "-DCE-ir" || std::string(argv[2]) == "-DCE-WASM"))
+  if (argc >= 3 && (std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE" || std::string(argv[2]) == "-DCE-ir" || std::string(argv[2]) == "-DCE-WASM" || std::string(argv[2]) == "-CSE"))
   {
 
     // first need to create the IR tree
@@ -217,6 +218,8 @@ int main(int argc, const char **argv)
       std::string wasm = wasmVisitor.getEntireProgramCode(entryNode);
       std::cout << wasm << std::endl;
 
+    }else if (std::string(argv[2]) == "-CSE") {
+      CSE::iterateCommonSubexpressionElimination(startBasicBlock);
     }
   }
 

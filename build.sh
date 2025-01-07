@@ -44,6 +44,6 @@ if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" ||
     cursor $IMAGE_FILE     #open in vscode
 fi
 
-if [ "$FLAG" == "-irPrint" ]; then          #just run with the original command line inputs, no extra processes
+if [[ "$FLAG" == "-irPrint" || "$FLAG" == "-CSE" ]]; then          #just run with the original command line inputs, no extra processes
     $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG
 fi

@@ -20,3 +20,7 @@ std::set<std::string> ReadNode::getReferencedVariables() const {
 std::set<std::string> ReadNode::getDefinedVariables() const {
     return {getVar()};
 }
+
+std::set<std::string> ReadNode::getGeneratedExpressions() const {
+    return {};
+}

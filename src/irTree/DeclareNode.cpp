@@ -1,7 +1,7 @@
 #include "DeclareNode.h"
 
 DeclareNode::DeclareNode(std::string var){
-    this->textVector = {"DECLARE ", var};
+    this->textVector = {"DECLARE", var};
 }
 
 std::string DeclareNode::getVar() const {
@@ -17,5 +17,9 @@ std::set<std::string> DeclareNode::getReferencedVariables() const {
 }
 
 std::set<std::string> DeclareNode::getDefinedVariables() const {
+    return {};
+}
+
+std::set<std::string> DeclareNode::getGeneratedExpressions() const {
     return {};
 }
