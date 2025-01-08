@@ -15,7 +15,7 @@ void IfElseNode::addChild(BaseNode* child) {
     }
 }
 
-void IfElseNode::insertChild(BaseNode* child, int index) {
+void IfElseNode::addChildAtIndex(BaseNode* child, int index) {
     child->setParent(this);
 
     //will just append to the end if vector is of size 3, and inserting to index 3
@@ -75,7 +75,7 @@ BaseNode* IfElseNode::removeCurrentNodeFromIRTree() {
     if (endIfNode->getChildren().size() == 1) {        //get the single child of the ENDIF node
         child = endIfNode->getChildren()[0];
         endIfNode->removeChild(child);           //remove the child from the ENDIF node, so it doesn't get deleted
-        parent->insertChild(child, indexInParent);
+        parent->addChildAtIndex(child, indexInParent);
     } 
     //otherwise no children to attach to the parent node, just delete the current node
 

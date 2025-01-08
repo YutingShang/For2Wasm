@@ -12,6 +12,10 @@ std::string RelOpNode::getDest() const {
     return textVector[1];
 }
 
+void RelOpNode::setDest(std::string dest) {
+    textVector[1] = dest;
+}
+
 std::string RelOpNode::getSrc1() const {
     return textVector[2];
 }

@@ -1,25 +1,18 @@
 program simple
     implicit none
-    integer :: x, i, j, y
+    integer :: a, b, x, y, z    
 
-    x = 3+4
-    i = x+5
-    j = x+i+x
-    y = j*x
-    y = 1 < 2
-    x = 1 .AND. 0
-    i = .NOT. y
-    y = y+1
+    a = 3
+    b = 4
+    y=a+b
 
-    do i=1, 5
-        x = x+1
-    end do
+    if (a>3) then
+        x = 1
+    else 
+        x = 2
+    end if
 
+    x = a+b
    
-
-
-
-
-
 
 end program simple

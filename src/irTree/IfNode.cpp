@@ -14,7 +14,7 @@ void IfNode::addChild(BaseNode* child) {
     }
 }
 
-void IfNode::insertChild(BaseNode* child, int index) {
+void IfNode::addChildAtIndex(BaseNode* child, int index) {
     child->setParent(this);
     if (this->children.size() < 3 && index < 3) {
         this->children.insert(this->children.begin() + index, child);
@@ -69,7 +69,7 @@ BaseNode* IfNode::removeCurrentNodeFromIRTree() {
     if (endIfNode->getChildren().size() == 1) {        //get the single child of the ENDIF node
         child = endIfNode->getChildren()[0];
         endIfNode->removeChild(child);    //remove the child from the ENDIF node, so it doesn't get deleted
-        parent->insertChild(child, indexInParent);
+        parent->addChildAtIndex(child, indexInParent);
     } 
     //otherwise no children to attach to the parent node, just delete the current node
 

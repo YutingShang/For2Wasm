@@ -14,7 +14,7 @@ void LoopCondNode::addChild(BaseNode* child) {
     }
 }
 
-void LoopCondNode::insertChild(BaseNode* child, int index) {
+void LoopCondNode::addChildAtIndex(BaseNode* child, int index) {
     child->setParent(this);
     if (this->children.size() < 5 && index < 5) {
         this->children.insert(this->children.begin() + index, child);
@@ -77,7 +77,7 @@ BaseNode* LoopCondNode::removeCurrentNodeFromIRTree() {
     if (endLoopNode->getChildren().size() == 1) {        //get the single child of the ENDLOOP node
         child = endLoopNode->getChildren()[0];
         endLoopNode->removeChild(child);   //detach the child from the ENDLOOP node, so it doesn't get deleted
-        parent->insertChild(child, indexInParent);
+        parent->addChildAtIndex(child, indexInParent);
     }
     //otherwise no children to attach to the parent node, just delete the current node
  

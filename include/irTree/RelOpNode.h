@@ -1,15 +1,16 @@
 #pragma once
-#include "SimpleNode.h"
+#include "ExpressionNode.h"
 
 // RelOpNode is a class for nodes that represent relational operations
 // EQ, NE, LT, LE, GT, GE
-class RelOpNode : public SimpleNode {
+class RelOpNode : public ExpressionNode {
 public:
     RelOpNode(std::string op, std::string dest, std::string src1, std::string src2);
     ~RelOpNode() override = default;
 
     std::string getOp() const;
-    std::string getDest() const;
+    std::string getDest() const override;
+    void setDest(std::string dest) override;
     std::string getSrc1() const;
     std::string getSrc2() const;
 

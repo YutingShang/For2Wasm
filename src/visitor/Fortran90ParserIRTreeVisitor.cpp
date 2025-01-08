@@ -872,3 +872,8 @@ std::string Fortran90ParserIRTreeVisitor::getRelationalOperator(std::string oper
     // should never reach here
     return "UNKNOWN";
 }
+
+const int Fortran90ParserIRTreeVisitor::getNextTempVariableCount()
+{
+    return tempVariableCount;
+}

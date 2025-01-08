@@ -36,7 +36,7 @@ if [[ "$FLAG" == "-irWASM" || "$FLAG" == "-DCE-WASM" ]]; then
     node $PROGRAM_FILE $WASM_FILE
 fi
 
-if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" || "$FLAG" == "-DCE" || "$FLAG" == "-DCE-ir" ]]; then
+if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" || "$FLAG" == "-DCE" || "$FLAG" == "-DCE-ir" || "$FLAG" == "-CSE" || "$FLAG" == "-CSE-ir" ]]; then
     DOT_FILE=$OUTPUT_DIR/tree.dot
     IMAGE_FILE=$OUTPUT_DIR/tree.png
     $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG $OPTIONAL_FLAG > $DOT_FILE
@@ -44,6 +44,6 @@ if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" ||
     cursor $IMAGE_FILE     #open in vscode
 fi
 
-if [[ "$FLAG" == "-irPrint" || "$FLAG" == "-CSE" ]]; then          #just run with the original command line inputs, no extra processes
+if [[ "$FLAG" == "-irPrint" || "$FLAG" == "-CSE-irPrint" ]]; then          #just run with the original command line inputs, no extra processes
     $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG
 fi

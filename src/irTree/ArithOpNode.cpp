@@ -19,6 +19,10 @@ std::string ArithOpNode::getDest() const {
     return textVector[1];
 }
 
+void ArithOpNode::setDest(std::string dest) {
+    textVector[1] = dest;
+}
+
 std::string ArithOpNode::getSrc1() const {
     return textVector[2];
 }

@@ -16,21 +16,23 @@ class BaseNode {
         virtual ~BaseNode();
 
         //returns the text of the node
-        virtual std::string getText() const;      
+        virtual std::string getText() const;   
 
         //print out entire IR tree in text form, including labels and indentation
         //provides a default implementation, but can be overridden by derived classes
         virtual std::string stringifyIRTree() const;     
 
-        //adds a child to the node, must be implemented to specify the number of children allowed for each node class
-        ///NOTE: addChild and insertChild should also setParent of the child to this node
+        //adds a child to the node (either at the end or at a specific index), must be implemented to specify the number of children allowed for each node class
+        //different to insertSandwichChild defined in SimpleNode
+        ///NOTE: addChild and addChildAtIndex should also setParent of the child to this node
         virtual void addChild(BaseNode* child) = 0;
-        virtual void insertChild(BaseNode* child, int index) = 0;
+        virtual void addChildAtIndex(BaseNode* child, int index) = 0;
         virtual void removeChild(BaseNode* child);
         virtual std::vector<BaseNode*> getChildren() const;
 
         virtual void setParent(BaseNode* parent);
         virtual BaseNode* getParent() const;
+
 
         //takes the ReferencedItems and DefinedItems and returns the variables
         ///NOTE: remove strings and constants using the isVariable function

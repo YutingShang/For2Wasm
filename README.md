@@ -30,6 +30,9 @@ The third argument is a flag that determines what to output. The available optio
 * `-DCE-ir` - output the IR tree after dead code elimination and convert to png
 * `-DCE-WASM` - output the WASM code after dead code elimination and run the program
     * `-simplify` - fourth argument, if present, will run simplification on the IR tree after DCE (e.g. removes empty control flow constructs)
+* `-CSE` - output the flowgraph after common subexpression elimination and convert to png
+* `-CSE-ir` - output the IR tree after common subexpression elimination and convert to png
+* `-CSE-irPrint` - output the IR tree after common subexpression elimination in text format
 
 **Maintenance**
 

@@ -8,6 +8,10 @@ std::string LogicNotNode::getDest() const {
     return textVector[1];
 }
 
+void LogicNotNode::setDest(std::string dest) {
+    textVector[1] = dest;
+}
+
 std::string LogicNotNode::getSrc() const {
     return textVector[2];
 }

@@ -12,7 +12,7 @@ class LoopCondNode : public BaseNode {
         ~LoopCondNode() override = default;
 
         void addChild(BaseNode* child) override;
-        void insertChild(BaseNode* child, int index) override;
+        void addChildAtIndex(BaseNode* child, int index) override;
 
         std::string stringifyIRTree() const override;
 

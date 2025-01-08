@@ -1,15 +1,16 @@
 #pragma once
-#include "SimpleNode.h"
+#include "ExpressionNode.h"
 
 
 // NOT <dest> <src>
 
-class LogicNotNode : public SimpleNode {
+class LogicNotNode : public ExpressionNode {
 public:
     LogicNotNode(std::string dest, std::string src);
     ~LogicNotNode() override = default;
 
-    std::string getDest() const;
+    std::string getDest() const override;
+    void setDest(std::string dest) override;
     std::string getSrc() const;
 
     std::string accept(IrBaseVisitor* visitor) override;

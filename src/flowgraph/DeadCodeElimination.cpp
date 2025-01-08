@@ -113,8 +113,8 @@ std::set<std::string> DeadCodeElimination::basicBlockComputeLiveSet(BasicBlock *
 
     // then we process all the instructions in the basic block linearly upwards/backwards
     // first remove the def, then add the ref
-    const auto &instructions = basicBlock->get_instructions();
-    for (auto it = instructions.rbegin(); it != instructions.rend(); ++it)
+    const auto &instructions = basicBlock->get_instructions_reference();
+    for (auto it = instructions.rbegin(); it != instructions.rend(); ++it)      //reverse iterator
     {
         BaseNode *instruction = *it;
         std::set<std::string> def_set = instruction->getDefinedVariables();
@@ -164,8 +164,8 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
 
     // gets a REFERENCE of the instructions
     ///NOTE: modifies the instructions directly with remove_instruction_node method
-    std::list<BaseNode *>& instructions = basicBlock->get_instructions(); 
-    std::reverse(instructions.begin(), instructions.end());              // reverse the instructions to iterate from the bottom up
+    std::list<BaseNode *>& instructions = basicBlock->get_instructions_reference(); 
+    instructions.reverse();              // reverse the instructions to iterate from the bottom up (remove_instruction_node needs a normal iterator it)
     for (auto it = instructions.begin(); it != instructions.end();)
     {
         // for each instruction, the (out)live set is stored in the current out_live_set variable
@@ -185,7 +185,7 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
             if (out_live_set.find(var) == out_live_set.end())
             { // variable is not live after this instruction
                 // this instruction is dead code and we can remove it - from the instruction list and also the ir tree
-                // don't increment the iterator
+                // don't increment the iterator, since a new one is returned
                 it = basicBlock->remove_instruction_node(it);
                 modified = true;
             }
@@ -214,7 +214,7 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
     }
 
     ///NOTE: reversing the instructions again to restore the original order
-    std::reverse(instructions.begin(), instructions.end());
+    instructions.reverse();
 
     return modified;
 }

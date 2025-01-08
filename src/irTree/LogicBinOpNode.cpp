@@ -12,6 +12,10 @@ std::string LogicBinOpNode::getDest() const {
     return textVector[1];
 }
 
+void LogicBinOpNode::setDest(std::string dest) {
+    textVector[1] = dest;
+}
+
 std::string LogicBinOpNode::getSrc1() const {
     return textVector[2];
 }

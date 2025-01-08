@@ -26,7 +26,7 @@
 #include "EntryNode.h"
 #include "IrFlowgraphVisitor.h"
 #include "DeadCodeElimination.h"
-#include "CSE.h"
+#include "CSEOptimizer.h"
 #include "tree/Trees.h"
 #include "SimplificationOptimisations.h"
 #include <regex>
@@ -150,7 +150,7 @@ int main(int argc, const char **argv)
 
   /////////////////FLOWGRAPH VISITOR///////////////////////////////////////////////////
 
-  if (argc >= 3 && (std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE" || std::string(argv[2]) == "-DCE-ir" || std::string(argv[2]) == "-DCE-WASM" || std::string(argv[2]) == "-CSE"))
+  if (argc >= 3 && (std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE" || std::string(argv[2]) == "-DCE-ir" || std::string(argv[2]) == "-DCE-WASM" || std::string(argv[2]) == "-CSE" || std::string(argv[2]) == "-CSE-ir" || std::string(argv[2]) == "-CSE-irPrint"))
   {
 
     // first need to create the IR tree
@@ -219,8 +219,30 @@ int main(int argc, const char **argv)
       std::cout << wasm << std::endl;
 
     }else if (std::string(argv[2]) == "-CSE") {
-      CSE::iterateCommonSubexpressionElimination(startBasicBlock);
+      CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
+      cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
+
+      //after running CSE, create the flowgraph again, since IR tree has been modified
+      BasicBlock* newFlowgraphStart = new BasicBlock();
+      IrFlowgraphVisitor flowgraphVisitor(newFlowgraphStart);
+      entryNode->accept(&flowgraphVisitor);
+
+      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newFlowgraphStart);
+      std::cout << dotFlowgraph << std::endl;
+    } else if (std::string(argv[2]) == "-CSE-ir") {
+      CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
+      cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
+
+      //then print the IR tree
+      std::string dotIRTree = DotTreeTools::irTreeToDot(entryNode);
+      std::cout << dotIRTree << std::endl;
+    } else if (std::string(argv[2]) == "-CSE-irPrint") {
+      CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
+      cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
+
+      std::cout << entryNode->stringifyIRTree() << std::endl;
     }
+     
   }
 
   return 0;

@@ -13,9 +13,16 @@ public:
     ~SimpleNode() override = default;
 
     void addChild(BaseNode *child) override;
-    void insertChild(BaseNode* child, int index) override;
+    void addChildAtIndex(BaseNode* child, int index) override;
 
+    //from BaseNode
     BaseNode* removeCurrentNodeFromIRTree() override;
+
+    //inserts a newNode node between the current node and its existing child
+    void insertSandwichChild(SimpleNode* newNode);
+
+    //replace the current node with another SimpleNode
+    void replaceCurrentNodeInIRTree(SimpleNode* newNode);
 
     //accept method for visitor pattern must be implemented by child nodes
     //getReferencedVariables and getDefinedVariables and getGeneratedExpressions must be implemented by child nodes

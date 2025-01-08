@@ -1,15 +1,16 @@
 #pragma once
-#include "SimpleNode.h"
+#include "ExpressionNode.h"
 
 // LogicOpNode is a class for nodes that represent logic operations taking two operands, AND, OR
 // <op> <dest> <src1> <src2>
-class LogicBinOpNode : public SimpleNode {
+class LogicBinOpNode : public ExpressionNode {
 public:
     LogicBinOpNode(std::string op, std::string dest, std::string src1, std::string src2);
     ~LogicBinOpNode() override = default;
 
     std::string getOp() const;
-    std::string getDest() const;
+    std::string getDest() const override;
+    void setDest(std::string dest) override;
     std::string getSrc1() const;
     std::string getSrc2() const;
 
