@@ -42,7 +42,7 @@ TEST_EXECUTABLE = $(TEST_TARGETS_DIR)/all_tests
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -std=c++17 -g -Wall -Wextra -pthread
+CXXFLAGS += -g -Wall -Wextra -pthread
 
 
 # All Google Test headers.  Usually you shouldn't change this
@@ -96,8 +96,8 @@ $(GTEST_BUILD_DIR)/gtest_main.a : $(GTEST_BUILD_DIR)/gtest-all.o $(GTEST_BUILD_D
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-$(TEST_EXECUTABLE) : $(TEST_OBJS) $(GTEST_BUILD_DIR)/gtest_main.a | $(TEST_TARGETS_DIR)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread -o $@ $^
+$(TEST_EXECUTABLE) : $(TEST_OBJS) $(OBJS) $(GTEST_BUILD_DIR)/gtest_main.a | $(TEST_TARGETS_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) -lpthread -o $@ $^
 
 $(TEST_TARGETS_DIR) :
 	mkdir -p $(TEST_TARGETS_DIR)

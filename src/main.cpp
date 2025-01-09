@@ -92,11 +92,16 @@ int main(int argc, const char **argv)
   /////////////////AST VISITOR///////////////////////////////////////////////////
 
   // UNCOMMENT to create AST of the parse tree
-  Fortran90ParserASTVisitor astVisitor(parser);
+  Fortran90ParserASTVisitor astVisitor;
   antlr4::tree::ParseTree *astTree = std::any_cast<antlr4::tree::ParseTree *>(parseTree->accept(&astVisitor)); // dispatches call to appropriate visit method in visitor
 
   // UNCOMMENT to print AST of the parse tree in LISP format
   // std::cout << astTree->toStringTree(&parser) << std::endl;
+
+  // UNCOMMENT to print AST of the parse tree in LISP format to a file
+  // std::ofstream outputFile("../tests/expected_output/AST_strings/triangularAST.txt");
+  // outputFile << astTree->toStringTree(&parser);
+  // outputFile.close();
 
   // UNCOMMENT to print AST of the parse tree in DOT format
   if (argc >= 3 && std::string(argv[2]) == "-astDot")

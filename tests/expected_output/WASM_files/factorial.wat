@@ -10,7 +10,7 @@
 (func (export "main")
 (local $num i32)
 (local $i i32)
-(local $resultThing i32)
+(local $factorial_res i32)
 i32.const 0
 i32.const 25
 call $logString
@@ -27,15 +27,15 @@ call $logString
 )
 (else
 i32.const 1
-local.set $resultThing
+local.set $factorial_res
 i32.const 1
 local.set $i
 (block $exit0
 (loop $body0
-local.get $resultThing
+local.get $factorial_res
 local.get $i
 i32.mul
-local.set $resultThing
+local.set $factorial_res
 local.get $i
 i32.const 1
 i32.add
@@ -59,7 +59,7 @@ call $log
 i32.const 71
 i32.const 5
 call $logString
-local.get $resultThing
+local.get $factorial_res
 call $log
 )
 )

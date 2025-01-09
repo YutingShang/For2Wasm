@@ -4,36 +4,12 @@
 
 include definitions.mk
 
-# Define the directories
-OBJ_DIR = $(BUILD_DIR)/obj
-
-# EDIT: change the antlr4-runtime and lib path to the one on your system in LDFLAGS and INCLUDE_DIRS
-# EDIT: add the new include directories to INCLUDE_DIRS
-CXX = g++
-INCLUDE_DIRS = /usr/local/lib/antlr4-runtime ./include/visitor ./include/irTree ./include/utils ./include/flowgraph $(GENERATED_ANTLR_DIR) $(THIRD_PARTY_DIR)/fortran
-CXXFLAGS += -std=c++17 $(foreach dir, $(INCLUDE_DIRS), -I$(dir)) 
-LDFLAGS += -L/usr/local/lib/lib -lantlr4-runtime
-
 # Target executable
 TARGET = $(BUILD_DIR)/bin/main
+MAIN_SRC = $(SRC_DIR)/main.cpp
+MAIN_OBJ = $(OBJ_DIR)/main.o
 
-# Source files and directories - EDIT: add the new source files here, also add the new include directories to INCLUDE_DIRS
-SRCS = $(SRC_DIR)/main.cpp \
-	$(THIRD_PARTY_DIR)/fortran/Fortran90LexerBase.cpp \
-	$(GENERATED_SRCS) \
-	$(wildcard $(SRC_DIR)/irTree/*.cpp) \
-	$(wildcard $(SRC_DIR)/visitor/*.cpp) \
-	$(wildcard $(SRC_DIR)/utils/*.cpp) \
-	$(wildcard $(SRC_DIR)/flowgraph/*.cpp)
-
-# Get the directories of the source files
-SRC_DIRS = $(sort $(dir $(SRCS)))   
-
-# Add source directories to vpath to help Make locate the source files
-vpath %.cpp $(SRC_DIRS)
-
-# List of object files, regardless of source file directory
-OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(notdir $(SRCS)))
+#EDIT: src and include directories in definitions.mk
 
 #---------
 # Rules
@@ -43,7 +19,7 @@ OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(notdir $(SRCS)))
 all: $(TARGET)
 
 # Linking object files
-$(TARGET): $(OBJS) | $(BUILD_DIR)/bin 
+$(TARGET): $(OBJS) $(MAIN_OBJ) | $(BUILD_DIR)/bin 
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
 
 # Ensure the bin directory exists

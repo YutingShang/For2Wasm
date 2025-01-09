@@ -1,0 +1,23 @@
+	ENTRY
+	DECLARE res
+	DECLARE q
+	CALL PRINT $str1
+	CALL READ q
+	MOV res 0
+	LOOP body0 exit0
+body0: 	IF cond0 then0 endif0
+cond0: 	EQ _t0 q 0
+	TEST _t0
+then0: 	EXIT
+	ENDTHEN
+endif0: 	ENDIF
+	ADD _t1 res q
+	MOV res _t1
+	SUB _t2 q 1
+	MOV q _t2
+	ENDBODY
+exit0: 	ENDLOOP
+	CALL PRINT $str2
+	CALL PRINT q
+	CALL PRINT $str3
+	CALL PRINT res

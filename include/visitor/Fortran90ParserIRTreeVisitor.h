@@ -74,7 +74,7 @@ public:
 
     //just returns the tempVariableCount, public interface for CSEOptimizer
     //different to private getNewTempVariableName(), which modifies the tempVariableCount
-    const int getNextTempVariableCount();
+    int getNextTempVariableCount();
 
 private:
     // the parser to access the rule names

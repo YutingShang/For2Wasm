@@ -1,0 +1,32 @@
+	ENTRY
+	DECLARE num
+	DECLARE i
+	DECLARE factorial_res
+	CALL PRINT $str1
+	CALL READ num
+	IF cond0 then0 else0 endif0
+cond0: 	LT _t0 num 0
+	TEST _t0
+then0: 	CALL PRINT $str2
+	ENDTHEN
+else0: 	MOV factorial_res 1
+	MOV i 1
+	LOOP body0 exit0
+body0: 	MUL _t1 factorial_res i
+	MOV factorial_res _t1
+	ADD _t2 i 1
+	MOV i _t2
+	IF cond1 then1 endif1
+cond1: 	GT _t3 i num
+	TEST _t3
+then1: 	EXIT
+	ENDTHEN
+endif1: 	ENDIF
+	ENDBODY
+exit0: 	ENDLOOP
+	CALL PRINT $str3
+	CALL PRINT num
+	CALL PRINT $str4
+	CALL PRINT factorial_res
+	ENDELSE
+endif0: 	ENDIF

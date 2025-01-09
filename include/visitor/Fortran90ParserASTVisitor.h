@@ -4,8 +4,8 @@
 
 class Fortran90ParserASTVisitor : public Fortran90ParserBaseVisitor {
 public:
-    //constructor
-    Fortran90ParserASTVisitor(Fortran90Parser &parser){}; //: parser(parser){};
+    //constructor - parser is not needed
+    Fortran90ParserASTVisitor(){}; //: parser(parser){};
 
     virtual std::any visitChildren(antlr4::tree::ParseTree *node) override;
 
