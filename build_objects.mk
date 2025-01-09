@@ -7,23 +7,24 @@ include definitions.mk
 # Define the directories
 OBJ_DIR = $(BUILD_DIR)/obj
 
-# EDIT: change the antlr4-runtime and lib path to the one on your system
+# EDIT: change the antlr4-runtime and lib path to the one on your system in LDFLAGS and INCLUDE_DIRS
+# EDIT: add the new include directories to INCLUDE_DIRS
 CXX = g++
 INCLUDE_DIRS = /usr/local/lib/antlr4-runtime ./include/visitor ./include/irTree ./include/utils ./include/flowgraph $(GENERATED_ANTLR_DIR) $(THIRD_PARTY_DIR)/fortran
-CXXFLAGS = -std=c++17 $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
-LDFLAGS = -L/usr/local/lib/lib -lantlr4-runtime
+CXXFLAGS += -std=c++17 $(foreach dir, $(INCLUDE_DIRS), -I$(dir)) 
+LDFLAGS += -L/usr/local/lib/lib -lantlr4-runtime
 
 # Target executable
 TARGET = $(BUILD_DIR)/bin/main
 
 # Source files and directories - EDIT: add the new source files here, also add the new include directories to INCLUDE_DIRS
-SRCS = src/main.cpp \
+SRCS = $(SRC_DIR)/main.cpp \
 	$(THIRD_PARTY_DIR)/fortran/Fortran90LexerBase.cpp \
 	$(GENERATED_SRCS) \
-	$(wildcard src/irTree/*.cpp) \
-	$(wildcard src/visitor/*.cpp) \
-	$(wildcard src/utils/*.cpp) \
-	$(wildcard src/flowgraph/*.cpp)
+	$(wildcard $(SRC_DIR)/irTree/*.cpp) \
+	$(wildcard $(SRC_DIR)/visitor/*.cpp) \
+	$(wildcard $(SRC_DIR)/utils/*.cpp) \
+	$(wildcard $(SRC_DIR)/flowgraph/*.cpp)
 
 # Get the directories of the source files
 SRC_DIRS = $(sort $(dir $(SRCS)))   

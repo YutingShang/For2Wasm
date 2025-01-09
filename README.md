@@ -3,11 +3,15 @@ Fortran to WebAssembly Compiler
 
 **Building the Project**
 
-To build the project, run `make` in the root directory. This will output the executable to the `build/bin` directory.
+To build the project, run `make` in the root directory. This will output the executable to the `build/bin` directory and run the unit tests.
+
+If you just want to build the project without running the tests, run `make install`.
 
 **Cleaning the Project**
 
 To clean the project, run `make clean` in the root directory. This will remove the `build` directory and all its contents.
+
+To clean the tests, run `make cleantest` in the root directory. This will remove the `build/tests` and `build/generated/gtest` directories and all their contents.
 
 **Using the Build Script**
 
