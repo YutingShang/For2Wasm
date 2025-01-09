@@ -14,7 +14,7 @@ i32.const 50
 call $logString
 i32.const 0
 local.set $sum
-(block $exit0
+(block $endloop0
 (loop $body0
 i32.const 50
 i32.const 4
@@ -26,7 +26,7 @@ i32.const 0
 i32.eq
 (if
 (then
-br $exit0
+br $endloop0
 )
 (else
 local.get $sum

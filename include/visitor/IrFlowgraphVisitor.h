@@ -56,7 +56,7 @@ class IrFlowgraphVisitor : public IrBaseVisitor {
         // Creates a new basic block as the successor of the current basic block and updates the current basic block
         void startNewBasicBlockSuccessor();
 
-        //stack ENDLOOP basic blocks, i.e. the exitLabel of the loop
+        //stack ENDLOOP basic blocks, i.e. the endloopLabel of the loop
         std::stack<BasicBlock*> exitStack;  
 
 

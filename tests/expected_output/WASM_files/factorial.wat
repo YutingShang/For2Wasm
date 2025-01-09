@@ -30,7 +30,7 @@ i32.const 1
 local.set $factorial_res
 i32.const 1
 local.set $i
-(block $exit0
+(block $endloop0
 (loop $body0
 local.get $factorial_res
 local.get $i
@@ -45,7 +45,7 @@ local.get $num
 i32.gt_s
 (if
 (then
-br $exit0
+br $endloop0
 )
 )
 br $body0

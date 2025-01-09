@@ -4,7 +4,7 @@
 #include "EndBlockNode.h"
 
 
-// LOOP <initialiser> <termination condition> <loop body> <step> <endloop>
+// LOOP <initialiser> <termination condition> <body> <step> <endloop>
 class LoopCondNode : public BaseNode {
     public:
         LoopCondNode(std::string init, std::string cond, std::string body, std::string step, std::string endloop);

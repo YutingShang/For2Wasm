@@ -105,9 +105,9 @@ std::string IrFlowgraphVisitor::visitLoopNode(LoopNode *node)
     // create a new basic block for the loop body, setting it as current basic block, so the next instruction will be added to the loop body
     startNewBasicBlockSuccessor();
 
-    // create a new basic block for the loop exit (for the exit instruction to jump to)
-    BasicBlock *loopExit = new BasicBlock();
-    exitStack.push(loopExit);
+    // create a new basic block for the loop endloop (for the endloop instruction to jump to)
+    BasicBlock *loopEndloop = new BasicBlock();
+    exitStack.push(loopEndloop);
 
     // save the current loop body basic block
     BasicBlock *loopBody = currentBasicBlock;
@@ -118,8 +118,8 @@ std::string IrFlowgraphVisitor::visitLoopNode(LoopNode *node)
     // last instruction of the loop body should connect back to the loop body basic block
     currentBasicBlock->add_successor(loopBody);
 
-    // process the end of the loop, i.e. ENDLOOP or the exitLabel of the loop
-    currentBasicBlock = loopExit;
+    // process the end of the loop, i.e. ENDLOOP or the endloopLabel of the loop
+    currentBasicBlock = loopEndloop;
     node->getChildren()[1]->accept(this);
 
     return "";
@@ -155,9 +155,9 @@ std::string IrFlowgraphVisitor::visitLoopCondNode(LoopCondNode *node)
 
 std::string IrFlowgraphVisitor::visitExitNode(ExitNode *node)
 {
-    // set the successor of the current basic block to the exit basic block
-    BasicBlock *loopExit = exitStack.top();
-    currentBasicBlock->add_successor(loopExit);
+    // set the successor of the current basic block to the endloop basic block
+    BasicBlock *loopEndloop = exitStack.top();
+    currentBasicBlock->add_successor(loopEndloop);
 
     // pop the loop stack
     exitStack.pop();

@@ -16,14 +16,14 @@ call $read
 local.set $q
 i32.const 0
 local.set $res
-(block $exit0
+(block $endloop0
 (loop $body0
 local.get $q
 i32.const 0
 i32.eq
 (if
 (then
-br $exit0
+br $endloop0
 )
 )
 local.get $res

@@ -572,9 +572,9 @@ std::any Fortran90ParserTranslatorVisitor::visitBlockDoConstruct(Fortran90Parser
     // so the form would be DO <executionPartConstruct>* <endDoStmt>
 
     std::string bodyLabel = "body" + std::to_string(loopCount);
-    std::string exitLabel = "exit" + std::to_string(loopCount++);
+    std::string endloopLabel = "endloop" + std::to_string(loopCount++);
 
-    std::cout<<"\tLOOP "<<bodyLabel<<" "<<exitLabel<<std::endl;
+    std::cout<<"\tLOOP "<<bodyLabel<<" "<<endloopLabel<<std::endl;
 
     // print the label for the body of the loop
     std::cout<<bodyLabel<<": ";
@@ -582,7 +582,7 @@ std::any Fortran90ParserTranslatorVisitor::visitBlockDoConstruct(Fortran90Parser
         ctx->children[i]->accept(this);
     }
 
-    std::cout<<exitLabel<<": \tENDLOOP"<<std::endl;   
+    std::cout<<endloopLabel<<": \tENDLOOP"<<std::endl;   
     ///TODO: loop at why ENDIF was implemented really weirdly and handled twice - can you always confirm its just ENDIF
 
     return nullptr;

@@ -658,7 +658,7 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
     // if it is a DO loop with no control - requires EXIT
     ///NOTE: also ignoring <nameColon> for now - just doing a simple DO loop with no name
 
-    // so the form would be DO <executionPartConstruct>* <endDoStmt>
+    // so the form would be DO <executionPartConstruct>* <endDoStmt> or DO <commaLoopControl>? <executionPartConstruct>* <endDoStmt>
 
    
 
@@ -704,9 +704,9 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
 
         //create a normal LoopNode
         std::string bodyLabel = "body" + std::to_string(loopCount);
-        std::string exitLabel = "exit" + std::to_string(loopCount++);
+        std::string endloopLabel = "endloop" + std::to_string(loopCount++);
 
-        LoopNode *loopNode = new LoopNode(bodyLabel, exitLabel);
+        LoopNode *loopNode = new LoopNode(bodyLabel, endloopLabel);
         previousParentNode->addChild(loopNode);
         previousParentNode = loopNode;
 
@@ -873,7 +873,7 @@ std::string Fortran90ParserIRTreeVisitor::getRelationalOperator(std::string oper
     return "UNKNOWN";
 }
 
-const int Fortran90ParserIRTreeVisitor::getNextTempVariableCount()
+int Fortran90ParserIRTreeVisitor::getNextTempVariableCount()
 {
     return tempVariableCount;
 }

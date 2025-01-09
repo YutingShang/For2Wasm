@@ -158,9 +158,9 @@ std::string IrWasmVisitor::visitEndBlockNode(EndBlockNode* node) {
 }
 
 std::string IrWasmVisitor::visitExitNode(ExitNode* node) {
-    std::string exitLabel = exitStack.top();
+    std::string endloopLabel = exitStack.top();
     exitStack.pop();
-    std::string wasmCode = "br $" + exitLabel + "\n";
+    std::string wasmCode = "br $" + endloopLabel + "\n";
 
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);
@@ -171,9 +171,9 @@ std::string IrWasmVisitor::visitExitNode(ExitNode* node) {
 
 std::string IrWasmVisitor::visitLoopNode(LoopNode* node) {
 
-    std::string wasmCode = "(block $" + node->getExitLabel() + "\n";
+    std::string wasmCode = "(block $" + node->getEndloopLabel() + "\n";
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
-    exitStack.push(node->getExitLabel());
+    exitStack.push(node->getEndloopLabel());
     wasmCode += node->getChildren()[0]->accept(this);    // process the body of the loop
     wasmCode += "br $" + node->getBodyLabel() + "\n)\n";     // for end of one of the block statement
     

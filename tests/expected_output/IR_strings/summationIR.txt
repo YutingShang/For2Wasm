@@ -3,7 +3,7 @@
 	DECLARE a
 	CALL PRINT $str1
 	MOV sum 0
-	LOOP body0 exit0
+	LOOP body0 endloop0
 body0: 	CALL PRINT $str2
 	CALL READ a
 	IF cond0 then0 else0 endif0
@@ -16,6 +16,6 @@ else0: 	ADD _t1 sum a
 	ENDELSE
 endif0: 	ENDIF
 	ENDBODY
-exit0: 	ENDLOOP
+endloop0: 	ENDLOOP
 	CALL PRINT $str3
 	CALL PRINT sum

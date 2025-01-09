@@ -5,24 +5,11 @@ program tester
     integer :: sum, a, i
 
     
-    do
-        read *, a
-        if (a == 0) then
-            exit
-        else
-            if (a == 1) then
-                print *, "a is 1"
-            else
-                print *, "a is not 1"
-            end if
-        end if
-
+    do i = 1, 10
+        print *, i
         do 
-            read *, i
-            if (i == 0) then
+            if (i == 5) then
                 exit
-            else
-                print *, "i is not 0"
             end if
         end do
     end do

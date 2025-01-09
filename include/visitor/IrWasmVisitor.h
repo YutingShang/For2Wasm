@@ -60,6 +60,7 @@ class IrWasmVisitor : public IrBaseVisitor {
         // e.g. where str_var = $str1, start_offset = 50, length = 4
         std::unordered_map<std::string, std::array<unsigned long, 2>> stringMapIndicies;
        
+        //stack contains the endloop labels of the loops
         std::stack<std::string> exitStack;
 
         bool importPrint = false;

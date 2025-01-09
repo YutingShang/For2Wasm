@@ -3,12 +3,12 @@
 #include "BaseNode.h"
 #include "EndBlockNode.h"
 
-// LOOP <loop body> <exit>
+// LOOP <body> <endloop>
 
 class LoopNode : public BaseNode {
 
     public:
-        LoopNode(std::string body, std::string exit);
+        LoopNode(std::string body, std::string endloop);
 
         ~LoopNode() override = default;
 
@@ -20,7 +20,7 @@ class LoopNode : public BaseNode {
         std::string accept(IrBaseVisitor* visitor) override;
 
         std::string getBodyLabel() const;
-        std::string getExitLabel() const;
+        std::string getEndloopLabel() const;
 
         std::set<std::string> getReferencedVariables() const override;
         std::set<std::string> getDefinedVariables() const override;

@@ -1,7 +1,7 @@
 #include "LoopNode.h"
 
-LoopNode::LoopNode(std::string body, std::string exit){
-    this->textVector = {"LOOP", body, exit};
+LoopNode::LoopNode(std::string body, std::string endloop){
+    this->textVector = {"LOOP", body, endloop};
 }
 
 void LoopNode::addChild(BaseNode* child) {
@@ -26,7 +26,7 @@ void LoopNode::addChildAtIndex(BaseNode* child, int index) {
 std::string LoopNode::stringifyIRTree() const {
     std::string tree = "\t" + getText();
     tree += "\n" + this->textVector[1] +": " + this->children[0]->stringifyIRTree();      //adds body label
-    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds exit label
+    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds endloop label
     return tree;
 }
 
@@ -38,7 +38,7 @@ std::string LoopNode::getBodyLabel() const {
     return this->textVector[1];
 }
 
-std::string LoopNode::getExitLabel() const {
+std::string LoopNode::getEndloopLabel() const {
     return this->textVector[2];
 }
 
