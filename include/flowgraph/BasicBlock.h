@@ -13,6 +13,9 @@ class BasicBlock {
 
         BasicBlock();
 
+        ~BasicBlock() = default;
+        void delete_entire_flowgraph();
+
         void add_instruction(BaseNode* instruction);
 
         void add_successor(BasicBlock* successor);

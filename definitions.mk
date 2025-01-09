@@ -27,10 +27,11 @@ SRCS = $(THIRD_PARTY_DIR)/fortran/Fortran90LexerBase.cpp \
 	$(wildcard $(SRC_DIR)/flowgraph/*.cpp)
 
 # Get the directories of the source files
-SRC_DIRS = $(sort $(dir $(SRCS)))   
+SRCS_DIRS = $(sort $(dir $(SRCS)))   
 
 # Add source directories to vpath to help Make locate the source files
-vpath %.cpp $(SRC_DIRS)
+# NOTE: if I change the SRCS variable in a makefile, I need to change copy this line too into the makefile
+vpath %.cpp $(SRCS_DIRS)
 
 # List of object files, regardless of source file directory
 OBJS = $(patsubst %.cpp,$(OBJ_DIR)/%.o,$(notdir $(SRCS)))

@@ -9,6 +9,14 @@ TARGET = $(BUILD_DIR)/bin/main
 MAIN_SRC = $(SRC_DIR)/main.cpp
 MAIN_OBJ = $(OBJ_DIR)/main.o
 
+SRCS += $(MAIN_SRC)
+OBJS += $(MAIN_OBJ)
+
+# Get the directories of the source files
+# Add source directories to vpath to help Make locate the source files
+SRCS_DIRS = $(sort $(dir $(SRCS)))   
+vpath %.cpp $(SRCS_DIRS)
+
 #EDIT: src and include directories in definitions.mk
 
 #---------
@@ -19,7 +27,7 @@ MAIN_OBJ = $(OBJ_DIR)/main.o
 all: $(TARGET)
 
 # Linking object files
-$(TARGET): $(OBJS) $(MAIN_OBJ) | $(BUILD_DIR)/bin 
+$(TARGET): $(OBJS)| $(BUILD_DIR)/bin 
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
 
 # Ensure the bin directory exists

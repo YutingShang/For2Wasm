@@ -5,21 +5,27 @@ mkdir -p $OUTPUT_DIR
 
 MAIN_PROGRAM=./build/bin/main
 EXAMPLE_FORTRAN_FILE=${1:-examples/summation.f90}
-FLAG=${2:--irWASM}
-OPTIONAL_FLAG=${3}      #might be unset, might be -simplify for the DCE options
+FLAG1=${2:--WASM}
+FLAG2=${3}       #optional optimisation flag, might be unset
+FLAG3=${4}       #optional optimisation flag, might be unset
 
 
-if [[ "$FLAG" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
+if [[ "$FLAG1" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
     echo "\n------------------------------------------------------------------------------"
     echo "*                                FOR2WASM                                    *"
     echo "------------------------------------------------------------------------------"
-    echo "Usage: \t ./build.sh <fortran_file> <flag>\n"
-    echo "Flags:\n"
-    echo "  -irWASM \t IR tree -> WASM format + executes the program (default)\n"
+    echo "Usage: \t ./build.sh <fortran_file> <flag1> <flag2> <flag3>\n"
+    echo "Flag 1: output format\n"
+    echo "  -WASM \t WASM format -> executes the program (default)\n"
     echo "  -irPrint \t IR tree -> text format\n"
-    echo "  -irDot \t IR tree -> dot format + converts to png\n"
-    echo "  -astDot \t AST tree -> dot format + converts to png\n"
-    echo "  -parseDot \t parse tree -> dot format + converts to png"
+    echo "  -irTree \t IR tree -> dot format + converts to png\n"
+    echo "  -astTree \t AST tree -> dot format + converts to png [no optimisation]\n"
+    echo "  -parseTree \t parse tree -> dot format + converts to png [no optimisation]\n"
+    echo "  -flowgraph \t flowgraph -> dot format + converts to png\n"
+    echo "Flag 2 & \nFlag 3: optimisation (default is no optimisation)\n"
+    echo "  -DCE \t \t dead code elimination\n"
+    echo "  -CSE \t \t common subexpression elimination\n"
+    echo "  -simplify \t remove all empty control flow constructs\n"
     echo "------------------------------------------------------------------------------\n"
     exit 0
 else 
@@ -27,23 +33,23 @@ else
 fi
 
 
-if [[ "$FLAG" == "-irWASM" || "$FLAG" == "-DCE-WASM" ]]; then
+if [ "$FLAG1" == "-WASM" ]; then
     WAT_FILE=$OUTPUT_DIR/output.wat
     WASM_FILE=$OUTPUT_DIR/output.wasm
     PROGRAM_FILE=src/wasm/program.js
-    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG $OPTIONAL_FLAG > $WAT_FILE
+    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3 > $WAT_FILE
     wat2wasm $WAT_FILE -o $WASM_FILE
     node $PROGRAM_FILE $WASM_FILE
 fi
 
-if [[ "$FLAG" == "-irDot"  || "$FLAG" == "-parseDot"  || "$FLAG" == "-astDot" || "$FLAG" == "-flowgraph" || "$FLAG" == "-DCE" || "$FLAG" == "-DCE-ir" || "$FLAG" == "-CSE" || "$FLAG" == "-CSE-ir" ]]; then
+if [[ "$FLAG1" == "-irTree"  || "$FLAG1" == "-parseTree"  || "$FLAG1" == "-astTree" || "$FLAG1" == "-flowgraph" ]]; then
     DOT_FILE=$OUTPUT_DIR/tree.dot
     IMAGE_FILE=$OUTPUT_DIR/tree.png
-    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG $OPTIONAL_FLAG > $DOT_FILE
+    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3 > $DOT_FILE
     dot -Tpng $DOT_FILE -o $IMAGE_FILE
     cursor $IMAGE_FILE     #open in vscode
 fi
 
-if [[ "$FLAG" == "-irPrint" || "$FLAG" == "-CSE-irPrint" ]]; then          #just run with the original command line inputs, no extra processes
-    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG
+if [ "$FLAG1" == "-irPrint" ]; then          #just run with the original command line inputs, no extra processes
+    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3
 fi

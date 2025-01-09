@@ -1,9 +1,35 @@
 #include "BasicBlock.h"
 #include <iterator>
 #include <iostream>
+#include <stack>
+#include <set>
 
-BasicBlock::BasicBlock() {
+BasicBlock::BasicBlock() {}
 
+void BasicBlock::delete_entire_flowgraph() {
+    
+    std::stack<BasicBlock*> toExploreStack;
+    toExploreStack.push(this);
+    std::set<BasicBlock*> seenBlocks;
+    seenBlocks.insert(this);
+
+    //get a list of all the basic blocks using DFS
+    while (!toExploreStack.empty()) {
+        BasicBlock *current = toExploreStack.top();
+        toExploreStack.pop();
+
+        for (BasicBlock* successor : current->successors) {
+            if(seenBlocks.find(successor) == seenBlocks.end()) {
+                toExploreStack.push(successor);
+                seenBlocks.insert(successor);
+            }
+        }
+    }
+
+    //delete all the basic blocks
+    for (BasicBlock* bb: seenBlocks) {
+        delete bb;
+    }
 }
 
 void BasicBlock::add_instruction(BaseNode* instruction) {
