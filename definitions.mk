@@ -18,7 +18,7 @@ CXXFLAGS += -std=c++17 $(foreach dir, $(INCLUDE_DIRS), -I$(dir))
 LDFLAGS += -L/usr/local/lib/lib -lantlr4-runtime
 
 # Source files and directories - EDIT: add the new source files here, also add the new include directories to INCLUDE_DIRS
-# Does not include main.cpp or the test .cc files
+# Does not include main.cpp or the test .cpp files
 SRCS = $(THIRD_PARTY_DIR)/fortran/Fortran90LexerBase.cpp \
 	$(GENERATED_SRCS) \
 	$(wildcard $(SRC_DIR)/irTree/*.cpp) \

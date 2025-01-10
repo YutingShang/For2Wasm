@@ -5,7 +5,7 @@ mkdir -p $OUTPUT_DIR
 
 MAIN_PROGRAM=./build/bin/main
 EXAMPLE_FORTRAN_FILE=${1:-examples/summation.f90}
-FLAG1=${2:--WASM}
+FLAG1=${2}
 FLAG2=${3}       #optional optimisation flag, might be unset
 FLAG3=${4}       #optional optimisation flag, might be unset
 
@@ -16,7 +16,7 @@ if [[ "$FLAG1" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
     echo "------------------------------------------------------------------------------"
     echo "Usage: \t ./build.sh <fortran_file> <flag1> <flag2> <flag3>\n"
     echo "Flag 1: output format\n"
-    echo "  -WASM \t WASM format -> executes the program (default)\n"
+    echo "  -WASM \t WASM format -> executes the program\n"
     echo "  -irPrint \t IR tree -> text format\n"
     echo "  -irTree \t IR tree -> dot format + converts to png\n"
     echo "  -astTree \t AST tree -> dot format + converts to png [no optimisation]\n"
@@ -37,7 +37,7 @@ if [ "$FLAG1" == "-WASM" ]; then
     WAT_FILE=$OUTPUT_DIR/output.wat
     WASM_FILE=$OUTPUT_DIR/output.wasm
     PROGRAM_FILE=src/wasm/program.js
-    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3 > $WAT_FILE
+    printf "%s" "$($MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3)" > $WAT_FILE
     wat2wasm $WAT_FILE -o $WASM_FILE
     node $PROGRAM_FILE $WASM_FILE
 fi

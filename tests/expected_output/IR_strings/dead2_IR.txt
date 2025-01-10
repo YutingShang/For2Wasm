@@ -1,0 +1,25 @@
+	ENTRY
+	DECLARE a
+	DECLARE b
+	DECLARE i
+	DECLARE j
+	LOOP init0 cond0 body0 step0 endloop0
+init0: 	MOV i 1
+cond0: 	GT _t0 i 50000
+	TEST _t0
+body0: 	LOOP init1 cond1 body1 step1 endloop1
+init1: 	MOV j 1
+cond1: 	GT _t2 j 50000
+	TEST _t2
+body1: 	MOV a 3
+	ENDBODY
+step1: 	ADD _t3 j 1
+	MOV j _t3
+endloop1: 	ENDLOOP
+	MOV b 42
+	ENDBODY
+step0: 	ADD _t1 i 1
+	MOV i _t1
+endloop0: 	ENDLOOP
+	CALL PRINT $str1
+	CALL PRINT b

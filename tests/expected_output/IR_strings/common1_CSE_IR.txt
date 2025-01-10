@@ -1,0 +1,25 @@
+	ENTRY
+	DECLARE _s2
+	DECLARE _s1
+	DECLARE _s0
+	DECLARE a
+	DECLARE b
+	DECLARE c
+	DECLARE d
+	DECLARE y
+	DECLARE z
+	MOV y 20
+	MOV z 25
+	MUL _s2 y z
+	MOV _s1 _s2
+	MOV _s0 _s1
+	MOV _t0 _s0
+	MOV a _t0
+	MOV _t1 _s0
+	MOV b _t1
+	MOV _t2 _s1
+	MOV c _t2
+	MOV _t3 _s2
+	MOV d _t3
+	CALL PRINT $str1
+	CALL PRINT d

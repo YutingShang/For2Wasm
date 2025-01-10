@@ -22,6 +22,7 @@ GTEST_DIR = $(THIRD_PARTY_DIR)/googletest/googletest
 # Where to find user code.
 TEST_SRC_DIR = ./tests
 TEST_BUILD_DIR = $(BUILD_DIR)/tests
+TEST_INCLUDE_DIR = $(TEST_SRC_DIR)
 
 # Objects will be removed automatically by Make "Removing intermediate files"
 TEST_OBJS_DIR = $(TEST_BUILD_DIR)/obj
@@ -29,9 +30,9 @@ TEST_TARGETS_DIR = $(TEST_BUILD_DIR)/bin
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list. [EDIT]
-TEST_SRCS = $(wildcard $(TEST_SRC_DIR)/*_unittest.cc)
-vpath %.cc $(TEST_SRC_DIR)
-TEST_OBJS = $(patsubst %.cc, $(TEST_OBJS_DIR)/%.o, $(notdir $(TEST_SRCS)))
+TEST_SRCS = $(wildcard $(TEST_SRC_DIR)/*_unittest.cpp) $(TEST_SRC_DIR)/unittest_utils.cpp
+vpath %.cpp $(TEST_SRC_DIR)
+TEST_OBJS = $(patsubst %.cpp, $(TEST_OBJS_DIR)/%.o, $(notdir $(TEST_SRCS)))
 
 # Create a single test executable
 TEST_EXECUTABLE = $(TEST_TARGETS_DIR)/all_tests
@@ -42,7 +43,7 @@ TEST_EXECUTABLE = $(TEST_TARGETS_DIR)/all_tests
 CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wextra -pthread
+CXXFLAGS += -g -Wall -Wextra -pthread -I$(TEST_INCLUDE_DIR)
 
 
 # All Google Test headers.  Usually you shouldn't change this
@@ -102,7 +103,7 @@ $(TEST_EXECUTABLE) : $(TEST_OBJS) $(OBJS) $(GTEST_BUILD_DIR)/gtest_main.a | $(TE
 $(TEST_TARGETS_DIR) :
 	mkdir -p $(TEST_TARGETS_DIR)
 
-$(TEST_OBJS_DIR)/%.o : $(TEST_SRC_DIR)/%.cc $(GTEST_HEADERS) | $(TEST_OBJS_DIR)
+$(TEST_OBJS_DIR)/%.o : $(TEST_SRC_DIR)/%.cpp $(GTEST_HEADERS) | $(TEST_OBJS_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 $(TEST_OBJS_DIR) :
