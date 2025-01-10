@@ -62,7 +62,7 @@ std::string IrWasmVisitor::getEntireProgramCode(BaseNode* startNode) {
 }
 
 std::string IrWasmVisitor::visitArithOpNode(ArithOpNode* node) {
-    std::string wasmCode = convertOperandToWASM(node->getSrc1(), stringMapIndicies) + convertOperandToWASM(node->getSrc2(), stringMapIndicies);
+    std::string wasmCode = convertSrcToWASM(node->getSrc1(), stringMapIndicies) + convertSrcToWASM(node->getSrc2(), stringMapIndicies);
 
     std::string arithOp = node->getOp();
     if (arithOp =="ADD")
@@ -74,6 +74,8 @@ std::string IrWasmVisitor::visitArithOpNode(ArithOpNode* node) {
     else if (arithOp == "DIV")
         wasmCode += "i32.div_s\n";    //signed division
 
+    wasmCode += convertDestToWASM(node->getDest());
+
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);
         return wasmCode + restOfCode;
@@ -83,13 +85,15 @@ std::string IrWasmVisitor::visitArithOpNode(ArithOpNode* node) {
 }
 
 std::string IrWasmVisitor::visitLogicBinOpNode(LogicBinOpNode* node) {
-    std::string wasmCode = convertOperandToWASM(node->getSrc1(), stringMapIndicies) + convertOperandToWASM(node->getSrc2(), stringMapIndicies);
+    std::string wasmCode = convertSrcToWASM(node->getSrc1(), stringMapIndicies) + convertSrcToWASM(node->getSrc2(), stringMapIndicies);
 
     std::string logicOp = node->getOp();
     if (logicOp == "AND")
         wasmCode += "i32.and\n";
     else if (logicOp == "OR")
         wasmCode += "i32.or\n";
+
+    wasmCode += convertDestToWASM(node->getDest());
 
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);
@@ -99,8 +103,9 @@ std::string IrWasmVisitor::visitLogicBinOpNode(LogicBinOpNode* node) {
 }
 
 std::string IrWasmVisitor::visitLogicNotNode(LogicNotNode* node) {
-    std::string wasmCode = convertOperandToWASM(node->getSrc(), stringMapIndicies);
+    std::string wasmCode = convertSrcToWASM(node->getSrc(), stringMapIndicies);
     wasmCode += "i32.eqz\n";
+    wasmCode += convertDestToWASM(node->getDest());
 
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);
@@ -110,7 +115,7 @@ std::string IrWasmVisitor::visitLogicNotNode(LogicNotNode* node) {
 }
 
 std::string IrWasmVisitor::visitRelOpNode(RelOpNode* node) {
-    std::string wasmCode = convertOperandToWASM(node->getSrc1(), stringMapIndicies) + convertOperandToWASM(node->getSrc2(), stringMapIndicies);
+    std::string wasmCode = convertSrcToWASM(node->getSrc1(), stringMapIndicies) + convertSrcToWASM(node->getSrc2(), stringMapIndicies);
 
     std::string relOp = node->getOp();
     if (relOp == "EQ")
@@ -126,6 +131,8 @@ std::string IrWasmVisitor::visitRelOpNode(RelOpNode* node) {
     else if (relOp == "GE")
         wasmCode += "i32.ge_s\n";
 
+    wasmCode += convertDestToWASM(node->getDest());
+
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);
         return wasmCode + restOfCode;
@@ -134,7 +141,8 @@ std::string IrWasmVisitor::visitRelOpNode(RelOpNode* node) {
 }
 
 std::string IrWasmVisitor::visitMovNode(MovNode* node) {
-    std::string wasmCode = convertOperandToWASM(node->getSrc(), stringMapIndicies) + "local.set $" + node->getDest() + "\n";
+    std::string wasmCode = convertSrcToWASM(node->getSrc(), stringMapIndicies);
+    wasmCode += convertDestToWASM(node->getDest());
    
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(this);
@@ -231,7 +239,7 @@ std::string IrWasmVisitor::visitDeclareNode(DeclareNode* node) {
 }
 
 std::string IrWasmVisitor::visitPrintNode(PrintNode* node) {
-    std::string wasmCode = convertOperandToWASM(node->getSrc(), stringMapIndicies);
+    std::string wasmCode = convertSrcToWASM(node->getSrc(), stringMapIndicies);
 
     if (isStringConst(node->getSrc())) {
         wasmCode += "call $logString\n";
@@ -291,7 +299,7 @@ bool IrWasmVisitor::isPosInteger(const std::string &s)
 
 bool IrWasmVisitor::isTempVariable(const std::string &s)
 {
-    return !s.empty() && s[0] == '_';
+    return !s.empty() && s[0] == '_' && s[1] == 't';     //2 types of temp variables, _t and _s (which will show in the program)
 }
 
 bool IrWasmVisitor::isStringConst(const std::string &s)
@@ -299,7 +307,7 @@ bool IrWasmVisitor::isStringConst(const std::string &s)
     return !s.empty() && s[0] == '$';
 }
 
-std::string IrWasmVisitor::convertOperandToWASM(const std::string &operand, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies)
+std::string IrWasmVisitor::convertSrcToWASM(const std::string &operand, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies)
 {
     std::string wasmCode = "";
     if (isPosInteger(operand))
@@ -319,7 +327,17 @@ std::string IrWasmVisitor::convertOperandToWASM(const std::string &operand, std:
         wasmCode += "local.get $" + operand + "\n";
     }
     // otherwise its a temporary, don't print it out
+    // it should have been left on top of the stack
 
+    return wasmCode;
+}
+
+std::string IrWasmVisitor::convertDestToWASM(const std::string &dest) {
+    std::string wasmCode = "";
+    if (!isTempVariable(dest)) {      //if program variable, then we set it
+        wasmCode += "local.set $" + dest + "\n";
+    }
+    //otherwise it is a temp variable, so we leave it on the stack
     return wasmCode;
 }
 

@@ -4,6 +4,7 @@
 #include "SimpleNode.h"
 #include "ExpressionNode.h"
 #include "MovNode.h"
+#include "DeclareNode.h"
 #include <set>
 #include <queue>
 #include <stack>
@@ -16,7 +17,7 @@ class CSEOptimizer {
     public:
 
         //
-        CSEOptimizer(int nextTempVariableCount);
+        CSEOptimizer();
 
         //runs CSE once, returns true if code was deleted, false otherwise
         bool commonSubexpressionEliminationOnce(BasicBlock* entryBasicBlock, std::set<std::string> &allExpressions);
@@ -28,6 +29,7 @@ class CSEOptimizer {
 
         //returns a vector of all the basic blocks in the flowgraph
         //uses BFS to get the basic blocks roughly in flowgraph order
+        //entryBasicBlock should be the first basic block in the returned vector
         std::vector<BasicBlock*> getBasicBlocks(BasicBlock* entryBasicBlock);
 
         //returns the universe of all expressions in the program
@@ -52,12 +54,16 @@ class CSEOptimizer {
         //and replace it with a the temporary variable
         //beginBackwardsFromThisNode is the node to start searching backwards from (since for the current basic block, we start searching from the current instruction, not from the end of the basic block)
             //if it is nullptr, then default to starting from the end of the basic block
-        bool basicBlockBackwardsFindAndReplaceExpression(BasicBlock* basicBlock, std::string &expressionToFind, std::string &tempVar, BaseNode* beginBackwardsFromThisNode = nullptr);
+        bool basicBlockBackwardsFindAndReplaceExpression(BasicBlock* basicBlock, std::vector<BasicBlock*> &basicBlocks, std::string &expressionToFind, std::string &tempVar, BaseNode* beginBackwardsFromThisNode = nullptr);
 
-        //returns a new temporary variable name
-        std::string getNewTempVariableName();
+        //returns a new temporary variable name _s
+        //also adds a declaration statement to the start of the program 
+        std::string getNewProgramTempVariable(BasicBlock* entryBasicBlock);
 
-        //the next temporary variable count
-        int nextTempVariableCount;
+        //the next temporary variable count, initialised to 0
+        //these are _s program temporary variables which are added to the resulting program(not to be confused with _t temp variables for internal use)
+        int nextProgramTempVariableCount = 0;
+
+    
 };
 

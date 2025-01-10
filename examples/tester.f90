@@ -1,17 +1,18 @@
-! contains nested loops and if statements
-
-program tester
+program simple
     implicit none
-    integer :: sum, a, i
+    integer :: a, b, x, y, z    
 
-    
-    do i = 1, 10
-        print *, i
-        do 
-            if (i == 5) then
-                exit
-            end if
-        end do
-    end do
+    a = 0
+    b = 1
 
-end program tester
+    if (a>3) then
+        x = a .OR. b
+    else 
+        x = a .OR. b
+    end if
+
+    y = a .OR. b
+    print *, "x =", x
+   
+
+end program simple

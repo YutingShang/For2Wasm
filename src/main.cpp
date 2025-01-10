@@ -153,7 +153,7 @@ int main(int argc, const char **argv)
     }else if (flag2 == "-DCE" ) {
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
     }else if (flag2 == "-CSE") {
-      CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
+      CSEOptimizer cseOptimizer;
       cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
     }
   } 
@@ -168,7 +168,7 @@ int main(int argc, const char **argv)
     }else if (flag3 == "-DCE" ) {
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
     }else if (flag3 == "-CSE") {
-      CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
+      CSEOptimizer cseOptimizer;
       cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
     }
   }

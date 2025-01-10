@@ -54,7 +54,12 @@ class IrWasmVisitor : public IrBaseVisitor {
         bool isPosInteger(const std::string &s);
         bool isTempVariable(const std::string &s);
         bool isStringConst(const std::string &s);
-        std::string convertOperandToWASM(const std::string &operand, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies);
+
+        // src can be string constant, integer, program variables including _s, or internal _t temp variables
+        std::string convertSrcToWASM(const std::string &operand, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies);
+
+        // dest can be program variables including _s, or internal _t temp variables
+        std::string convertDestToWASM(const std::string &dest);
 
         ///NOTE: stringMapIndicies is from <str_var> -> array<start_offset, length>
         // e.g. where str_var = $str1, start_offset = 50, length = 4

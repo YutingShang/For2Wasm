@@ -4,7 +4,9 @@ program simple
 
     a = 3
     b = 4
-    y=a+b
+    !y=a+b
+
+    y = (b/a*b + 100*b) * (b/a*b + 100*b) + (b/a*b + 100*b) * (b/a*b + 100*b) + (b/a*b + 100*b) * (b/a*b + 100*b) / (b/a*b + 100*b)
 
     if (a>3) then
         x = 1
@@ -12,7 +14,9 @@ program simple
         x = 2
     end if
 
-    x = a+b
+    x = (b/a*b + 100*b) * (b/a*b + 100*b) + (b/a*b + 100*b) * (b/a*b + 100*b) + (b/a*b + 100*b) * (b/a*b + 100*b) / (b/a*b + 100*b)
+
+    print *, "x =", x
    
 
 end program simple
