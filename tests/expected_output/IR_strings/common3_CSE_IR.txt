@@ -1,0 +1,36 @@
+	ENTRY
+	DECLARE _s0
+	DECLARE P
+	DECLARE Q
+	DECLARE R
+	DECLARE option
+	GT _t0 3 5
+	MOV P _t0
+	LT _t1 7 10
+	MOV Q _t1
+	AND _t2 P Q
+	MOV R _t2
+	CALL PRINT $str1
+	CALL PRINT R
+	CALL PRINT $str2
+	CALL READ option
+	IF cond0 then0 endif0
+cond0: 	EQ _s0 option 1
+	MOV _t3 _s0
+	TEST _t3
+then0: 	GT _t4 3 2
+	MOV P _t4
+	ENDTHEN
+endif0: 	ENDIF
+	AND _t5 P Q
+	MOV R _t5
+	IF cond1 then1 else1 endif1
+cond1: 	MOV _t6 _s0
+	TEST _t6
+then1: 	CALL PRINT $str3
+	CALL PRINT R
+	ENDTHEN
+else1: 	CALL PRINT $str4
+	CALL PRINT R
+	ENDELSE
+endif1: 	ENDIF

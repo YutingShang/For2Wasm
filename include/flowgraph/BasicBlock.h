@@ -39,6 +39,7 @@ class BasicBlock {
         //to handle the instructions list of the basic block, as well as the ir tree underneath
         ///NOTE: these will return a new iterator to the instruction AFTER the replaced/inserted instruction 
         std::list<BaseNode*>::iterator replace_instruction_node(std::list<BaseNode*>::iterator it, SimpleNode* newNode);
+        ///WARNING: pay attention to the order of the instructions list (reversed lists and reversed iterators may behave differently, to the assumed normal order)
         std::list<BaseNode*>::iterator insert_sandwich_instruction_node(std::list<BaseNode*>::iterator it, SimpleNode* newNode);
 
 

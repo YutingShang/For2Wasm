@@ -1,0 +1,111 @@
+	ENTRY
+	DECLARE _s4
+	DECLARE _s3
+	DECLARE _s2
+	DECLARE _s1
+	DECLARE _s0
+	DECLARE flag
+	DECLARE y
+	DECLARE z
+	DECLARE variable
+	CALL PRINT $str1
+	CALL READ flag
+	IF cond0 then0 else0 endif0
+cond0: 	EQ _t0 flag 1
+	TEST _t0
+then0: 	MOV variable 0
+	ADD _s2 1 2
+	MOV _s1 _s2
+	MOV _s0 _s1
+	MOV _t1 _s0
+	ADD _t2 _t1 3
+	ADD _t3 _t2 4
+	ADD _t4 _t3 5
+	ADD _t5 _t4 6
+	ADD _t6 _t5 7
+	ADD _t7 _t6 8
+	ADD _t8 _t7 variable
+	MOV _t9 _s0
+	ADD _t10 _t9 3
+	ADD _t11 _t10 4
+	ADD _t12 _t11 5
+	ADD _t13 _t12 6
+	ADD _t14 _t13 7
+	ADD _t15 _t14 8
+	ADD _t16 _t15 variable
+	MUL _t17 _t8 _t16
+	MOV y _t17
+	CALL PRINT $str2
+	ENDTHEN
+else0: 	IF cond1 then1 else1 endif1
+cond1: 	EQ _t18 flag 2
+	TEST _t18
+then1: 	MOV variable 9
+	ADD _s3 1 2
+	MOV _t19 _s3
+	ADD _t20 _t19 3
+	ADD _t21 _t20 4
+	ADD _t22 _t21 5
+	ADD _t23 _t22 6
+	ADD _t24 _t23 7
+	ADD _t25 _t24 8
+	ADD _t26 _t25 variable
+	MOV _s2 _s3
+	MOV _s1 _s2
+	MOV _t27 _s1
+	ADD _t28 _t27 3
+	ADD _t29 _t28 4
+	ADD _t30 _t29 5
+	ADD _t31 _t30 6
+	ADD _t32 _t31 7
+	ADD _t33 _t32 8
+	ADD _t34 _t33 variable
+	MUL _t35 _t26 _t34
+	MOV y _t35
+	CALL PRINT $str3
+	ENDTHEN
+else1: 	ADD _s4 1 2
+	MOV _t36 _s4
+	ADD _t37 _t36 3
+	ADD _t38 _t37 4
+	ADD _t39 _t38 5
+	ADD _t40 _t39 6
+	ADD _t41 _t40 7
+	ADD _t42 _t41 8
+	ADD _t43 _t42 variable
+	MOV _s2 _s4
+	MOV _s1 _s2
+	MOV _t44 _s1
+	ADD _t45 _t44 3
+	ADD _t46 _t45 4
+	ADD _t47 _t46 5
+	ADD _t48 _t47 6
+	ADD _t49 _t48 7
+	ADD _t50 _t49 8
+	ADD _t51 _t50 variable
+	MUL _t52 _t43 _t51
+	MOV z _t52
+	CALL PRINT $str4
+	ENDELSE
+endif1: 	ENDIF
+	ENDELSE
+endif0: 	ENDIF
+	MOV _t53 _s1
+	ADD _t54 _t53 3
+	ADD _t55 _t54 4
+	ADD _t56 _t55 5
+	ADD _t57 _t56 6
+	ADD _t58 _t57 7
+	ADD _t59 _t58 8
+	ADD _t60 _t59 variable
+	MOV _t61 _s2
+	ADD _t62 _t61 3
+	ADD _t63 _t62 4
+	ADD _t64 _t63 5
+	ADD _t65 _t64 6
+	ADD _t66 _t65 7
+	ADD _t67 _t66 8
+	ADD _t68 _t67 variable
+	MUL _t69 _t60 _t68
+	MOV z _t69
+	CALL PRINT z

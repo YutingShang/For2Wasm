@@ -1,5 +1,5 @@
 ! This program is an example of common subexpression elimination.
-! The expression a = x+11 can be replaced with a = 11+x
+! The expression y*z is recomputed 4 times in sequence
 
 program common1
     implicit none
@@ -13,7 +13,10 @@ program common1
     c = y * z
     d = y * z
 
-    print *, "20 * 25 =", d
+    print *, "a = 20 * 25 =", a
+    print *, "b = 20 * 25 =", b
+    print *, "c = 20 * 25 =", c
+    print *, "d = 20 * 25 =", d
    
 
 end program common1
