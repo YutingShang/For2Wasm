@@ -153,8 +153,8 @@ int main(int argc, const char **argv)
     }else if (flag2 == "-DCE" ) {
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
     }else if (flag2 == "-CSE") {
-      CSEOptimizer cseOptimizer;
-      cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
+      CSEOptimizer cseOptimizer(startBasicBlock);
+      cseOptimizer.iterateCommonSubexpressionElimination();
     }
   } 
 
@@ -168,8 +168,8 @@ int main(int argc, const char **argv)
     }else if (flag3 == "-DCE" ) {
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
     }else if (flag3 == "-CSE") {
-      CSEOptimizer cseOptimizer;
-      cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
+      CSEOptimizer cseOptimizer(startBasicBlock);
+      cseOptimizer.iterateCommonSubexpressionElimination();
     }
   }
 
@@ -202,132 +202,6 @@ int main(int argc, const char **argv)
     }
   
   }
-
-
-
-  // ///////////////////////////old code/////////////////////////////////////////////////
-
-  // if (argc >= 3 && (std::string(argv[2]) == "-irPrint" || std::string(argv[2]) == "-irDot" || std::string(argv[2]) == "-irWASM"))
-  // {
-  //   // EntryNode *entryNode = new EntryNode(); // will be used to store the IR tree
-  //   // Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
-  //   // astTree->accept(&irTreeVisitor);
-
-  //   if (std::string(argv[2]) == "-irPrint")
-  //   {
-  //     std::cout << entryNode->stringifyIRTree() << std::endl; // print out IR in text form, including labels
-  //   }
-  //   else if (std::string(argv[2]) == "-irDot")
-  //   {
-  //     std::string dotIRTree = DotTreeTools::irTreeToDot(entryNode);
-  //     std::cout << dotIRTree << std::endl;
-  //   }
-  //   else if (std::string(argv[2]) == "-irWASM")
-  //   {
-  //     std::unordered_map<std::string, std::string> stringMap = irTreeVisitor.getStringMap();
-
-  //     IrWasmVisitor wasmVisitor(stringMap);
-  //     std::string wasm = wasmVisitor.getEntireProgramCode(entryNode);
-  //     std::cout << wasm << std::endl;
-  //   }
-  // }
-
-  // /////////////////FLOWGRAPH VISITOR///////////////////////////////////////////////////
-
-  // if (argc >= 3 && (std::string(argv[2]) == "-flowgraph" || std::string(argv[2]) == "-DCE" || std::string(argv[2]) == "-DCE-ir" || std::string(argv[2]) == "-DCE-WASM" || std::string(argv[2]) == "-CSE" || std::string(argv[2]) == "-CSE-ir" || std::string(argv[2]) == "-CSE-irPrint"))
-  // {
-
-  //   // first need to create the IR tree
-  //   // EntryNode *entryNode = new EntryNode(); // will be used to store the IR tree
-  //   // Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
-  //   // astTree->accept(&irTreeVisitor);
-
-  //   // then need to create the flowgraph
-  //   BasicBlock *startBasicBlock = new BasicBlock();
-  //   IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
-  //   entryNode->accept(&flowgraphVisitor);
-
-  //   // then need to print the flowgraph
-  //   if (std::string(argv[2]) == "-flowgraph")
-  //   {
-  //     std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
-  //     std::cout << dotFlowgraph << std::endl;
-  //   }
-  //   else if (std::string(argv[2]) == "-DCE")
-  //   {
-  //     DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock); // removes dead code, modifies the flowgraph directly
-
-  //     // after running DCE, redraw the flowgraph (might remove basic blocks that are empty) and print it
-  //     /// QUESTION: do I need this- will any basic blocks be empty?
-  //     // BasicBlock* newFlowgraphStart = new BasicBlock();
-  //     // IrFlowgraphVisitor flowgraphVisitor(newFlowgraphStart);
-  //     // entryNode->accept(&flowgraphVisitor);
-  //     // std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newFlowgraphStart);
-
-  //     if (argc >= 4 && std::string(argv[3]) == "-simplify") {
-  //       SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
-  //     }
-  //     //create the flowgraph again, since IR tree has been modified
-  //     BasicBlock* newFlowgraphStart = new BasicBlock();
-  //     IrFlowgraphVisitor flowgraphVisitor(newFlowgraphStart);
-  //     entryNode->accept(&flowgraphVisitor);
-
-  //     std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newFlowgraphStart);
-  //     std::cout << dotFlowgraph << std::endl;
-  //   }
-  //   else if (std::string(argv[2]) == "-DCE-ir")
-  //   {
-  //     // dce
-  //     DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
-  //     // then print the IR tree
-  //     // tree still has the entryNode
-  //     if (argc >= 4 && std::string(argv[3]) == "-simplify") {
-  //       SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
-  //     }
-  //     std::string dotIRTree = DotTreeTools::irTreeToDot(entryNode);
-  //     std::cout << dotIRTree << std::endl;
-  //   }
-  //   else if (std::string(argv[2]) == "-DCE-WASM")
-  //   {
-  //     // dce
-  //     DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
-
-  //     if (argc >= 4 && std::string(argv[3]) == "-simplify") {
-  //       SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
-  //     }
-      
-  //     // then run the wasm code
-  //     std::unordered_map<std::string, std::string> stringMap = irTreeVisitor.getStringMap();
-  //     IrWasmVisitor wasmVisitor(stringMap);
-  //     std::string wasm = wasmVisitor.getEntireProgramCode(entryNode);
-  //     std::cout << wasm << std::endl;
-
-  //   }else if (std::string(argv[2]) == "-CSE") {
-  //     CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
-  //     cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
-
-  //     //after running CSE, create the flowgraph again, since IR tree has been modified
-  //     BasicBlock* newFlowgraphStart = new BasicBlock();
-  //     IrFlowgraphVisitor flowgraphVisitor(newFlowgraphStart);
-  //     entryNode->accept(&flowgraphVisitor);
-
-  //     std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newFlowgraphStart);
-  //     std::cout << dotFlowgraph << std::endl;
-  //   } else if (std::string(argv[2]) == "-CSE-ir") {
-  //     CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
-  //     cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
-
-  //     //then print the IR tree
-  //     std::string dotIRTree = DotTreeTools::irTreeToDot(entryNode);
-  //     std::cout << dotIRTree << std::endl;
-  //   } else if (std::string(argv[2]) == "-CSE-irPrint") {
-  //     CSEOptimizer cseOptimizer(irTreeVisitor.getNextTempVariableCount());
-  //     cseOptimizer.iterateCommonSubexpressionElimination(startBasicBlock);
-
-  //     std::cout << entryNode->stringifyIRTree() << std::endl;
-  //   }
-     
-  // }
 
   return 0;
 }

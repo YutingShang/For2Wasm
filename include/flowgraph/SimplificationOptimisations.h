@@ -6,7 +6,8 @@
 #include "IfElseNode.h"
 #include "LoopNode.h"
 #include "LoopCondNode.h"
-//class provides tools such as `If simplification` - removing them where possible
+
+//static class provides tools such as `If simplification` - removing them where possible, and removes empty control flow constructs
 
 class SimplificationOptimisations {
 
