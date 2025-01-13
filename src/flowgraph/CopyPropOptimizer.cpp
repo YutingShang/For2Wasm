@@ -9,8 +9,8 @@ void CopyPropOptimizer::runCopyPropagation() {
     //get the reaching definitions for each basic block
     //Analysis: Reaching Definitions
     RD rd(entryBasicBlock);
-    std::vector<std::unordered_map<std::string, std::set<std::string>>> reachingDefs = rd.getReachingDefs();
-    basicBlocks = rd.getBasicBlocks();
+    std::vector<std::unordered_map<std::string, std::set<BaseNode*>>> reachingDefs = rd.getReachingDefs();
+    basicBlocks = rd.getBasicBlocksUsed();
 
 }
 

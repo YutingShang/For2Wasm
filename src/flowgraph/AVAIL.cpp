@@ -11,7 +11,7 @@ std::vector<std::set<std::string>> AVAIL::getAvailSets() {
     return availSets;
 }
 
-std::vector<BasicBlock*> AVAIL::getBasicBlocks() {
+std::vector<BasicBlock*> AVAIL::getBasicBlocksUsed() {
     return basicBlocks;
 }
 

@@ -84,8 +84,8 @@ std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(BaseNode* node, 
     return killedExpressions;
 } 
 
-std::unordered_map<std::string, std::set<std::string>> AnalysisTools::getAllProgramDefinitions(BaseNode* entryNode) {
-    std::unordered_map<std::string, std::set<std::string>> allDefinitions;
+std::unordered_map<std::string, std::set<BaseNode*>> AnalysisTools::getAllProgramDefinitionPoints(BaseNode* entryNode) {
+    std::unordered_map<std::string, std::set<BaseNode*>> allDefinitionPoints;
 
     //IR tree traversal (not a graph)
     std::queue<BaseNode*> toExploreQueue;
@@ -96,7 +96,7 @@ std::unordered_map<std::string, std::set<std::string>> AnalysisTools::getAllProg
         toExploreQueue.pop();
 
         //get generated expressions
-        const std::set<std::string>& generatedExpressions = current->getGeneratedExpressions();
+        // const std::set<std::string>& generatedExpressions = current->getGeneratedExpressions();
 
         //get defined variables
         std::set<std::string> definedVariables = current->getDefinedVariables();
@@ -105,9 +105,9 @@ std::unordered_map<std::string, std::set<std::string>> AnalysisTools::getAllProg
             assert(definedVariables.size() == 1);     //assume only 1 variable is defined 
             std::string definedVariable = *definedVariables.begin();
 
-            for (const auto &generatedExpression : generatedExpressions) {
-                allDefinitions[definedVariable].insert(generatedExpression);    //add expressions to set of definitions for defined_variable
-            }
+            // for (const auto &generatedExpression : generatedExpressions) {
+            allDefinitionPoints[definedVariable].insert(current);    //add expressions to set of definitions for defined_variable
+            // }
         }
 
         //add children of the IR node to the queue
@@ -115,7 +115,7 @@ std::unordered_map<std::string, std::set<std::string>> AnalysisTools::getAllProg
             toExploreQueue.push(child);
         }
     }
-    return allDefinitions;
+    return allDefinitionPoints;
 }
 
 std::set<std::string> AnalysisTools::getDefinitionsAtNode(BaseNode* node) {

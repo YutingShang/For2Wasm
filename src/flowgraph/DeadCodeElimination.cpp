@@ -14,7 +14,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
 {
     // Analysis: LVA
     LVA lva(entryBasicBlock);
-    std::vector<BasicBlock *> basicBlocks = lva.getBasicBlocks();
+    std::vector<BasicBlock *> basicBlocks = lva.getBasicBlocksUsed();
     std::vector<std::set<std::string>> liveSets = lva.getLiveSets();
 
     // Transformation: Remove dead code

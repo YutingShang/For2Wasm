@@ -10,7 +10,7 @@ std::vector<std::set<std::string>> LVA::getLiveSets() {
     return liveSets;
 }
 
-std::vector<BasicBlock*> LVA::getBasicBlocks() {
+std::vector<BasicBlock*> LVA::getBasicBlocksUsed() {
     return basicBlocks;
 }
 

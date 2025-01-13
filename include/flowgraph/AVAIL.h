@@ -15,7 +15,7 @@ class AVAIL {
         std::vector<std::set<std::string>> getAvailSets();
 
         //returns the basic blocks in the flowgraph that the AVAIL analysis was performed on
-        std::vector<BasicBlock*> getBasicBlocks();
+        std::vector<BasicBlock*> getBasicBlocksUsed();
 
         //returns the universe of all expressions in the program
         std::set<std::string> getAllExpressions();

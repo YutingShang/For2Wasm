@@ -14,7 +14,7 @@ class LVA {
         std::vector<std::set<std::string>> getLiveSets();
 
         //returns the basic blocks in the flowgraph used for the LVA analysis
-        std::vector<BasicBlock*> getBasicBlocks();
+        std::vector<BasicBlock*> getBasicBlocksUsed();
 
     private:
 

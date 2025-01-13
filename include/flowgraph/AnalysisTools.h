@@ -25,13 +25,10 @@ class AnalysisTools {
         static std::set<std::string> getKilledExpressionsAtNode(BaseNode* node, std::set<std::string> &allExpressions);
 
         //returns the set of definitions in a program
-        //definitions in a program is a dictionary of {var: [list of definitions]}, since a variable can have multiple definitions
-        static std::unordered_map<std::string, std::set<std::string>> getAllProgramDefinitions(BaseNode* entryNode);
+        //definitions in a program is a dictionary of {var: [list of definition points (i.e. nodes)]}, since a variable can have multiple definitions at different nodes
+        static std::unordered_map<std::string, std::set<BaseNode*>> getAllProgramDefinitionPoints(BaseNode* entryNode);
 
-        //returns the set of definitions that are killed by the node
-        // static std::unordered_map<std::string, std::set<std::string>> getKilledDefinitionsAtNode(BaseNode* node, std::unordered_map<std::string, std::set<std::string>> &allDefinitions);
-
-        //returns the set of definitions at a node
+        // returns the set of ACTUAL STRING definitions at a node
         // either the generated expressions for an ExpressionNode, or the src for a MovNode
         static std::set<std::string> getDefinitionsAtNode(BaseNode* node);
 

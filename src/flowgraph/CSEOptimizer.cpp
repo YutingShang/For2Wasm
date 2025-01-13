@@ -31,7 +31,7 @@ bool CSEOptimizer::commonSubexpressionEliminationOnce()
     // Analysis: AVAIL
     AVAIL avail(entryBasicBlock);
     availSets = avail.getAvailSets();
-    basicBlocks = avail.getBasicBlocks();
+    basicBlocks = avail.getBasicBlocksUsed();
     allExpressions = avail.getAllExpressions();
 
     // Transformation: Remove common subexpressions
