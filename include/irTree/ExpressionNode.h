@@ -3,7 +3,7 @@
 
 //an abstract class for ArithOpNode, LogicBinOpNode, LogicNotNode and RelOpNode
 //always has a 'dest' member variable, which a setter function will be provided for to change the dest
-///UNSURE: what about MovNode?
+///NOTE: does not include MovNode, since it does not generate any 'expressions'
 
 class ExpressionNode : public SimpleNode {
 public:

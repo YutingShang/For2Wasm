@@ -76,7 +76,7 @@ std::set<std::string> AVAIL::basicBlockComputeAvailSet(BasicBlock* basicBlock) {
         
         BaseNode* instruction = *it;
         std::set<std::string> generatedExpressions = instruction->getGeneratedExpressions();
-        std::set<std::string> killedExpressions = AnalysisTools::getKilledProgramExpressions(instruction, allExpressions);
+        std::set<std::string> killedExpressions = AnalysisTools::getKilledExpressionsAtNode(instruction, allExpressions);
 
         //remove the killed expressions from the avail set
         for (std::string expr : killedExpressions) {

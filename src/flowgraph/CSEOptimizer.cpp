@@ -87,7 +87,7 @@ bool CSEOptimizer::basicBlockRemoveCommonSubexpressions(BasicBlock *basicBlock)
 
         BaseNode* instruction = *it;
         std::set<std::string> generatedExpressions = instruction->getGeneratedExpressions();
-        std::set<std::string> killedExpressions = AnalysisTools::getKilledProgramExpressions(instruction, allExpressions);
+        std::set<std::string> killedExpressions = AnalysisTools::getKilledExpressionsAtNode(instruction, allExpressions);
 
         if (generatedExpressions.empty()) {
             //the instruction does not generate any expressions
@@ -99,8 +99,6 @@ bool CSEOptimizer::basicBlockRemoveCommonSubexpressions(BasicBlock *basicBlock)
         std::string expr = *generatedExpressions.begin();
 
         if (in_avail_set.find(expr) != in_avail_set.end()) {    
-            // std::cout <<"Current instruction: " << instruction->getText() << std::endl;
-            // std::cout << "Expression " << expr << " is already available!" << std::endl;
             modified = true;
             //current instruction DOES generates an available expression!
             //handle with CSE transformation!

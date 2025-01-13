@@ -3,6 +3,9 @@
 #include <vector>
 #include <queue>
 #include <regex>
+#include <iostream>
+#include "ExpressionNode.h"
+#include "MovNode.h"
 
 std::vector<BasicBlock*> AnalysisTools::getBasicBlocks(BasicBlock* entryBasicBlock) {
     std::vector<BasicBlock*> basicBlocks;
@@ -30,18 +33,18 @@ std::vector<BasicBlock*> AnalysisTools::getBasicBlocks(BasicBlock* entryBasicBlo
     return basicBlocks;
 }
 
-std::set<std::string> AnalysisTools::getAllProgramExpressions(BaseNode* root) {
+std::set<std::string> AnalysisTools::getAllProgramExpressions(BaseNode* entryNode) {
     std::set<std::string> allExpressions;
 
     //IR tree traversal (not a graph)
     std::queue<BaseNode*> toExploreQueue;
-    toExploreQueue.push(root);
+    toExploreQueue.push(entryNode);
     while (!toExploreQueue.empty()) {
         BaseNode* current = toExploreQueue.front();
         toExploreQueue.pop();
         //get generated expressions, insert into allExpressions set
         const std::set<std::string>& generatedExpressions = current->getGeneratedExpressions();
-        allExpressions.insert(generatedExpressions.begin(), generatedExpressions.end());
+        allExpressions.insert(generatedExpressions.begin(), generatedExpressions.end());   //copy all set of all generated expressions into allExpressions
         //add children to the queue
         for (BaseNode* child : current->getChildren()) {
             toExploreQueue.push(child);
@@ -50,7 +53,7 @@ std::set<std::string> AnalysisTools::getAllProgramExpressions(BaseNode* root) {
     return allExpressions;
 }
 
-std::set<std::string> AnalysisTools::getKilledProgramExpressions(BaseNode* node, std::set<std::string> &allExpressions) {
+std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(BaseNode* node, std::set<std::string> &allExpressions) {
     std::set<std::string> killedExpressions;
 
     //get the defined variables of the node, e.g. {x}
@@ -80,3 +83,48 @@ std::set<std::string> AnalysisTools::getKilledProgramExpressions(BaseNode* node,
   
     return killedExpressions;
 } 
+
+std::unordered_map<std::string, std::set<std::string>> AnalysisTools::getAllProgramDefinitions(BaseNode* entryNode) {
+    std::unordered_map<std::string, std::set<std::string>> allDefinitions;
+
+    //IR tree traversal (not a graph)
+    std::queue<BaseNode*> toExploreQueue;
+    toExploreQueue.push(entryNode);
+    while (!toExploreQueue.empty()) {
+        //for each IR node
+        BaseNode* current = toExploreQueue.front();
+        toExploreQueue.pop();
+
+        //get generated expressions
+        const std::set<std::string>& generatedExpressions = current->getGeneratedExpressions();
+
+        //get defined variables
+        std::set<std::string> definedVariables = current->getDefinedVariables();
+        if (!definedVariables.empty()) {  //if the node defines a variable
+
+            assert(definedVariables.size() == 1);     //assume only 1 variable is defined 
+            std::string definedVariable = *definedVariables.begin();
+
+            for (const auto &generatedExpression : generatedExpressions) {
+                allDefinitions[definedVariable].insert(generatedExpression);    //add expressions to set of definitions for defined_variable
+            }
+        }
+
+        //add children of the IR node to the queue
+        for (BaseNode* child : current->getChildren()) {
+            toExploreQueue.push(child);
+        }
+    }
+    return allDefinitions;
+}
+
+std::set<std::string> AnalysisTools::getDefinitionsAtNode(BaseNode* node) {
+    std::set<std::string> definitions;
+    if (dynamic_cast<ExpressionNode*>(node)) {
+        definitions = node->getGeneratedExpressions();
+    } else if (dynamic_cast<MovNode*>(node)) {
+        MovNode* movNode = dynamic_cast<MovNode*>(node);
+        definitions = {movNode->getSrc()};
+    }
+    return definitions;
+}

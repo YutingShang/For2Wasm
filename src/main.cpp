@@ -29,6 +29,7 @@
 #include "CSEOptimizer.h"
 #include "tree/Trees.h"
 #include "SimplificationOptimisations.h"
+#include "CopyPropOptimizer.h"
 #include <regex>
 #include <filesystem>
 using namespace antlrcpp;
@@ -155,6 +156,9 @@ int main(int argc, const char **argv)
     }else if (flag2 == "-CSE") {
       CSEOptimizer cseOptimizer(startBasicBlock);
       cseOptimizer.iterateCommonSubexpressionElimination();
+    }else if (flag2 == "-CP") {
+      CopyPropOptimizer copyPropOptimizer(startBasicBlock);
+      copyPropOptimizer.runCopyPropagation();
     }
   } 
 
@@ -170,6 +174,9 @@ int main(int argc, const char **argv)
     }else if (flag3 == "-CSE") {
       CSEOptimizer cseOptimizer(startBasicBlock);
       cseOptimizer.iterateCommonSubexpressionElimination();
+    }else if (flag3 == "-CP") {
+      CopyPropOptimizer copyPropOptimizer(startBasicBlock);
+      copyPropOptimizer.runCopyPropagation();
     }
   }
 
