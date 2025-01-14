@@ -104,7 +104,7 @@ std::list<BaseNode*>::iterator BasicBlock::replace_instruction_node(std::list<Ba
     return it;
 }
 
-std::list<BaseNode*>::iterator BasicBlock::insert_sandwich_instruction_node(std::list<BaseNode*>::iterator it, SimpleNode* newNode) {
+std::list<BaseNode*>::iterator BasicBlock::insert_sandwich_instruction_node(std::list<BaseNode*>::iterator it, SimpleNode* newNode, bool instructionsListReversed) {
 
     //get what instruction is being replaced
     BaseNode* instruction = *it;
@@ -118,7 +118,11 @@ std::list<BaseNode*>::iterator BasicBlock::insert_sandwich_instruction_node(std:
 
     // handle the instructions list of the basic block
     ///NOTE: this is completely separate from the IR Tree
-    ++it;     //increment iterator to point to the next instruction node, to insert the newNode before it
+    if (instructionsListReversed) {
+        //it;  don't change the iterator, to insert the newNode 'before' the current instruction (when in reverse), appearing right after the current instruction in the actual basic block
+    } else {
+        ++it;     //increment iterator to point to the next instruction node, to insert the newNode before it, to appear right after the current instruction in the actual basic block
+    }
     instructions.insert(it, newNode);   //iterator will point to the next instruction after the newNode
 
     //return the iterator to the next instruction (after the newNode)

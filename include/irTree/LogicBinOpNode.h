@@ -19,4 +19,10 @@ public:
     std::set<std::string> getReferencedVariables() const override;
     std::set<std::string> getDefinedVariables() const override;
     std::set<std::string> getGeneratedExpressions() const override;
+
+    void replaceReferencedVariable(std::string oldVar, std::string newVar) override;
+
+private:
+    void setSrc1(std::string src1);
+    void setSrc2(std::string src2);
 };

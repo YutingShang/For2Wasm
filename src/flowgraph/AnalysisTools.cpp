@@ -84,39 +84,39 @@ std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(BaseNode* node, 
     return killedExpressions;
 } 
 
-std::unordered_map<std::string, std::set<BaseNode*>> AnalysisTools::getAllProgramDefinitionPoints(BaseNode* entryNode) {
-    std::unordered_map<std::string, std::set<BaseNode*>> allDefinitionPoints;
+// std::unordered_map<std::string, std::set<BaseNode*>> AnalysisTools::getAllProgramDefinitionPoints(BaseNode* entryNode) {
+//     std::unordered_map<std::string, std::set<BaseNode*>> allDefinitionPoints;
 
-    //IR tree traversal (not a graph)
-    std::queue<BaseNode*> toExploreQueue;
-    toExploreQueue.push(entryNode);
-    while (!toExploreQueue.empty()) {
-        //for each IR node
-        BaseNode* current = toExploreQueue.front();
-        toExploreQueue.pop();
+//     //IR tree traversal (not a graph)
+//     std::queue<BaseNode*> toExploreQueue;
+//     toExploreQueue.push(entryNode);
+//     while (!toExploreQueue.empty()) {
+//         //for each IR node
+//         BaseNode* current = toExploreQueue.front();
+//         toExploreQueue.pop();
 
-        //get generated expressions
-        // const std::set<std::string>& generatedExpressions = current->getGeneratedExpressions();
+//         //get generated expressions
+//         // const std::set<std::string>& generatedExpressions = current->getGeneratedExpressions();
 
-        //get defined variables
-        std::set<std::string> definedVariables = current->getDefinedVariables();
-        if (!definedVariables.empty()) {  //if the node defines a variable
+//         //get defined variables
+//         std::set<std::string> definedVariables = current->getDefinedVariables();
+//         if (!definedVariables.empty()) {  //if the node defines a variable
 
-            assert(definedVariables.size() == 1);     //assume only 1 variable is defined 
-            std::string definedVariable = *definedVariables.begin();
+//             assert(definedVariables.size() == 1);     //assume only 1 variable is defined 
+//             std::string definedVariable = *definedVariables.begin();
 
-            // for (const auto &generatedExpression : generatedExpressions) {
-            allDefinitionPoints[definedVariable].insert(current);    //add expressions to set of definitions for defined_variable
-            // }
-        }
+//             // for (const auto &generatedExpression : generatedExpressions) {
+//             allDefinitionPoints[definedVariable].insert(current);    //add expressions to set of definitions for defined_variable
+//             // }
+//         }
 
-        //add children of the IR node to the queue
-        for (BaseNode* child : current->getChildren()) {
-            toExploreQueue.push(child);
-        }
-    }
-    return allDefinitionPoints;
-}
+//         //add children of the IR node to the queue
+//         for (BaseNode* child : current->getChildren()) {
+//             toExploreQueue.push(child);
+//         }
+//     }
+//     return allDefinitionPoints;
+// }
 
 std::set<std::string> AnalysisTools::getDefinitionsAtNode(BaseNode* node) {
     std::set<std::string> definitions;
@@ -127,4 +127,53 @@ std::set<std::string> AnalysisTools::getDefinitionsAtNode(BaseNode* node) {
         definitions = {movNode->getSrc()};
     }
     return definitions;
+}
+
+std::set<std::pair<std::string, std::string>> AnalysisTools::getAllProgramCopyStatements(BaseNode* entryNode) {
+    std::set<std::pair<std::string, std::string>> allCopyStatements;
+    //traverse the IR tree, find all MovNodes and add their src and dst to the set
+    std::queue<BaseNode*> toExploreQueue;
+    toExploreQueue.push(entryNode);
+    while (!toExploreQueue.empty()) {
+        BaseNode* current = toExploreQueue.front();
+        toExploreQueue.pop();
+
+        if (dynamic_cast<MovNode*>(current)) {
+            MovNode* movNode = dynamic_cast<MovNode*>(current);
+            allCopyStatements.insert(std::make_pair(movNode->getDest(), movNode->getSrc()));
+        }
+
+        //add children of the IR node to the queue
+        for (BaseNode* child : current->getChildren()) {
+            toExploreQueue.push(child);
+        }
+    }
+    return allCopyStatements;
+}
+
+std::set<std::pair<std::string, std::string>> AnalysisTools::getKilledCopyStatementsAtNode(BaseNode* node, std::set<std::pair<std::string, std::string>> &allCopyStatements) {
+    std::set<std::pair<std::string, std::string>> killedCopyStatements;
+
+    //get the defined variables of the node, e.g. {x}
+    std::set<std::string> definedVariables = node->getDefinedVariables();
+
+    //for every defined variable x, it kills/invalidates all copy statements (x, _) and (_, x)
+    for (const auto &definedVariable : definedVariables) {
+        for (const auto &copyStatement : allCopyStatements) {
+            if (copyStatement.first == definedVariable || copyStatement.second == definedVariable) {
+                killedCopyStatements.insert(copyStatement);
+            }
+        }
+    }
+
+    return killedCopyStatements;
+}
+
+std::set<std::pair<std::string, std::string>> AnalysisTools::getGeneratedCopyStatementsAtNode(BaseNode* node) {
+    std::set<std::pair<std::string, std::string>> generatedCopyStatements;
+    if (dynamic_cast<MovNode*>(node)) {
+        MovNode* movNode = dynamic_cast<MovNode*>(node);
+        generatedCopyStatements.insert(std::make_pair(movNode->getDest(), movNode->getSrc()));
+    }
+    return generatedCopyStatements;
 }

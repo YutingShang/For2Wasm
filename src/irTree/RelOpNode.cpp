@@ -24,6 +24,14 @@ std::string RelOpNode::getSrc2() const {
     return textVector[3];
 } 
 
+void RelOpNode::setSrc1(std::string src1) {
+    textVector[2] = src1;
+}
+
+void RelOpNode::setSrc2(std::string src2) {
+    textVector[3] = src2;
+}
+
 std::string RelOpNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitRelOpNode(this);
 }
@@ -63,4 +71,13 @@ std::set<std::string> RelOpNode::getGeneratedExpressions() const {
         return {getSrc1() + ">=" + getSrc2()};
     }
     throw std::runtime_error("Invalid relational operation: " + op);
+}
+
+void RelOpNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    if (getSrc1() == oldVar) {
+        setSrc1(newVar);
+    }
+    if (getSrc2() == oldVar) {
+        setSrc2(newVar);
+    }
 }

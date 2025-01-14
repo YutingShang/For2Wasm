@@ -24,6 +24,14 @@ std::string LogicBinOpNode::getSrc2() const {
     return textVector[3];
 } 
 
+void LogicBinOpNode::setSrc1(std::string src1) {
+    textVector[2] = src1;
+}
+
+void LogicBinOpNode::setSrc2(std::string src2) {
+    textVector[3] = src2;
+}
+
 std::string LogicBinOpNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitLogicBinOpNode(this);
 }
@@ -55,4 +63,13 @@ std::set<std::string> LogicBinOpNode::getGeneratedExpressions() const {
         return {getSrc1() + "&" + getSrc2()};
     }
     throw std::runtime_error("Invalid logic binary operation: " + op);
+}
+
+void LogicBinOpNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    if (getSrc1() == oldVar) {
+        setSrc1(newVar);
+    }
+    if (getSrc2() == oldVar) {
+        setSrc2(newVar);
+    }
 }

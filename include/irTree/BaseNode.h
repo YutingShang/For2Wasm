@@ -51,6 +51,13 @@ class BaseNode {
         ///CAREFUL: the caller of this function must not use the current node after it has been removed from the IR tree to avoid use-after-free errors
         virtual BaseNode* removeCurrentNodeFromIRTree() = 0;
 
+        //used in copy propagation to replace a referenced variable with a new variable
+        //a substitution [y/x] means all instances of referenced variable x are replaced with y
+        // e.g. x+x -> y+y, where referenced var set only contained {x}
+        // only need to be implemented by nodes that have non-empty referenced var set
+        // default implementation is to do nothing
+        virtual void replaceReferencedVariable(std::string oldVar, std::string newVar);
+
 
 
 

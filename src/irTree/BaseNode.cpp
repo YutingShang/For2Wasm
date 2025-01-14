@@ -89,3 +89,8 @@ int BaseNode::getPositionInParent() const {
 
     return indexInParent;
 }
+
+void BaseNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    //default implementation is to do nothing
+    //only need to be implemented by nodes that have non-empty referenced var set
+}

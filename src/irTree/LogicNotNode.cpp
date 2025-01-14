@@ -16,6 +16,10 @@ std::string LogicNotNode::getSrc() const {
     return textVector[2];
 }
 
+void LogicNotNode::setSrc(std::string src) {
+    textVector[2] = src;
+}
+
 std::string LogicNotNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitLogicNotNode(this);
 }
@@ -38,4 +42,10 @@ std::set<std::string> LogicNotNode::getGeneratedExpressions() const {
         return {};
     }
     return {"!" + getSrc()};
+}
+
+void LogicNotNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    if (getSrc() == oldVar) {
+        setSrc(newVar);
+    }
 }

@@ -15,6 +15,10 @@ std::string MovNode::getSrc() const
     return this->textVector[2];
 }
 
+void MovNode::setSrc(std::string src) {
+    textVector[2] = src;
+}
+
 std::string MovNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitMovNode(this);
 }
@@ -33,4 +37,10 @@ std::set<std::string> MovNode::getDefinedVariables() const {
 
 std::set<std::string> MovNode::getGeneratedExpressions() const {
     return {};
+}
+
+void MovNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    if (getSrc() == oldVar) {
+        setSrc(newVar);
+    }
 }

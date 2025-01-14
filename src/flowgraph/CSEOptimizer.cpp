@@ -209,7 +209,7 @@ bool CSEOptimizer::basicBlockBackwardsFindAndReplaceExpression(BasicBlock* basic
             // after the current expression node t:=expr,
             // insert a new MOV instruction into the IR tree to set z:=t
             MovNode* movNode = new MovNode(originalDest, tempVar);
-            it2 = basicBlock->insert_sandwich_instruction_node(it2, movNode);    //updates the iterator to point to the next instruction - don't really need it
+            it2 = basicBlock->insert_sandwich_instruction_node(it2, movNode, true);    //updates the iterator to point to the next instruction - don't really need it
             instructions.reverse();    //reverse back to original order before returning and inserting to the start of the BasicBlock
             return true;      //expression found and replaced
         }
@@ -228,7 +228,7 @@ std::string CSEOptimizer::addNewProgramTempVariable()
     //get the first instruction of the program from the first basic block
     ///WARNING: this assumes the instructions are in normal order, not reversed
     std::list<BaseNode*>::iterator declarationIterator = entryBasicBlock->get_instructions_reference().begin();
-    entryBasicBlock->insert_sandwich_instruction_node(declarationIterator, declareTempVarNode);
+    entryBasicBlock->insert_sandwich_instruction_node(declarationIterator, declareTempVarNode, false);
     
     return programTempVar;
 }

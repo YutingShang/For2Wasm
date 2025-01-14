@@ -5,9 +5,8 @@ mkdir -p $OUTPUT_DIR
 
 MAIN_PROGRAM=./build/bin/main
 EXAMPLE_FORTRAN_FILE=${1:-examples/summation.f90}
-FLAG1=${2}
-FLAG2=${3}       #optional optimisation flag, might be unset
-FLAG3=${4}       #optional optimisation flag, might be unset
+FLAG1=${2}      # output format
+OPTIMISATION_FLAGS="${@:3}"     # captured all optimisation flags, expand with ${FLAGS[@]}
 
 
 if [[ "$FLAG1" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
@@ -29,7 +28,7 @@ if [[ "$FLAG1" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
     echo "------------------------------------------------------------------------------\n"
     exit 0
 else 
-    make    #generates the main program
+    make install   #generates the main program
 fi
 
 
@@ -37,7 +36,7 @@ if [ "$FLAG1" == "-WASM" ]; then
     WAT_FILE=$OUTPUT_DIR/output.wat
     WASM_FILE=$OUTPUT_DIR/output.wasm
     PROGRAM_FILE=src/wasm/program.js
-    printf "%s" "$($MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3)" > $WAT_FILE
+    printf "%s" "$($MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $OPTIMISATION_FLAGS)" > $WAT_FILE
     wat2wasm $WAT_FILE -o $WASM_FILE
     node $PROGRAM_FILE $WASM_FILE
 fi
@@ -45,11 +44,11 @@ fi
 if [[ "$FLAG1" == "-irTree"  || "$FLAG1" == "-parseTree"  || "$FLAG1" == "-astTree" || "$FLAG1" == "-flowgraph" ]]; then
     DOT_FILE=$OUTPUT_DIR/tree.dot
     IMAGE_FILE=$OUTPUT_DIR/tree.png
-    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3 > $DOT_FILE
+    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 ${OPTIMISATION_FLAGS[@]} > $DOT_FILE
     dot -Tpng $DOT_FILE -o $IMAGE_FILE
     cursor $IMAGE_FILE     #open in vscode
 fi
 
 if [ "$FLAG1" == "-irPrint" ]; then          #just run with the original command line inputs, no extra processes
-    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 $FLAG2 $FLAG3
+    $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 ${OPTIMISATION_FLAGS[@]}
 fi

@@ -7,15 +7,20 @@ RD::RD(BasicBlock* entryBasicBlock): entryBasicBlock(entryBasicBlock) {
     //a forward analysis
     basicBlocks = AnalysisTools::getBasicBlocks(entryBasicBlock);
     BaseNode* entryNode = entryBasicBlock->get_instructions_copy().front();
-    allDefinitionPoints = AnalysisTools::getAllProgramDefinitionPoints(entryNode);
-    computeReachingDefinitions();    //will initialise the reachingDefs vector
+    // allDefinitionPoints = AnalysisTools::getAllProgramDefinitionPoints(entryNode);
+    computeReachingDefinitionPoints();    //will initialise the reachingDefPoints vector
  }
 
-std::vector<std::unordered_map<std::string, std::set<BaseNode*>>> RD::getReachingDefs() {
-    for (int i = 0; i < basicBlocks.size(); i++) {
+std::vector<std::unordered_map<std::string, std::set<BaseNode*>>> RD::getReachingDefPoints() {
+    printReachingDefinitionPoints();
+    return reachingDefPoints;
+}
+
+void RD::printReachingDefinitionPoints() {
+        for (int i = 0; i < basicBlocks.size(); i++) {
         std::cout << "-------------------------\nBasic block: " << basicBlocks[i]->getText() << std::endl;
-        std::cout << "Reaching definitions: " << std::endl;
-        for (const auto& [var, definitionPoints] : reachingDefs[i]) {
+        std::cout << "Reaching definition points: " << std::endl;
+        for (const auto& [var, definitionPoints] : reachingDefPoints[i]) {
             std::cout << "Variable: " << var << ", Definitions: ";
             for (BaseNode* defNode : definitionPoints) {
                 std::set<std::string> definitions = AnalysisTools::getDefinitionsAtNode(defNode);
@@ -28,23 +33,22 @@ std::vector<std::unordered_map<std::string, std::set<BaseNode*>>> RD::getReachin
         }
         std::cout << "-------------------------\n" << std::endl;
     }
-    return reachingDefs;
 }
 
 std::vector<BasicBlock*> RD::getBasicBlocksUsed() {
     return basicBlocks;
 }
 
-std::unordered_map<std::string, std::set<BaseNode*>> RD::getAllDefinitionPoints() {
-    return allDefinitionPoints;
-}
+// std::unordered_map<std::string, std::set<BaseNode*>> RD::getAllDefinitionPoints() {
+//     return allDefinitionPoints;
+// }
 
-void RD::computeReachingDefinitions() {
+void RD::computeReachingDefinitionPoints() {
 
     //Reaching definitions, forward analysis taking union of predecessors   
 
-    //initialise the reachingDefs vector, to empty sets for each basic block
-    reachingDefs = std::vector<std::unordered_map<std::string, std::set<BaseNode*>>>(basicBlocks.size());
+    //initialise the reachingDefPoints vector, to empty sets for each basic block
+    reachingDefPoints = std::vector<std::unordered_map<std::string, std::set<BaseNode*>>>(basicBlocks.size());
 
     //iterate until no more changes
     bool changed = true;
@@ -52,9 +56,9 @@ void RD::computeReachingDefinitions() {
     while (changed) {
         changed = false;
         for (int i = 0; i < basicBlocks.size(); i++) {     //still start from 0, process all basic blocks
-            std::unordered_map<std::string, std::set<BaseNode*>> new_reaches_set = basicBlockComputeReachingDefinitions(basicBlocks[i]);
-            if (new_reaches_set != reachingDefs[i]) {      //check if the reaches set has changed, if so, update the reaches set and set changed to true
-                reachingDefs[i] = new_reaches_set;
+            std::unordered_map<std::string, std::set<BaseNode*>> new_reaches_set = basicBlockComputeReachingDefinitionPoints(basicBlocks[i]);
+            if (new_reaches_set != reachingDefPoints[i]) {      //check if the reaches set has changed, if so, update the reaches set and set changed to true
+                reachingDefPoints[i] = new_reaches_set;
                 changed = true;
             }
         }
@@ -63,7 +67,7 @@ void RD::computeReachingDefinitions() {
 
 }
 
-std::unordered_map<std::string, std::set<BaseNode*>> RD::basicBlockComputeReachingDefinitions(BasicBlock* basicBlock) {
+std::unordered_map<std::string, std::set<BaseNode*>> RD::basicBlockComputeReachingDefinitionPoints(BasicBlock* basicBlock) {
     //compute the reaching definitions for the basic block
     //RD[i] = (U RD[p]) - killed(i) U def(i), for all predecessors p of i
     //the RD[] stored, is actually the out-reaches
@@ -76,7 +80,7 @@ std::unordered_map<std::string, std::set<BaseNode*>> RD::basicBlockComputeReachi
     for (BasicBlock* predecessor : predecessors) {
         //get the reaches set for the predecessor
         int predecessorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), predecessor) - basicBlocks.begin();
-        std::unordered_map<std::string, std::set<BaseNode*>> predecessorReachesSet = reachingDefs[predecessorIndex];
+        std::unordered_map<std::string, std::set<BaseNode*>> predecessorReachesSet = reachingDefPoints[predecessorIndex];
 
         //union the predecessor reaches set with the reaches set
         // combine two maps like this: {var: [list of definitions for that var]}

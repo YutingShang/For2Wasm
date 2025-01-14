@@ -8,6 +8,10 @@ std::string PrintNode::getSrc() const {
     return textVector[2];
 }
 
+void PrintNode::setSrc(std::string src) {
+    textVector[2] = src;
+}
+
 std::string PrintNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitPrintNode(this);
 }
@@ -26,4 +30,10 @@ std::set<std::string> PrintNode::getDefinedVariables() const {
 
 std::set<std::string> PrintNode::getGeneratedExpressions() const {
     return {};
+}
+
+void PrintNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    if (getSrc() == oldVar) {
+        setSrc(newVar);
+    }
 }

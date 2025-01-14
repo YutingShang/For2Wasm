@@ -12,6 +12,10 @@ std::string TestNode::getVar() const {
     return this->textVector[1];
 }
 
+void TestNode::setVar(std::string var) {
+    this->textVector[1] = var;
+}
+
 std::set<std::string> TestNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;
     if (isVariable(getVar())) {
@@ -26,4 +30,10 @@ std::set<std::string> TestNode::getDefinedVariables() const {
 
 std::set<std::string> TestNode::getGeneratedExpressions() const {
     return {};
+}
+
+void TestNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    if (getVar() == oldVar) {
+        setVar(newVar);
+    }
 }

@@ -31,6 +31,14 @@ std::string ArithOpNode::getSrc2() const {
     return textVector[3];
 } 
 
+void ArithOpNode::setSrc1(std::string src1) {
+    textVector[2] = src1;
+}
+
+void ArithOpNode::setSrc2(std::string src2) {
+    textVector[3] = src2;
+}
+
 std::string ArithOpNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitArithOpNode(this);
 }
@@ -68,4 +76,13 @@ std::set<std::string> ArithOpNode::getGeneratedExpressions() const {
         return {getSrc1() + "/" + getSrc2()};
     }
     throw std::runtime_error("Invalid arithmetic operation: " + op);
+}
+
+void ArithOpNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    if (getSrc1() == oldVar) {
+        setSrc1(newVar);
+    }
+    if (getSrc2() == oldVar) {
+        setSrc2(newVar);
+    }
 }

@@ -29,7 +29,7 @@
 #include "CSEOptimizer.h"
 #include "tree/Trees.h"
 #include "SimplificationOptimisations.h"
-#include "CopyPropOptimizer.h"
+#include "PropagationOptimizer.h"
 #include <regex>
 #include <filesystem>
 using namespace antlrcpp;
@@ -143,40 +143,27 @@ int main(int argc, const char **argv)
   IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
   entryNode->accept(&flowgraphVisitor);
 
-  /////////////////2ND FLAG///////////////////////////////////////////////////
+  /////////////////2ND, 3RD, 4TH ... FLAG///////////////////////////////////////////////////
 
-  if (argc >=4){     //case of the second flag (the fourth argument at index 3)
-    std::string flag2 = std::string(argv[3]);
+  // .main <input file> <flag1 for output> <flag2 for optimisation> <flag3 for optimisation> ...
+
+  for (int i = 3; i < argc; i++) {
+    std::string optFlag = std::string(argv[i]);     
 
     //these will edit the IR tree directly - still referenced by entryNode
-    if (flag2 == "-simplify") {
+    if (optFlag == "-simplify") {
       SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
-    }else if (flag2 == "-DCE" ) {
+    }else if (optFlag == "-DCE" ) {
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
-    }else if (flag2 == "-CSE") {
+    }else if (optFlag == "-CSE") {
       CSEOptimizer cseOptimizer(startBasicBlock);
       cseOptimizer.iterateCommonSubexpressionElimination();
-    }else if (flag2 == "-CP") {
-      CopyPropOptimizer copyPropOptimizer(startBasicBlock);
-      copyPropOptimizer.runCopyPropagation();
-    }
-  } 
-
-  /////////////////3RD FLAG///////////////////////////////////////////////////
-
-  if (argc >=5){     //case of the third flag (the fifth argument at index 4)
-    std::string flag3 = std::string(argv[4]);
-
-    if (flag3 == "-simplify") {      //probably the only useful one right now. DCE then simplify
-      SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
-    }else if (flag3 == "-DCE" ) {
-      DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
-    }else if (flag3 == "-CSE") {
-      CSEOptimizer cseOptimizer(startBasicBlock);
-      cseOptimizer.iterateCommonSubexpressionElimination();
-    }else if (flag3 == "-CP") {
-      CopyPropOptimizer copyPropOptimizer(startBasicBlock);
-      copyPropOptimizer.runCopyPropagation();
+    }else if (optFlag == "-CP") {
+      PropagationOptimizer PropagationOptimizer(startBasicBlock);
+      PropagationOptimizer.runCopyPropagation();
+    }else if (optFlag == "-const") {
+      PropagationOptimizer PropagationOptimizer(startBasicBlock);
+      PropagationOptimizer.runConstantPropagation();
     }
   }
 
