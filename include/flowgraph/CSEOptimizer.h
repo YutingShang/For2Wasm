@@ -19,7 +19,10 @@ class CSEOptimizer {
         bool commonSubexpressionEliminationOnce();
 
         //runs CSE iteratively until no more common subexpressions are found
-        void iterateCommonSubexpressionElimination();
+        bool iterateCommonSubexpressionElimination();
+
+        //runs CSE + Copy Propagation repeatedly until no more common subexpressions are found
+        bool iterateCSE_CopyPropagation();
 
         //returns the next program temp variable count
         int getNextProgramTempVariableCount();

@@ -1,4 +1,17 @@
 #include "unittest_utils.h"
+#include "PropagationOptimizer.h"
+#include <fstream>
+#include <antlr4-runtime.h>
+#include "Fortran90Lexer.h"
+#include "Fortran90Parser.h"
+#include "Fortran90ParserASTVisitor.h"
+#include "Fortran90ParserIRTreeVisitor.h"
+#include "IrFlowgraphVisitor.h"
+#include "DeadCodeElimination.h"
+#include "SimplificationOptimisations.h"
+#include "CSEOptimizer.h"
+#include "IrWasmVisitor.h"
+#include "EntryNode.h"
 
 using namespace antlr4;
 
@@ -67,6 +80,16 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
                 }else if (optimisationFlag == CSE){
                     CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
                     cseOptimizer.iterateCommonSubexpressionElimination();
+                    nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
+                }else if (optimisationFlag == CP){
+                    PropagationOptimizer PropagationOptimizer(startBasicBlock);
+                    PropagationOptimizer.runCopyPropagation();
+                }else if (optimisationFlag == Const){
+                    PropagationOptimizer PropagationOptimizer(startBasicBlock);
+                    PropagationOptimizer.runConstantPropagation();
+                }else if (optimisationFlag == IterCSE_CP){
+                    CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
+                    cseOptimizer.iterateCSE_CopyPropagation();
                     nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
                 }
             }

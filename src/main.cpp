@@ -168,6 +168,10 @@ int main(int argc, const char **argv)
     }else if (optFlag == "-const") {
       PropagationOptimizer PropagationOptimizer(startBasicBlock);
       PropagationOptimizer.runConstantPropagation();
+    }else if (optFlag == "-iterCSE-CP") {
+      CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
+      cseOptimizer.iterateCSE_CopyPropagation();
+      nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
     }
   }
 

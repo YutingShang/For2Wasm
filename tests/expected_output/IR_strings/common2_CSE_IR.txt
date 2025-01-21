@@ -8,8 +8,10 @@
 	DECLARE y
 	DECLARE z
 	DECLARE variable
+	DECLARE temp
 	CALL PRINT $str1
 	CALL READ flag
+	MOV variable 100
 	IF cond0 then0 else0 endif0
 cond0: 	EQ _t0 flag 1
 	TEST _t0
@@ -35,6 +37,7 @@ then0: 	MOV variable 0
 	ADD _t16 _t15 variable
 	MUL _t17 _t8 _t16
 	MOV y _t17
+	MOV temp y
 	CALL PRINT $str2
 	ENDTHEN
 else0: 	IF cond1 then1 else1 endif1
@@ -62,6 +65,7 @@ then1: 	MOV variable 9
 	ADD _t34 _t33 variable
 	MUL _t35 _t26 _t34
 	MOV y _t35
+	MOV temp y
 	CALL PRINT $str3
 	ENDTHEN
 else1: 	ADD _s4 1 2
@@ -85,11 +89,14 @@ else1: 	ADD _s4 1 2
 	ADD _t51 _t50 variable
 	MUL _t52 _t43 _t51
 	MOV z _t52
+	MOV temp z
 	CALL PRINT $str4
+	MOV variable 10
 	ENDELSE
 endif1: 	ENDIF
 	ENDELSE
 endif0: 	ENDIF
+	CALL PRINT temp
 	MOV _t53 _s1
 	ADD _t54 _t53 3
 	ADD _t55 _t54 4

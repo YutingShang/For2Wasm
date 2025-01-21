@@ -25,10 +25,13 @@ if [[ "$FLAG1" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
     echo "  -DCE \t \t dead code elimination\n"
     echo "  -CSE \t \t common subexpression elimination\n"
     echo "  -simplify \t remove all empty control flow constructs\n"
+    echo "  -const \t constant propagation\n"
+    echo "  -CP \t copy propagation\n"
+    echo "  -iterCSE-CP \t fix point iteration of CSE and copy propagation\n"
     echo "------------------------------------------------------------------------------\n"
     exit 0
 else 
-    make install   #generates the main program
+    make  #generates the main program
 fi
 
 

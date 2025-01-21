@@ -8,6 +8,34 @@
 (data (i32.const 73) "Invalid input")
 (data (i32.const 86) "(1+2+3+4+5+6+7+8+9) ^ 2 =")
 (func (export "main")
+(local $_s32 i32)
+(local $_s31 i32)
+(local $_s30 i32)
+(local $_s29 i32)
+(local $_s28 i32)
+(local $_s27 i32)
+(local $_s26 i32)
+(local $_s25 i32)
+(local $_s24 i32)
+(local $_s23 i32)
+(local $_s22 i32)
+(local $_s21 i32)
+(local $_s20 i32)
+(local $_s19 i32)
+(local $_s18 i32)
+(local $_s17 i32)
+(local $_s16 i32)
+(local $_s15 i32)
+(local $_s14 i32)
+(local $_s13 i32)
+(local $_s12 i32)
+(local $_s11 i32)
+(local $_s10 i32)
+(local $_s9 i32)
+(local $_s8 i32)
+(local $_s7 i32)
+(local $_s6 i32)
+(local $_s5 i32)
 (local $_s4 i32)
 (local $_s3 i32)
 (local $_s2 i32)
@@ -23,8 +51,6 @@ i32.const 50
 call $logString
 call $read
 local.set $flag
-i32.const 100
-local.set $variable
 local.get $flag
 i32.const 1
 i32.eq
@@ -37,39 +63,35 @@ i32.const 2
 i32.add
 local.set $_s2
 local.get $_s2
-local.set $_s1
-local.get $_s1
-local.set $_s0
-local.get $_s0
 i32.const 3
 i32.add
+local.set $_s5
+local.get $_s5
 i32.const 4
 i32.add
+local.set $_s9
+local.get $_s9
 i32.const 5
 i32.add
+local.set $_s13
+local.get $_s13
 i32.const 6
 i32.add
+local.set $_s17
+local.get $_s17
 i32.const 7
 i32.add
+local.set $_s21
+local.get $_s21
 i32.const 8
 i32.add
-local.get $variable
+local.set $_s25
+local.get $_s25
+i32.const 0
 i32.add
-local.get $_s0
-i32.const 3
-i32.add
-i32.const 4
-i32.add
-i32.const 5
-i32.add
-i32.const 6
-i32.add
-i32.const 7
-i32.add
-i32.const 8
-i32.add
-local.get $variable
-i32.add
+local.set $_s29
+local.get $_s29
+local.get $_s29
 i32.mul
 local.set $y
 local.get $y
@@ -93,37 +115,35 @@ local.set $_s3
 local.get $_s3
 i32.const 3
 i32.add
+local.set $_s7
+local.get $_s7
 i32.const 4
 i32.add
+local.set $_s11
+local.get $_s11
 i32.const 5
 i32.add
+local.set $_s15
+local.get $_s15
 i32.const 6
 i32.add
+local.set $_s19
+local.get $_s19
 i32.const 7
 i32.add
+local.set $_s23
+local.get $_s23
 i32.const 8
 i32.add
-local.get $variable
+local.set $_s27
+local.get $_s27
+i32.const 9
 i32.add
+local.set $_s31
 local.get $_s3
 local.set $_s2
-local.get $_s2
-local.set $_s1
-local.get $_s1
-i32.const 3
-i32.add
-i32.const 4
-i32.add
-i32.const 5
-i32.add
-i32.const 6
-i32.add
-i32.const 7
-i32.add
-i32.const 8
-i32.add
-local.get $variable
-i32.add
+local.get $_s31
+local.get $_s31
 i32.mul
 local.set $y
 local.get $y
@@ -140,37 +160,35 @@ local.set $_s4
 local.get $_s4
 i32.const 3
 i32.add
+local.set $_s8
+local.get $_s8
 i32.const 4
 i32.add
+local.set $_s12
+local.get $_s12
 i32.const 5
 i32.add
+local.set $_s16
+local.get $_s16
 i32.const 6
 i32.add
+local.set $_s20
+local.get $_s20
 i32.const 7
 i32.add
+local.set $_s24
+local.get $_s24
 i32.const 8
 i32.add
-local.get $variable
+local.set $_s28
+local.get $_s28
+i32.const 100
 i32.add
+local.set $_s32
 local.get $_s4
 local.set $_s2
-local.get $_s2
-local.set $_s1
-local.get $_s1
-i32.const 3
-i32.add
-i32.const 4
-i32.add
-i32.const 5
-i32.add
-i32.const 6
-i32.add
-i32.const 7
-i32.add
-i32.const 8
-i32.add
-local.get $variable
-i32.add
+local.get $_s32
+local.get $_s32
 i32.mul
 local.set $z
 local.get $z
@@ -186,36 +204,36 @@ local.set $variable
 )
 local.get $temp
 call $log
-local.get $_s1
-i32.const 3
-i32.add
-i32.const 4
-i32.add
-i32.const 5
-i32.add
-i32.const 6
-i32.add
-i32.const 7
-i32.add
-i32.const 8
-i32.add
-local.get $variable
-i32.add
 local.get $_s2
 i32.const 3
 i32.add
+local.set $_s6
+local.get $_s6
 i32.const 4
 i32.add
+local.set $_s10
+local.get $_s10
 i32.const 5
 i32.add
+local.set $_s14
+local.get $_s14
 i32.const 6
 i32.add
+local.set $_s18
+local.get $_s18
 i32.const 7
 i32.add
+local.set $_s22
+local.get $_s22
 i32.const 8
 i32.add
+local.set $_s26
+local.get $_s26
 local.get $variable
 i32.add
+local.set $_s30
+local.get $_s30
+local.get $_s30
 i32.mul
 local.set $z
 local.get $z

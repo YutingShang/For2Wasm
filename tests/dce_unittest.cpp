@@ -1,8 +1,6 @@
 #include "unittest_utils.h"
 
 
-using namespace antlr4;
-
 //// Test suites in this file:
 // DCEOptimisationTest - tests related to dead code elimination
 // DCESimplificationOptimisationTest - tests related to dead code elimination with simplification

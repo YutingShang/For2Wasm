@@ -8,16 +8,16 @@
 
 PropagationOptimizer::PropagationOptimizer(BasicBlock *entryBasicBlock) : entryBasicBlock(entryBasicBlock) {}
 
-void PropagationOptimizer::runCopyPropagation()
+bool PropagationOptimizer::runCopyPropagation()
 {
-    runPropagation(PropagationType::COPY_PROPAGATION);
+    return runPropagation(PropagationType::COPY_PROPAGATION);
 }
 
-void PropagationOptimizer::runConstantPropagation() {
-    runPropagation(PropagationType::CONSTANT_PROPAGATION);
+bool PropagationOptimizer::runConstantPropagation() {
+    return runPropagation(PropagationType::CONSTANT_PROPAGATION);
 }
 
-void PropagationOptimizer::runPropagation(PropagationType propagationType) {
+bool PropagationOptimizer::runPropagation(PropagationType propagationType) {
     // get the available copy statements for each basic block
     // Analysis: Available Copy Statements (ACS)
     ACS acs(entryBasicBlock);
@@ -26,13 +26,16 @@ void PropagationOptimizer::runPropagation(PropagationType propagationType) {
     allCopyStatements = acs.getAllCopyStatements();
 
     // Transformation: Copy Propagation
+    bool modified = false;
     for (BasicBlock *basicBlock : basicBlocks)
     {
-        basicBlockCopyPropagation(basicBlock, propagationType);
+        //if one of the basic blocks is modified, then set modified to true
+        modified |= basicBlockPropagation(basicBlock, propagationType);
     }
+    return modified;
 }
 
-bool PropagationOptimizer::basicBlockCopyPropagation(BasicBlock *basicBlock, PropagationType propagationType)
+bool PropagationOptimizer::basicBlockPropagation(BasicBlock *basicBlock, PropagationType propagationType)
 {
     bool modified = false;
 
@@ -98,8 +101,8 @@ bool PropagationOptimizer::basicBlockCopyPropagation(BasicBlock *basicBlock, Pro
                             //replace the variable with the definition
                             //actually modify the instruction node
                             instruction->replaceReferencedVariable(var, tuple.second);
-                            //go back and remove the (MOV _t0 c) instruction
-                            if (isInternalTemporaryVariable(tuple.first)){
+                            
+                            if (isInternalTemporaryVariable(tuple.first)){  //if replacing a temporary variable, go back and remove the (MOV _t0 y) instruction
                                 removeMovTempInstruction(basicBlock, instruction, tuple.first);
                             }
                             modified = true;
@@ -107,16 +110,19 @@ bool PropagationOptimizer::basicBlockCopyPropagation(BasicBlock *basicBlock, Pro
                     }
                     //for copy propagation, if (x, y), then recursively find any (y, *), repeat to replace with final replacement variable
                     else if (propagationType == PropagationType::COPY_PROPAGATION){
-                        if (!isInternalTemporaryVariable(tuple.second) && !isConstant(tuple.second)){     //check it is NOT (x, _t0) or (x, c), but is (x, y)
-                            //see if there are any (y, *) in the in-availCopies set, iterate till final non-temporary variable
+                        if (!isConstant(tuple.second)){     //check it is NOT (x, c), but is (x, y)
+                            //see if there are any (y, *) in the in-availCopies set, iterate till final replacement variable
                             std::string replacementVar = getFinalReplacementVariable(tuple.second, inAvailCopiesSet); 
-                            //actually modify the instruction node
-                            instruction->replaceReferencedVariable(var, replacementVar);
-                            //go back and remove the (MOV _t0 y) instruction
-                            if (isInternalTemporaryVariable(tuple.first)){
-                                removeMovTempInstruction(basicBlock, instruction, tuple.first);
+                            
+                            if (!isInternalTemporaryVariable(replacementVar)){  // Handles the case (x, _t0), we don't replace
+                                //actually modify the instruction node
+                                instruction->replaceReferencedVariable(var, replacementVar);
+                                
+                                if (isInternalTemporaryVariable(tuple.first)){  //if replacing a temporary variable, go back and remove the (MOV _t0 y) instruction
+                                    removeMovTempInstruction(basicBlock, instruction, tuple.first);
+                                }
+                                modified = true;
                             }
-                            modified = true;
                         }
                     }
                     
@@ -147,36 +153,42 @@ bool PropagationOptimizer::basicBlockCopyPropagation(BasicBlock *basicBlock, Pro
 }
 
 std::string PropagationOptimizer::getFinalReplacementVariable(std::string var, std::set<std::pair<std::string, std::string>> &inAvailCopiesSet) {
-    std::string finalReplacementVar = var;     //e.g. variable y
 
-    //iterate through the in-availCopies set, find the final non-temporary variable replacement
-    //note - only for copy propagation, so stops before a constant copy statement is reached
-    bool reachedTempOrConst = false;
-    bool replacementFound = true;
+    //follow the chain of variables (temp or non-temp) until no more replacement variables are found or a constant is reached
+    //then return the final NON-TEMPORARY variable
+    // e.g. x-> _t0 -> _t1 -> b -> _t2 returns b
 
-    while (!reachedTempOrConst && replacementFound) {   
+    bool moreReplacementsFound = true;     //no more mappings found, or a constant is reached
+    std::string nextVarToFind = var;
+    std::string lastNonTempVar = var;    //last non-temporary variable found, if its a chain of temp variables, then return the original variable
 
-        //try to find a (y, *) in the in-availCopies set
+    while (moreReplacementsFound) {
+        //find the (y, *) in the in-availCopies set
         auto tuplesIt = inAvailCopiesSet.begin();
-        replacementFound = false;
-        while (tuplesIt != inAvailCopiesSet.end() && !reachedTempOrConst) {
-            std::pair<std::string, std::string> tuple = *tuplesIt;
+        moreReplacementsFound = false;    //reset to false for this iteration
 
-            if (tuple.first == finalReplacementVar) {       //check for (y, _)
-                replacementFound = true;
-                if (isInternalTemporaryVariable(tuple.second) || isConstant(tuple.second)){
-                    reachedTempOrConst = true;       //check its not (y, _t0) or (y, c). In which case return y
+        //iterate through map to find (nextVarToFind, *)
+        while (tuplesIt != inAvailCopiesSet.end()) {
+            std::pair<std::string, std::string> tuple = *tuplesIt;
+            if (tuple.first == nextVarToFind) {       //check for (y, z)
+                moreReplacementsFound = true;
+
+                if (isConstant(tuple.second)){     //z is a constant - stop mapping
+                    return lastNonTempVar;
                 }
-                else {
-                    finalReplacementVar = tuple.second;    //otherwise (y, z), so replace y with z
+                else if (isInternalTemporaryVariable(tuple.second)){    //z is a temp variable - continue mapping
+                    nextVarToFind = tuple.second;
+                }
+                else {      //z is a non-temp variable - continue mapping
+                    lastNonTempVar = tuple.second;
+                    nextVarToFind = tuple.second;
                 }
             }
             tuplesIt++;
         }
-        //if no (y, *) found, then stop the loop, and return y
-
     }
-    return finalReplacementVar;
+
+    return lastNonTempVar;
 }
 
 void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromBasicBlock, BaseNode *startSearchFromInstructionNode, std::string tempVar) {

@@ -3,6 +3,7 @@
 #include "ExpressionNode.h"
 #include "MovNode.h"
 #include "DeclareNode.h"
+#include "PropagationOptimizer.h"
 #include <set>
 #include <stack>
 
@@ -10,9 +11,9 @@
 CSEOptimizer::CSEOptimizer(BasicBlock* entryBasicBlock, int nextProgramTempVariableCount) : entryBasicBlock(entryBasicBlock), nextProgramTempVariableCount(nextProgramTempVariableCount) {
 }
 
-void CSEOptimizer::iterateCommonSubexpressionElimination()
+bool CSEOptimizer::iterateCommonSubexpressionElimination()
 {
-    commonSubexpressionEliminationOnce();
+    bool modified = commonSubexpressionEliminationOnce();
     ///UNCOMMENT: to run CSE multiple times, but I don't think it is necessary
     // bool runCSE = true;
     // while (runCSE)
@@ -20,7 +21,19 @@ void CSEOptimizer::iterateCommonSubexpressionElimination()
     //     runCSE = commonSubexpressionEliminationOnce();
     //     //if modified, rerun again to see any more common subexpressions
     // }
+    return modified;
+}
 
+bool CSEOptimizer::iterateCSE_CopyPropagation()
+{
+    bool modified = true;
+
+    while (modified) {
+        modified = commonSubexpressionEliminationOnce();
+        PropagationOptimizer propagationOptimizer(entryBasicBlock);
+        modified |= propagationOptimizer.runCopyPropagation();
+    }
+    return modified;
 }
 
 

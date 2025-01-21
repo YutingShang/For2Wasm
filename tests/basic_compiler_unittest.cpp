@@ -1,8 +1,6 @@
 #include "unittest_utils.h"
 
 
-using namespace antlr4;
-
 //// Test suites in this file:
 // IRTranslationTest - tests related to translating Fortran to AST and IR
 // WASMTranslationTest - tests related to translating Fortran to WASM

@@ -42,6 +42,7 @@ The second and third flags determine what optimisation to apply. The available o
 * `-simplify` - run simplification (e.g. removes empty control flow constructs)
 * `-const` - run constant propagation
 * `-CP` - run copy propagation
+* `-iterCSE-CP` - run copy propagation and common subexpression elimination iteratively until no more changes are made
 
 ### Maintenance Recap
 

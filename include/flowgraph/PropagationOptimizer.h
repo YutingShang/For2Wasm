@@ -9,9 +9,11 @@ class PropagationOptimizer
 public:
     PropagationOptimizer(BasicBlock *entryBasicBlock);
 
-    void runCopyPropagation();
+    //returns whether the copy propagation changed the program
+    bool runCopyPropagation();
 
-    void runConstantPropagation();
+    //returns whether the constant propagation changed the program
+    bool runConstantPropagation();
 
     enum PropagationType
     {
@@ -27,7 +29,7 @@ private:
     //  since we will remove duplicates from the reaching definition points set (e.g. y = 8 and y = 8 are semantically the same definition)
     std::vector<std::set<std::pair<std::string, std::string>>> availCopies;
 
-    bool basicBlockCopyPropagation(BasicBlock *basicBlock, PropagationType propagationType);
+    bool basicBlockPropagation(BasicBlock *basicBlock, PropagationType propagationType);
 
     // checks if the variable is an internal temporary variable
     bool isInternalTemporaryVariable(std::string var);
@@ -35,8 +37,9 @@ private:
     // checks if the variable is a constant
     bool isConstant(std::string var);
 
-    // iteratively find the final (non-temporary) replacement variable for a given variable
+    // iteratively find the final (non-constant, non-temp) replacement variable for a given variable
     //  e.g. if (x, y) and (y, z), then return z
+    ///WARNING: this final replacement variable could be a temporary variable if the input variable is a TEMP!, so we need to check if it is a temporary variable after the function call
     std::string getFinalReplacementVariable(std::string var, std::set<std::pair<std::string, std::string>> &inAvailCopiesSet);
 
     //remove the (MOV _t0 a) instruction, if you are propagating _t0 -> a
@@ -46,5 +49,6 @@ private:
     //returns true if the instruction was found and removed, false otherwise
     bool basicBlockRemoveMovTempInstruction(BasicBlock *basicBlock, std::string tempVar, BaseNode* beginBackwardsFromThisNode = nullptr);
 
-    void runPropagation(PropagationType propagationType);
+    //returns whether the propagation changed the program
+    bool runPropagation(PropagationType propagationType);
 };
