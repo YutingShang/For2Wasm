@@ -40,6 +40,8 @@ The second and third flags determine what optimisation to apply. The available o
 * `-DCE` - run dead code elimination
 * `-CSE` - run common subexpression elimination
 * `-simplify` - run simplification (e.g. removes empty control flow constructs)
+* `-const` - run constant propagation
+* `-CP` - run copy propagation
 
 ### Maintenance Recap
 

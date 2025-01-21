@@ -1,6 +1,10 @@
 #include "PropagationOptimizer.h"
 #include "ACS.h"
+#include "MovNode.h"
+#include "BasicBlock.h"
+#include <stack>
 #include <iostream>
+
 
 PropagationOptimizer::PropagationOptimizer(BasicBlock *entryBasicBlock) : entryBasicBlock(entryBasicBlock) {}
 
@@ -41,7 +45,7 @@ bool PropagationOptimizer::basicBlockCopyPropagation(BasicBlock *basicBlock, Pro
         //for copy propagation, if (x, y), then recursively find any (y, *), repeat to replace with final replacement variable
         ///IMPORTANT:* also only replace the variable if its var or replacement is NOT a _t temporary variable
             // (i.e. do NOT replace (x ,_t0) since temp variables cannot be stored and retrieved in wasm)
-            // (i.e. also do NOT replace (_t0, a) since temp variables disappear in WASM anyways)
+            // (i.e. if I replace (_t0, a), this allows for further optimisations, but I need to search upwards and delete the MOV _t0 a instruction)
 
 
     std::set<std::pair<std::string, std::string>> inAvailCopiesSet = allCopyStatements;
@@ -78,41 +82,47 @@ bool PropagationOptimizer::basicBlockCopyPropagation(BasicBlock *basicBlock, Pro
         // Because availCopyStatements uses intersection and new copy statements replace the old ones
         for (const std::string &var : referencedVariables)      //for each referenced variable x
         {
-            if (!isInternalTemporaryVariable(var)) {        //do not replace (_t0, *)
-                //iterate through the in-availCopies set
-                auto tuplesIt = inAvailCopiesSet.begin();
-                bool found = false;
-                while (tuplesIt != inAvailCopiesSet.end() && !found)     //find the pair (x, *)
+            //iterate through the in-availCopies set
+            auto tuplesIt = inAvailCopiesSet.begin();
+            bool found = false;
+            while (tuplesIt != inAvailCopiesSet.end() && !found)     //find the pair (x, *)
+            {
+                std::pair<std::string, std::string> tuple = *tuplesIt;
+                if (tuple.first == var)         //check it is (x, *)
                 {
-                    std::pair<std::string, std::string> tuple = *tuplesIt;
-                    if (tuple.first == var)         //check it is (x, *)
-                    {
-                        found = true;
+                    found = true;
 
-                        //for constant propagation, if (x, c), then replace x with c
-                        if (propagationType == PropagationType::CONSTANT_PROPAGATION){
-                            if (isConstant(tuple.second)){
-                                //replace the variable with the definition
-                                //actually modify the instruction node
-                                instruction->replaceReferencedVariable(var, tuple.second);
-                                modified = true;
+                    //for constant propagation, if (x, c), then replace x with c
+                    if (propagationType == PropagationType::CONSTANT_PROPAGATION){
+                        if (isConstant(tuple.second)){
+                            //replace the variable with the definition
+                            //actually modify the instruction node
+                            instruction->replaceReferencedVariable(var, tuple.second);
+                            //go back and remove the (MOV _t0 c) instruction
+                            if (isInternalTemporaryVariable(tuple.first)){
+                                removeMovTempInstruction(basicBlock, instruction, tuple.first);
                             }
+                            modified = true;
                         }
-                        //for copy propagation, if (x, y), then recursively find any (y, *), repeat to replace with final replacement variable
-                        else if (propagationType == PropagationType::COPY_PROPAGATION){
-                            if (!isInternalTemporaryVariable(tuple.second) && !isConstant(tuple.second)){     //check it is NOT (x, _t0) or (x, c), but is (x, y)
-                                //see if there are any (y, *) in the in-availCopies set, iterate till final non-temporary variable
-                                std::string replacementVar = getFinalReplacementVariable(tuple.second, inAvailCopiesSet); 
-                                //actually modify the instruction node
-                                instruction->replaceReferencedVariable(var, replacementVar);
-                                modified = true;
-                            }
-                        }
-                        
                     }
-                    tuplesIt++;   //check the next tuple to find (x, *)
-                } 
-            }
+                    //for copy propagation, if (x, y), then recursively find any (y, *), repeat to replace with final replacement variable
+                    else if (propagationType == PropagationType::COPY_PROPAGATION){
+                        if (!isInternalTemporaryVariable(tuple.second) && !isConstant(tuple.second)){     //check it is NOT (x, _t0) or (x, c), but is (x, y)
+                            //see if there are any (y, *) in the in-availCopies set, iterate till final non-temporary variable
+                            std::string replacementVar = getFinalReplacementVariable(tuple.second, inAvailCopiesSet); 
+                            //actually modify the instruction node
+                            instruction->replaceReferencedVariable(var, replacementVar);
+                            //go back and remove the (MOV _t0 y) instruction
+                            if (isInternalTemporaryVariable(tuple.first)){
+                                removeMovTempInstruction(basicBlock, instruction, tuple.first);
+                            }
+                            modified = true;
+                        }
+                    }
+                    
+                }
+                tuplesIt++;   //check the next tuple to find (x, *)
+            } 
         }
 
         //after performing propagation on the current instruction, update the in-availCopies set for the next instruction
@@ -168,6 +178,77 @@ std::string PropagationOptimizer::getFinalReplacementVariable(std::string var, s
     }
     return finalReplacementVar;
 }
+
+void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromBasicBlock, BaseNode *startSearchFromInstructionNode, std::string tempVar) {
+    ///On a backwards control flow, find the (MOV _t0 a) instruction, and remove it
+    // do a DFS backwards from the current basic block as the start node
+
+    std::stack<BasicBlock *> toExploreStack;
+    toExploreStack.push(startSearchFromBasicBlock);
+    std::set<BasicBlock *> seen;
+    seen.insert(startSearchFromBasicBlock);
+
+    //should only be one temp variable MOV instruction, so we stop immediately if found
+    bool expressionFound = false;
+    while (!toExploreStack.empty() && !expressionFound) {
+        BasicBlock *current = toExploreStack.top();
+        toExploreStack.pop();
+        //go inside each basic block
+        
+        if (current == startSearchFromBasicBlock) {      //only for the first basic block, start backwards search from the current instruction
+            //beginBackwardsFromThisNode is the current instruction node (had copy propagation applied to it)
+            expressionFound = basicBlockRemoveMovTempInstruction(current, tempVar, startSearchFromInstructionNode);
+        } else {             //for all other basic blocks, start backwards search from the end of the basic block
+            expressionFound = basicBlockRemoveMovTempInstruction(current, tempVar);
+        }
+        
+        if (!expressionFound){    //then we add the predecessors to the stack 
+            std::vector<BasicBlock*> predecessors = current->get_predecessors();
+            //check that there should be at least one predecessor, otherwise we have hit the entry instruction node on a backwards path
+            if (predecessors.empty()) {
+                throw std::runtime_error("ERROR while handling propagation: expression for MOV " + tempVar + " not found on a backwards path");
+            }
+            for (BasicBlock* predecessor : predecessors) {
+                if (seen.find(predecessor) == seen.end()) {     //if it is not already seen
+                    toExploreStack.push(predecessor);
+                    seen.insert(predecessor);
+                }
+            }
+        }
+    }
+}
+
+bool PropagationOptimizer::basicBlockRemoveMovTempInstruction(BasicBlock *basicBlock, std::string tempVar, BaseNode* beginBackwardsFromThisNode) {
+    bool found = false;
+    
+    std::list<BaseNode *> &instructions = basicBlock->get_instructions_reference();
+    instructions.reverse();
+    
+    std::list<BaseNode*>::iterator it2;
+    if (beginBackwardsFromThisNode == nullptr) {
+        it2 = instructions.begin();        //default start from the end of the basic block
+    } else {
+        it2 = std::find(instructions.begin(), instructions.end(), beginBackwardsFromThisNode);     //start backwards search from the beginBackwardsFromThisNode
+    }
+
+    //find the (MOV _t0 a) instruction and remove it if it exists
+    for (auto it = instructions.begin(); it != instructions.end(); ++it) {
+        BaseNode *instruction = *it;
+        if (dynamic_cast<MovNode *>(instruction) != nullptr) {
+            MovNode *movNode = dynamic_cast<MovNode *>(instruction);
+            if (movNode->getDest() == tempVar) {
+                basicBlock->remove_instruction_node(it);
+                found = true;
+                break;
+            }
+        }
+    }
+    //reverse back to original order
+    instructions.reverse();
+
+    return found;
+}
+
 
 bool PropagationOptimizer::isInternalTemporaryVariable(std::string var) {
     return var[0] == '_' && var[1] == 't';

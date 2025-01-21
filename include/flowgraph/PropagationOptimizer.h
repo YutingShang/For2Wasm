@@ -39,5 +39,12 @@ private:
     //  e.g. if (x, y) and (y, z), then return z
     std::string getFinalReplacementVariable(std::string var, std::set<std::pair<std::string, std::string>> &inAvailCopiesSet);
 
+    //remove the (MOV _t0 a) instruction, if you are propagating _t0 -> a
+    void removeMovTempInstruction(BasicBlock *currentBasicBlock, BaseNode *currentInstructionNode, std::string tempVar);
+
+    //start backwards from this node, remove the (MOV _t0 a) instruction, if you are propagating _t0 -> a
+    //returns true if the instruction was found and removed, false otherwise
+    bool basicBlockRemoveMovTempInstruction(BasicBlock *basicBlock, std::string tempVar, BaseNode* beginBackwardsFromThisNode = nullptr);
+
     void runPropagation(PropagationType propagationType);
 };

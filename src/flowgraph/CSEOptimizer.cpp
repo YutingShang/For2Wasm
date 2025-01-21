@@ -7,18 +7,19 @@
 #include <stack>
 
 
-CSEOptimizer::CSEOptimizer(BasicBlock* entryBasicBlock) : entryBasicBlock(entryBasicBlock) {
+CSEOptimizer::CSEOptimizer(BasicBlock* entryBasicBlock, int nextProgramTempVariableCount) : entryBasicBlock(entryBasicBlock), nextProgramTempVariableCount(nextProgramTempVariableCount) {
 }
 
 void CSEOptimizer::iterateCommonSubexpressionElimination()
 {
-
-    bool runCSE = true;
-    while (runCSE)
-    {
-        runCSE = commonSubexpressionEliminationOnce();
-        //if modified, rerun again to see any more common subexpressions
-    }
+    commonSubexpressionEliminationOnce();
+    ///UNCOMMENT: to run CSE multiple times, but I don't think it is necessary
+    // bool runCSE = true;
+    // while (runCSE)
+    // {
+    //     runCSE = commonSubexpressionEliminationOnce();
+    //     //if modified, rerun again to see any more common subexpressions
+    // }
 
 }
 
@@ -44,6 +45,11 @@ bool CSEOptimizer::commonSubexpressionEliminationOnce()
     return removed;
 }
 
+
+int CSEOptimizer::getNextProgramTempVariableCount()
+{
+    return nextProgramTempVariableCount;
+}
 
 bool CSEOptimizer::basicBlockRemoveCommonSubexpressions(BasicBlock *basicBlock)
 {
@@ -220,6 +226,7 @@ bool CSEOptimizer::basicBlockBackwardsFindAndReplaceExpression(BasicBlock* basic
 
 std::string CSEOptimizer::addNewProgramTempVariable()
 {
+    //increment nextProgramTempVariableCount after creating the new program temp variable
     std::string programTempVar = "_s" + std::to_string(nextProgramTempVariableCount++);
 
     //add a declare statement to the start of the program

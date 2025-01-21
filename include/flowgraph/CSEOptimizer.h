@@ -11,13 +11,18 @@ class CSEOptimizer {
     public:
 
         //constructor - will set the member variables
-        CSEOptimizer(BasicBlock* entryBasicBlock);
+        // should initialise the nextProgramTempVariableCount to 0 if its the first time CSE is run
+        // the next time, feed the previous nextProgramTempVariableCount into the constructor
+        CSEOptimizer(BasicBlock* entryBasicBlock, int nextProgramTempVariableCount);
 
         //runs CSE once, returns true if code was deleted, false otherwise
         bool commonSubexpressionEliminationOnce();
 
         //runs CSE iteratively until no more common subexpressions are found
         void iterateCommonSubexpressionElimination();
+
+        //returns the next program temp variable count
+        int getNextProgramTempVariableCount();
 
     private:
         
@@ -29,7 +34,7 @@ class CSEOptimizer {
 
         //the next temporary variable count, initialised to 0
         //these are _s program temporary variables which are added to the resulting program(not to be confused with _t temp variables for internal use)
-        int nextProgramTempVariableCount = 0;
+        int nextProgramTempVariableCount;
 
 
         //finds and removes common subexpressions in the flowgraph (and the IR tree) after the CSE converges

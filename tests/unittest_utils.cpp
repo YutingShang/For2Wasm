@@ -57,6 +57,7 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
         entryNode->accept(&flowgraphVisitor);
 
         //optimisations
+        int nextProgramTempVariableCount = 0;
         if (optimisationFlags.size() > 0){
             for (OptimisationFlag optimisationFlag : optimisationFlags){
                 if (optimisationFlag == DCE){
@@ -64,8 +65,9 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
                 }else if (optimisationFlag == Simplify){
                     SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
                 }else if (optimisationFlag == CSE){
-                    CSEOptimizer cseOptimizer(startBasicBlock);
+                    CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
                     cseOptimizer.iterateCommonSubexpressionElimination();
+                    nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
                 }
             }
         }

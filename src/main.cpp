@@ -147,6 +147,9 @@ int main(int argc, const char **argv)
 
   // .main <input file> <flag1 for output> <flag2 for optimisation> <flag3 for optimisation> ...
 
+  //for CSE you are creating new program temp variables _s0, _s1, _s2, ...
+  //but need to remember the next program temp variable count for the next optimisation
+  int nextProgramTempVariableCount = 0;    
   for (int i = 3; i < argc; i++) {
     std::string optFlag = std::string(argv[i]);     
 
@@ -156,8 +159,9 @@ int main(int argc, const char **argv)
     }else if (optFlag == "-DCE" ) {
       DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
     }else if (optFlag == "-CSE") {
-      CSEOptimizer cseOptimizer(startBasicBlock);
+      CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
       cseOptimizer.iterateCommonSubexpressionElimination();
+      nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
     }else if (optFlag == "-CP") {
       PropagationOptimizer PropagationOptimizer(startBasicBlock);
       PropagationOptimizer.runCopyPropagation();
