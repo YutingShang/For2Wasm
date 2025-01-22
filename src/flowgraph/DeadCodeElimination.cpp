@@ -15,7 +15,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
     // Analysis: LVA
     LVA lva(entryBasicBlock);
     std::vector<BasicBlock *> basicBlocks = lva.getBasicBlocksUsed();
-    std::vector<std::set<std::string>> liveSets = lva.getLiveSets();
+    std::unordered_map<BaseNode*, std::set<std::string>> nodeLiveSets = lva.getNodeDataFlowSets();
 
     // Transformation: Remove dead code
     bool removed = false;
@@ -23,7 +23,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
     {
         // the live sets have already converged now, so we just pass through the iteration one more time
         // compute the live set for each instruction and check if any instructions are dead code
-        removed |= basicBlockRemoveDeadCode(basicBlock, basicBlocks, liveSets);
+        removed |= basicBlockRemoveDeadCode(basicBlock, basicBlocks, nodeLiveSets);
 
     }
 
@@ -32,7 +32,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
 }
 
 
-bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::vector<BasicBlock *> &basicBlocks, std::vector<std::set<std::string>> &liveSets)
+bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::vector<BasicBlock *> &basicBlocks, std::unordered_map<BaseNode*, std::set<std::string>> &nodeLiveSets)
 {
     bool modified = false;
     // iterate through the instructions in the basic block, starting from the bottom
@@ -40,21 +40,6 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
     // if that instruction is an defines a variable, which is not in the (out)live set of the instruction
     // then it is dead code and we can remove it
 
-    // outlive set of the basic block (or also for the last instruction)...
-    //...is the union of the (in)live set of all the successors of the basic block
-    std::set<std::string> out_live_set;
-
-    for (BasicBlock *successor : basicBlock->get_successors())
-    {
-        // find the index of the successor in the basicBlocks vector
-        int successor_index = std::find(basicBlocks.begin(), basicBlocks.end(), successor) - basicBlocks.begin();
-        // get the live set of the successor
-        // live[s]
-        std::set<std::string> successor_live_set = liveSets[successor_index];
-        out_live_set.insert(successor_live_set.begin(), successor_live_set.end());
-    }
-
-    // then we process all the instructions in the basic block linearly upwards
 
     // gets a REFERENCE of the instructions
     ///NOTE: modifies the instructions directly with remove_instruction_node method
@@ -63,10 +48,10 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
     for (auto it = instructions.begin(); it != instructions.end();)
     {
         // for each instruction, the (out)live set is stored in the current out_live_set variable
-
+        
         BaseNode *instruction = *it;
+        std::set<std::string> out_live_set = nodeLiveSets[instruction];
         std::set<std::string> def_set = instruction->getDefinedVariables();
-        std::set<std::string> ref_set = instruction->getReferencedVariables();
 
         if (!def_set.empty())
         { // if the instruction does assign/define a variable
@@ -93,17 +78,6 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
         {
             // the instruction does not define a variable
             ++it;
-        }
-
-        // calculate the new (out)live set
-        for (std::string var : def_set)
-        {
-            out_live_set.erase(var);
-        }
-
-        for (std::string var : ref_set)
-        {
-            out_live_set.insert(var);
         }
     }
 

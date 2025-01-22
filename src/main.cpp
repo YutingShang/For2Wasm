@@ -194,7 +194,7 @@ int main(int argc, const char **argv)
       std::cout << wasm << std::endl;
     }else if (flag1 == "-flowgraph") {
       //redraw the flowgraph
-      delete startBasicBlock;
+      startBasicBlock->delete_entire_flowgraph();
       BasicBlock* newStartBasicBlock = new BasicBlock();
       IrFlowgraphVisitor flowgraphVisitor(newStartBasicBlock);
       entryNode->accept(&flowgraphVisitor);

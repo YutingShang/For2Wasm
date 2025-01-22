@@ -1,35 +1,25 @@
 #pragma once
 
-#include "AnalysisTools.h"
+#include "BaseDataFlowAnalysis.h"
 
 //instance class for live variable analysis for a flowgraph
-class LVA {
+//inherits from BaseDataFlowAnalysis template class
+//the template parameter is the type of the data flow set (in this case, a set of strings)
+
+class LVA : public BaseDataFlowAnalysis<std::set<std::string>> {
 
     public:
 
-        //constructor - will compute the basic blocks in the flowgraph, and set it in the basicBlocks vector
+        //constructor for LVA - initialises the base class with the entry basic block, BACKWARD analysis direction, and an empty set
+        //will call the computeDataFlowSets() method in the base class to compute the dataflow sets for each basic block and instruction node
         LVA(BasicBlock* entryBasicBlock);
 
-        //returns the live sets for entire flowgraph (per basic block)
-        std::vector<std::set<std::string>> getLiveSets();
+    protected:
 
-        //returns the basic blocks in the flowgraph used for the LVA analysis
-        std::vector<BasicBlock*> getBasicBlocksUsed();
+        //meet operation for LVA
+        std::set<std::string> meetOperation(const std::set<std::string>& current_live_set, const std::set<std::string>& successor_live_set) override;
 
-    private:
-
-        //member variables
-        BasicBlock* entryBasicBlock;
-        std::vector<BasicBlock*> basicBlocks;            //vector of all basic blocks in the program
-        std::vector<std::set<std::string>> liveSets;      //vector of live sets for each basic block
-
-        //computes all the live sets for instructions in the flowgraph
-        //takes in a vector of basic blocks, computes a vector of live sets for each basic block
-        //sets the liveSets vector
-        void computeLiveSets();
-
-        //computes the live set for instructions within a basic block
-        //returns the (in)live set of the basic block (i.e. the inlive of the first instruction)
-        std::set<std::string> basicBlockComputeLiveSet(BasicBlock *basicBlock);
+        //transfer function for LVA
+        std::set<std::string> transferFunction(BaseNode* instruction, const std::set<std::string>& out_live_set) override;
 
 };

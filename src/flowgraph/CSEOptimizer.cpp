@@ -44,9 +44,8 @@ bool CSEOptimizer::commonSubexpressionEliminationOnce()
 
     // Analysis: AVAIL
     AVAIL avail(entryBasicBlock);
-    availSets = avail.getAvailSets();
+    nodeAvailSets = avail.getNodeDataFlowSets();
     basicBlocks = avail.getBasicBlocksUsed();
-    allExpressions = avail.getAllExpressions();
 
     // Transformation: Remove common subexpressions
     bool removed = false;
@@ -54,7 +53,6 @@ bool CSEOptimizer::commonSubexpressionEliminationOnce()
     {
         removed |= basicBlockRemoveCommonSubexpressions(basicBlock);
     }
-
     return removed;
 }
 
@@ -77,25 +75,25 @@ bool CSEOptimizer::basicBlockRemoveCommonSubexpressions(BasicBlock *basicBlock)
     //return true if the basic block has been modified, false otherwise
     bool modified = false;
 
-    //in_avail set is the intersection of all the predecessors' (out)avail sets
-    std::set<std::string> in_avail_set = allExpressions;
-    //(most copy code from basicBlockComputeAvailSet)
-    std::vector<BasicBlock*> predecessors = basicBlock->get_predecessors();
-    if (predecessors.empty()) {
-        in_avail_set = {};
-    } else {
-        for (BasicBlock* predecessor : predecessors) {
+    // //in_avail set is the intersection of all the predecessors' (out)avail sets
+    // std::set<std::string> in_avail_set = allExpressions;
+    // //(most copy code from basicBlockComputeAvailSet)
+    // std::vector<BasicBlock*> predecessors = basicBlock->get_predecessors();
+    // if (predecessors.empty()) {
+    //     in_avail_set = {};
+    // } else {
+    //     for (BasicBlock* predecessor : predecessors) {
    
-            //get the avail[p] for the predecessor
-            int predecessorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), predecessor) - basicBlocks.begin();
-            std::set<std::string> predecessorAvailSet = availSets[predecessorIndex];
+    //         //get the avail[p] for the predecessor
+    //         int predecessorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), predecessor) - basicBlocks.begin();
+    //         std::set<std::string> predecessorAvailSet = availSets[predecessorIndex];
 
-            //intersect the predecessor avail set with the avail set, store in availSet
-            std::set<std::string> intersectedAvailSet;
-            std::set_intersection(in_avail_set.begin(), in_avail_set.end(), predecessorAvailSet.begin(), predecessorAvailSet.end(), std::inserter(intersectedAvailSet, intersectedAvailSet.begin()));
-            in_avail_set = intersectedAvailSet;
-        }
-    } 
+    //         //intersect the predecessor avail set with the avail set, store in availSet
+    //         std::set<std::string> intersectedAvailSet;
+    //         std::set_intersection(in_avail_set.begin(), in_avail_set.end(), predecessorAvailSet.begin(), predecessorAvailSet.end(), std::inserter(intersectedAvailSet, intersectedAvailSet.begin()));
+    //         in_avail_set = intersectedAvailSet;
+    //     }
+    // } 
 
     //now we have the in_avail set, for each instruction, check if the current instruction generates an expression which is already available
     //then we calculate the out_avail set for the instruction (which will be the in_avail set for the next instruction)
@@ -105,9 +103,9 @@ bool CSEOptimizer::basicBlockRemoveCommonSubexpressions(BasicBlock *basicBlock)
         //for each instruction, check if it generates an expression which is already available
 
         BaseNode* instruction = *it;
+        std::set<std::string> in_avail_set = nodeAvailSets[instruction];   //get the in_avail set for the instruction
         std::set<std::string> generatedExpressions = instruction->getGeneratedExpressions();
-        std::set<std::string> killedExpressions = AnalysisTools::getKilledExpressionsAtNode(instruction, allExpressions);
-
+        
         if (generatedExpressions.empty()) {
             //the instruction does not generate any expressions
             ++it;
@@ -178,15 +176,6 @@ bool CSEOptimizer::basicBlockRemoveCommonSubexpressions(BasicBlock *basicBlock)
             //the current instruction does not generate an available expression
             //so we just continue to the next instruction
             ++it;
-        }
-
-        //calculate the new (in)avail set for the next instruction node
-        for (std::string expr : killedExpressions) {
-            in_avail_set.erase(expr);
-        }
-
-        for (std::string expr : generatedExpressions) {
-            in_avail_set.insert(expr);
         }
     }
 

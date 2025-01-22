@@ -15,7 +15,7 @@ class AnalysisTools {
         AnalysisTools() = delete;
 
         //returns a vector of all the basic blocks in the flowgraph
-        //uses BFS to get the basic blocks roughly in flowgraph order
+        //uses BFS to get the basic blocks roughly in flowgraph order, starting from the entry basic block
         static std::vector<BasicBlock*> getBasicBlocks(BasicBlock* entryBasicBlock);
 
         //returns the universe of all expressions in the program

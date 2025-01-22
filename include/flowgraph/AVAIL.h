@@ -1,40 +1,31 @@
 #pragma once
 
-#include "AnalysisTools.h"
+#include "BaseDataFlowAnalysis.h"
 
 //instance class for available expression analysis (need to keep track of basic blocks state for a flowgraph)
+//inherits from BaseDataFlowAnalysis template class
+//the template parameter is the type of the data flow set (in this case, a set of expressions strings)
 
-class AVAIL {
+class AVAIL : public BaseDataFlowAnalysis<std::set<std::string>> {
 
     public:
 
-        //constructor - will compute the basic blocks in the flowgraph, and set it in the basicBlocks vector
+        //constructor for AVAIL - initialises the base class with the entry basic block, FORWARD analysis direction, and the allExpressions set
+        //will call the computeDataFlowSets() method in the base class to compute the dataflow sets for each basic block and instruction node
         AVAIL(BasicBlock* entryBasicBlock);
-
-        //returns the available expressions for entire flowgraph (per basic block)
-        std::vector<std::set<std::string>> getAvailSets();
-
-        //returns the basic blocks in the flowgraph that the AVAIL analysis was performed on
-        std::vector<BasicBlock*> getBasicBlocksUsed();
-
-        //returns the universe of all expressions in the program
-        std::set<std::string> getAllExpressions();
-
 
     private:
 
         //member variables
-        BasicBlock* entryBasicBlock;
-        std::vector<BasicBlock*> basicBlocks;            //vector of all basic blocks in the program
         std::set<std::string> allExpressions;            //universe of all expressions in the program
-        std::vector<std::set<std::string>> availSets;      //vector of available expressions for each basic block
 
-        //computes the available expressions for each basic block
-        //takes in a vector of basic blocks, computes a vector of available expressions for each basic block
-        //sets the availSets vector
-        void computeAvailSets();
+        
+    protected:
+        
+        //meet operation for AVAIL
+        std::set<std::string> meetOperation(const std::set<std::string>& current_avail_set, const std::set<std::string>& predecessor_avail_set) override;
 
-        //computes the available expressions within a single basic block
-        std::set<std::string> basicBlockComputeAvailSet(BasicBlock* basicBlock);
+        //transfer function for AVAIL
+        std::set<std::string> transferFunction(BaseNode* instruction, const std::set<std::string>& in_avail_set) override;
 
 };

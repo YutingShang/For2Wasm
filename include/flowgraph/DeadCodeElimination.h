@@ -23,6 +23,6 @@ class DeadCodeElimination {
 
         //finds and removes dead code in the flowgraph after the LVA converges
         //returns true if the basic block has been modified, false otherwise
-        static bool basicBlockRemoveDeadCode(BasicBlock* basicBlock, std::vector<BasicBlock*> &basicBlocks, std::vector<std::set<std::string>> &liveSets);
+        static bool basicBlockRemoveDeadCode(BasicBlock* basicBlock, std::vector<BasicBlock*> &basicBlocks, std::unordered_map<BaseNode*, std::set<std::string>> &nodeLiveSets);
 
 };

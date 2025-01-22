@@ -32,8 +32,7 @@ class CSEOptimizer {
         //member variables
         BasicBlock* entryBasicBlock;
         std::vector<BasicBlock*> basicBlocks;            //vector of all basic blocks in the program
-        std::set<std::string> allExpressions;            //universe of all expressions in the program
-        std::vector<std::set<std::string>> availSets;      //vector of available expressions for each basic block
+        std::unordered_map<BaseNode*, std::set<std::string>> nodeAvailSets;      //vector of available expressions for each instruction node
 
         //the next temporary variable count, initialised to 0
         //these are _s program temporary variables which are added to the resulting program(not to be confused with _t temp variables for internal use)
