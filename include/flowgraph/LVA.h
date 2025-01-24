@@ -14,6 +14,8 @@ class LVA : public BaseDataFlowAnalysis<std::set<std::string>> {
         //will call the computeDataFlowSets() method in the base class to compute the dataflow sets for each basic block and instruction node
         LVA(BasicBlock* entryBasicBlock);
 
+        void printBlockDataFlowSets() override;
+
     protected:
 
         //meet operation for LVA

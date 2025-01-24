@@ -22,8 +22,7 @@ bool PropagationOptimizer::runPropagation(PropagationType propagationType) {
     // Analysis: Available Copy Statements (ACS)
     ACS acs(entryBasicBlock);
     basicBlocks = acs.getBasicBlocksUsed();
-    availCopies = acs.getAvailCopies();
-    allCopyStatements = acs.getAllCopyStatements();
+    nodeAvailCopies = acs.getNodeDataFlowSets();
 
     // Transformation: Copy Propagation
     bool modified = false;
@@ -51,33 +50,15 @@ bool PropagationOptimizer::basicBlockPropagation(BasicBlock *basicBlock, Propaga
             // (i.e. if I replace (_t0, a), this allows for further optimisations, but I need to search upwards and delete the MOV _t0 a instruction)
 
 
-    std::set<std::pair<std::string, std::string>> inAvailCopiesSet = allCopyStatements;
-
-
-    // in-availCopies for the first instruction is the intersection of the out-availCopies of all the predecessors
-    std::vector<BasicBlock *> predecessors = basicBlock->get_predecessors();
-    for (BasicBlock *predecessor : predecessors)
-    {
-        // get the availCopies set for the predecessor
-        int predecessorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), predecessor) - basicBlocks.begin();
-        std::set<std::pair<std::string, std::string>> predecessorAvailCopies = availCopies[predecessorIndex];
-
-        //intersect the predecessor availCopies set with the availCopies set
-        std::set<std::pair<std::string, std::string>> intersectedAvailCopies;
-        std::set_intersection(inAvailCopiesSet.begin(), inAvailCopiesSet.end(), predecessorAvailCopies.begin(), predecessorAvailCopies.end(), std::inserter(intersectedAvailCopies, intersectedAvailCopies.begin()));
-        inAvailCopiesSet = intersectedAvailCopies;
-
-    } // we have the in-availCopies set for the first instruction
-
     // now for each instruction, check its in-availCopies set as specified in the pseudo code above
 
     std::list<BaseNode *> &instructions = basicBlock->get_instructions_reference();
     for (auto it = instructions.begin(); it != instructions.end();)
     {
         BaseNode *instruction = *it;
+        std::set<std::pair<std::string, std::string>> inAvailCopiesSet = nodeAvailCopies[instruction];  //get the in-availCopies set for the current instruction
         std::set<std::string> referencedVariables = instruction->getReferencedVariables();
         std::set<std::pair<std::string, std::string>> generatedCopyStatements = AnalysisTools::getGeneratedCopyStatementsAtNode(instruction);
-        std::set<std::pair<std::string, std::string>> killedCopyStatements = AnalysisTools::getKilledCopyStatementsAtNode(instruction, allCopyStatements);
 
 
         //for every referenced variable in the instruction, check if it is in the in-availCopies set like (x, *)
@@ -133,16 +114,6 @@ bool PropagationOptimizer::basicBlockPropagation(BasicBlock *basicBlock, Propaga
 
         //after performing propagation on the current instruction, update the in-availCopies set for the next instruction
         ///NOTE: I got the generated and killed copy statements before modifying the current instruction, so its like the original ACS analysis
-
-        //remove the killed copy statements from the avail set
-        for (std::pair<std::string, std::string> copyStatement : killedCopyStatements) {
-            inAvailCopiesSet.erase(copyStatement);
-        }
-
-        //add the generated expressions to the avail set
-        for (std::pair<std::string, std::string> copyStatement : generatedCopyStatements) {
-            inAvailCopiesSet.insert(copyStatement);
-        }
 
         //increment the iterator to the next instruction
         ++it;

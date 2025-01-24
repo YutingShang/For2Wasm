@@ -12,6 +12,22 @@ AVAIL::AVAIL(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis<std::set<std::s
     computeDataFlowSets();
 }
 
+void AVAIL::printBlockDataFlowSets() {
+    for (int i = 0; i < basicBlocks.size(); i++)
+    {
+        std::set<std::string> basicBlockAvailSet = blockDataFlowSets[i];
+        std::cout << "-------------------------\nBasic block: " << basicBlocks[i]->getText() << std::endl;
+        std::cout << "Available Expressions Sets: \n {";
+        
+        for (const auto &availExpr : basicBlockAvailSet)
+        { // get the dataflow set for the basic block
+            std::cout << availExpr << ", ";
+        }
+        std::cout << "}\n-------------------------\n"
+                  << std::endl;
+    }
+}
+
 
 //meet operation for AVAIL - returns the intersection of two sets
 std::set<std::string> AVAIL::meetOperation(const std::set<std::string>& current_avail_set, const std::set<std::string>& predecessor_avail_set) {

@@ -20,15 +20,9 @@ class BaseDataFlowAnalysis {
         std::vector<BasicBlock*> getBasicBlocksUsed();
 
         //print the dataflow sets for each basic block
-        virtual void printBlockDataFlowSets();
+        virtual void printBlockDataFlowSets() = 0;
 
     protected:
-
-        //definitions:
-        // enum class MeetOperation {
-        //     INTERSECTION,
-        //     UNION
-        // };
 
         enum class AnalysisDirection {
             FORWARD,
@@ -36,7 +30,6 @@ class BaseDataFlowAnalysis {
         };
 
         //member variables
-        // MeetOperation meetOperation;
         AnalysisDirection analysisDirection;  //could these be private to the base class?
         BasicBlock* entryBasicBlock;
         std::vector<BasicBlock*> basicBlocks;
@@ -159,7 +152,7 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
     {
         std::vector<BasicBlock *> predecessors = basicBlock->get_predecessors();
         if (predecessors.empty()) {
-            dataflowSet = {};
+            dataflowSet = {};      //boundary, where the OUT[entry] is the empty set for forward analysis
         }else {
             for (BasicBlock* predecessor : predecessors) {
                 //get the dataflow set for the predecessor
@@ -216,18 +209,5 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
     return dataflowSet;
 }
 
-template <typename Domain>
-void BaseDataFlowAnalysis<Domain>::printBlockDataFlowSets()
-{
-    for (int i = 0; i < basicBlocks.size(); i++)
-    {
-        std::cout << "-------------------------\nBasic block: " << basicBlocks[i]->getText() << std::endl;
-        for (const auto &dataflowSet : blockDataFlowSets[i])
-        { // get the dataflow set for the basic block
-            std::cout << "Dataflow set: " << dataflowSet << std::endl;
-        }
-    }
-    std::cout << "-------------------------\n"
-              << std::endl;
-}
+
 

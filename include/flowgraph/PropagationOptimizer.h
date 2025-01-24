@@ -24,10 +24,8 @@ public:
 private:
     BasicBlock *entryBasicBlock;
     std::vector<BasicBlock *> basicBlocks;
-    std::set<std::pair<std::string, std::string>> allCopyStatements; // all copy statements in the program
-    // NOTE: using a set to store the ACTUAL STRING representation of the reaching definitions
-    //  since we will remove duplicates from the reaching definition points set (e.g. y = 8 and y = 8 are semantically the same definition)
-    std::vector<std::set<std::pair<std::string, std::string>>> availCopies;
+    //map from each node to the set of available copy statements for that node, the copy statements are of the form (var, replacementVar)
+    std::unordered_map<BaseNode*, std::set<std::pair<std::string, std::string>>> nodeAvailCopies;
 
     bool basicBlockPropagation(BasicBlock *basicBlock, PropagationType propagationType);
 

@@ -14,6 +14,8 @@ class AVAIL : public BaseDataFlowAnalysis<std::set<std::string>> {
         //will call the computeDataFlowSets() method in the base class to compute the dataflow sets for each basic block and instruction node
         AVAIL(BasicBlock* entryBasicBlock);
 
+        void printBlockDataFlowSets() override;
+
     private:
 
         //member variables

@@ -12,6 +12,22 @@ LVA::LVA(BasicBlock* entryBasicBlock) :
     computeDataFlowSets();
 }
 
+void LVA::printBlockDataFlowSets() {
+    for (int i = 0; i < basicBlocks.size(); i++)
+    {
+        std::set<std::string> basicBlockLiveSet = blockDataFlowSets[i];
+        std::cout << "-------------------------\nBasic block: " << basicBlocks[i]->getText() << std::endl;
+        std::cout << "Live Variable Sets: \n {";
+        
+        for (const auto &liveVar : basicBlockLiveSet)
+        { // get the dataflow set for the basic block
+            std::cout << liveVar << ", ";
+        }
+        std::cout << "}\n-------------------------\n"
+                  << std::endl;
+    }
+}
+
 
 //meet operation for LVA - returns the union of two sets
 std::set<std::string> LVA::meetOperation(const std::set<std::string>& current_live_set, const std::set<std::string>& successor_live_set) {
