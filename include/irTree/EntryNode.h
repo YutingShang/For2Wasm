@@ -14,5 +14,5 @@ public:
 
     std::set<std::string> getReferencedVariables() const override;
     std::set<std::string> getDefinedVariables() const override;
-    std::set<std::string> getGeneratedExpressions() const override;
+    std::set<std::string> getReferencedExpressions() const override;
 }; 

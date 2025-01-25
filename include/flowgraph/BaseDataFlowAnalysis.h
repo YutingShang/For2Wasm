@@ -14,7 +14,8 @@ class BaseDataFlowAnalysis {
     
         ///TODO: maybe change implementation to flowgraph nodes instead of basic blocks??
         // //returns the dataflow sets for each instruction node in the program
-        std::unordered_map<BaseNode*, Domain> getNodeDataFlowSets();
+        std::unordered_map<BaseNode*, Domain> getNodeInDataFlowSets();
+        std::unordered_map<BaseNode*, Domain> getNodeOutDataFlowSets();
 
         //returns the basic blocks used for the dataflow analysis
         std::vector<BasicBlock*> getBasicBlocksUsed();
@@ -34,7 +35,8 @@ class BaseDataFlowAnalysis {
         BasicBlock* entryBasicBlock;
         std::vector<BasicBlock*> basicBlocks;
         std::vector<Domain> blockDataFlowSets;    //stores the data flow sets computed for each basic block. Allows easy computation of the meet operation (e.g. outset for FORWARD, inset for BACKWARD)
-        std::unordered_map<BaseNode*, Domain> nodeDataFlowSets;    //stores the data flow sets computed for each instruction node. Allows easy usage in optimisation passes (e.g. inset for FORWARD, outset for BACKWARD)
+        std::unordered_map<BaseNode*, Domain> nodeInDataFlowSets;    //stores the in-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes
+        std::unordered_map<BaseNode*, Domain> nodeOutDataFlowSets;    //stores the out-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes 
         Domain initialSet;    //the initial set of the dataflow set
        
 
@@ -55,6 +57,7 @@ class BaseDataFlowAnalysis {
         ////////////////////////////////////////////////////////////////
 
         //returns a new set of the dataflow set after processing the current instruction node
+        //if the basicBlock is required in the transfer function, pass it in as a parameter. Otherwise analysis can ignore it
         virtual Domain transferFunction(BaseNode* instructionNode, const Domain& inputSet) = 0; 
 
         //returns the meet of two dataflow sets, i.e. implement the intersection or union over the Domain type
@@ -107,9 +110,15 @@ std::vector<BasicBlock *> BaseDataFlowAnalysis<Domain>::getBasicBlocksUsed()
 }
 
 template <typename Domain>
-std::unordered_map<BaseNode *, Domain> BaseDataFlowAnalysis<Domain>::getNodeDataFlowSets()
+std::unordered_map<BaseNode *, Domain> BaseDataFlowAnalysis<Domain>::getNodeInDataFlowSets()
 {
-    return nodeDataFlowSets;
+    return nodeInDataFlowSets;
+}
+
+template <typename Domain>
+std::unordered_map<BaseNode *, Domain> BaseDataFlowAnalysis<Domain>::getNodeOutDataFlowSets()
+{
+    return nodeOutDataFlowSets;
 }
 
 // template <typename Domain>
@@ -170,10 +179,13 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
             BaseNode* instruction = *it;
 
             //store the IN-dataflow set for the instruction in the nodeDataFlowSets map
-            nodeDataFlowSets[instruction] = dataflowSet;
+            nodeInDataFlowSets[instruction] = dataflowSet;
 
             //process the instruction with the transfer function
             dataflowSet = transferFunction(instruction, dataflowSet);
+
+            //store the OUT-dataflow set for the instruction in the nodeDataFlowSets map
+            nodeOutDataFlowSets[instruction] = dataflowSet;
         }
 
         //OUT-dataflow set of the basic block is now stored in the dataflowSet variable
@@ -181,12 +193,16 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
     else if (analysisDirection == AnalysisDirection::BACKWARD)
     {
         std::vector<BasicBlock*> successors = basicBlock->get_successors();
-        for (BasicBlock* successor : successors) {
-            //get the dataflow set for the successor
-            int successorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), successor) - basicBlocks.begin();
-            Domain successorDataflowSet = blockDataFlowSets[successorIndex];
-            //meet the dataflow set with the successor dataflow set
-            dataflowSet = meetOperation(dataflowSet, successorDataflowSet);
+        if (successors.empty()) {
+            dataflowSet = {};      //boundary, where the IN[exit] is the empty set for backward analysis
+        }else {
+            for (BasicBlock* successor : successors) {
+                //get the dataflow set for the successor
+                int successorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), successor) - basicBlocks.begin();
+                Domain successorDataflowSet = blockDataFlowSets[successorIndex];
+                //meet the dataflow set with the successor dataflow set
+                dataflowSet = meetOperation(dataflowSet, successorDataflowSet);
+            }
         }
 
         //now we have the out-dataflow set of the basic block
@@ -197,10 +213,13 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
             BaseNode* instruction = *it;
 
             //store the OUT-dataflow set for the instruction in the nodeDataFlowSets map
-            nodeDataFlowSets[instruction] = dataflowSet;
+            nodeOutDataFlowSets[instruction] = dataflowSet;
 
             //process the instruction with the transfer function
             dataflowSet = transferFunction(instruction, dataflowSet);
+
+            //store the IN-dataflow set for the instruction in the nodeDataFlowSets map
+            nodeInDataFlowSets[instruction] = dataflowSet;
         }
 
         //IN-dataflow set of the basic block is now stored in the dataflowSet variable

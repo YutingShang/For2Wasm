@@ -35,7 +35,7 @@ std::set<std::string> MovNode::getDefinedVariables() const {
     return {getDest()};
 }
 
-std::set<std::string> MovNode::getGeneratedExpressions() const {
+std::set<std::string> MovNode::getReferencedExpressions() const {
     return {};
 }
 

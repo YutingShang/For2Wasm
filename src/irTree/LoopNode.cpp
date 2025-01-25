@@ -50,7 +50,7 @@ std::set<std::string> LoopNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> LoopNode::getGeneratedExpressions() const {
+std::set<std::string> LoopNode::getReferencedExpressions() const {
     return {};
 }
 

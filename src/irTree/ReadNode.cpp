@@ -21,6 +21,6 @@ std::set<std::string> ReadNode::getDefinedVariables() const {
     return {getVar()};
 }
 
-std::set<std::string> ReadNode::getGeneratedExpressions() const {
+std::set<std::string> ReadNode::getReferencedExpressions() const {
     return {};
 }

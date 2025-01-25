@@ -17,7 +17,7 @@ void AVAIL::printBlockDataFlowSets() {
     {
         std::set<std::string> basicBlockAvailSet = blockDataFlowSets[i];
         std::cout << "-------------------------\nBasic block: " << basicBlocks[i]->getText() << std::endl;
-        std::cout << "Available Expressions Sets: \n {";
+        std::cout << "Available Expressions Out-Sets: \n {";
         
         for (const auto &availExpr : basicBlockAvailSet)
         { // get the dataflow set for the basic block
@@ -42,7 +42,7 @@ std::set<std::string> AVAIL::transferFunction(BaseNode* instruction, const std::
     std::set<std::string> out_avail_set = in_avail_set;
 
     //get the generated and killed expressions from the instruction
-    std::set<std::string> generatedExpressions = instruction->getGeneratedExpressions();
+    std::set<std::string> generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(instruction);
     std::set<std::string> killedExpressions = AnalysisTools::getKilledExpressionsAtNode(instruction, allExpressions);
 
     //remove the killed expressions from the avail set

@@ -16,6 +16,6 @@ std::set<std::string> EndBlockNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> EndBlockNode::getGeneratedExpressions() const {
+std::set<std::string> EndBlockNode::getReferencedExpressions() const {
     return {};
 }

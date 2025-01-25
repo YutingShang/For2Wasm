@@ -31,7 +31,7 @@ if [[ "$FLAG1" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
     echo "------------------------------------------------------------------------------\n"
     exit 0
 else 
-    make  #generates the main program
+    make install #generates the main program
 fi
 
 
@@ -52,6 +52,6 @@ if [[ "$FLAG1" == "-irTree"  || "$FLAG1" == "-parseTree"  || "$FLAG1" == "-astTr
     cursor $IMAGE_FILE     #open in vscode
 fi
 
-if [ "$FLAG1" == "-irPrint" ]; then          #just run with the original command line inputs, no extra processes
+if [[ "$FLAG1" == "-irPrint" || "$FLAG1" == "-analysis" ]]; then          #just run with the original command line inputs, no extra processes
     $MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $FLAG1 ${OPTIMISATION_FLAGS[@]}
 fi

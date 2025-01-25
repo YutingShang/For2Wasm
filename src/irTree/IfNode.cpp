@@ -45,7 +45,7 @@ std::set<std::string> IfNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> IfNode::getGeneratedExpressions() const {
+std::set<std::string> IfNode::getReferencedExpressions() const {
     return {};
 }
 

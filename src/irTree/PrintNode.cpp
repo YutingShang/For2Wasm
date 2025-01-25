@@ -28,7 +28,7 @@ std::set<std::string> PrintNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> PrintNode::getGeneratedExpressions() const {
+std::set<std::string> PrintNode::getReferencedExpressions() const {
     return {};
 }
 

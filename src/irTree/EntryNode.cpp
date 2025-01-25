@@ -14,6 +14,6 @@ std::set<std::string> EntryNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> EntryNode::getGeneratedExpressions() const {
+std::set<std::string> EntryNode::getReferencedExpressions() const {
     return {};
 }

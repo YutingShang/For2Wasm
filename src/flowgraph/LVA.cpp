@@ -17,7 +17,7 @@ void LVA::printBlockDataFlowSets() {
     {
         std::set<std::string> basicBlockLiveSet = blockDataFlowSets[i];
         std::cout << "-------------------------\nBasic block: " << basicBlocks[i]->getText() << std::endl;
-        std::cout << "Live Variable Sets: \n {";
+        std::cout << "Live Variable In-Sets: \n {";
         
         for (const auto &liveVar : basicBlockLiveSet)
         { // get the dataflow set for the basic block

@@ -30,6 +30,10 @@
 #include "tree/Trees.h"
 #include "SimplificationOptimisations.h"
 #include "PropagationOptimizer.h"
+#include "VBE.h"
+#include "AVAIL_PRE.h"
+#include "POST.h"
+#include "USED.h"
 #include <regex>
 #include <filesystem>
 using namespace antlrcpp;
@@ -201,8 +205,20 @@ int main(int argc, const char **argv)
 
       std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newStartBasicBlock);
       std::cout << dotFlowgraph << std::endl;
+    }else if (flag1 == "-analysis") {
+        ///////just print out all the analysis
+      VBE vbe(startBasicBlock);
+      vbe.printBlockDataFlowSets();
+
+      AVAIL_PRE avail_pre(startBasicBlock);
+      avail_pre.printBlockDataFlowSets();
+
+      POST post(startBasicBlock);
+      post.printBlockDataFlowSets();
+
+      USED used(startBasicBlock);
+      used.printBlockDataFlowSets();
     }
-  
   }
 
   return 0;

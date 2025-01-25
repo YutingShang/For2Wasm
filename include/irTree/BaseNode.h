@@ -38,7 +38,8 @@ class BaseNode {
         ///NOTE: remove strings and constants using the isVariable function
         virtual std::set<std::string> getReferencedVariables() const = 0;
         virtual std::set<std::string> getDefinedVariables() const = 0;
-        virtual std::set<std::string> getGeneratedExpressions() const = 0;
+        virtual std::set<std::string> getReferencedExpressions() const = 0;     //these are the expressions that are used/referenced in an instruction
+                                                                                //Different to generated expressions which guarantee expression not immediately killed as well
 
         //visitor pattern - must be implemented by all nodes
         virtual std::string accept(IrBaseVisitor* visitor) = 0;     

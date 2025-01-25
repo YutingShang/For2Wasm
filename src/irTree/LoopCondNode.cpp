@@ -53,7 +53,7 @@ std::set<std::string> LoopCondNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> LoopCondNode::getGeneratedExpressions() const {
+std::set<std::string> LoopCondNode::getReferencedExpressions() const {
     return {};
 }
 

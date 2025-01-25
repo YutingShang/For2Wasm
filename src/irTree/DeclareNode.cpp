@@ -20,6 +20,6 @@ std::set<std::string> DeclareNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> DeclareNode::getGeneratedExpressions() const {
+std::set<std::string> DeclareNode::getReferencedExpressions() const {
     return {};
 }

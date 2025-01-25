@@ -44,7 +44,7 @@ bool CSEOptimizer::commonSubexpressionEliminationOnce()
 
     // Analysis: AVAIL
     AVAIL avail(entryBasicBlock);
-    nodeAvailSets = avail.getNodeDataFlowSets();
+    nodeAvailSets = avail.getNodeInDataFlowSets();
     basicBlocks = avail.getBasicBlocksUsed();
 
     // Transformation: Remove common subexpressions
@@ -84,7 +84,7 @@ bool CSEOptimizer::basicBlockRemoveCommonSubexpressions(BasicBlock *basicBlock)
 
         BaseNode* instruction = *it;
         std::set<std::string> in_avail_set = nodeAvailSets[instruction];   //get the in_avail set for the instruction
-        std::set<std::string> generatedExpressions = instruction->getGeneratedExpressions();
+        std::set<std::string> generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(instruction);
         
         if (generatedExpressions.empty()) {
             //the instruction does not generate any expressions
@@ -181,7 +181,7 @@ bool CSEOptimizer::basicBlockBackwardsFindAndReplaceExpression(BasicBlock* basic
 
     for (; it2 != instructions.end(); ++it2) {    //reverse iterator
         BaseNode* instruction = *it2;
-        std::set<std::string> generatedExpressions = instruction->getGeneratedExpressions();
+        std::set<std::string> generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(instruction);
 
         if (generatedExpressions.find(expressionToFind) != generatedExpressions.end()) {
             //expression found, EDIT

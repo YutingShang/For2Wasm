@@ -22,7 +22,7 @@ bool PropagationOptimizer::runPropagation(PropagationType propagationType) {
     // Analysis: Available Copy Statements (ACS)
     ACS acs(entryBasicBlock);
     basicBlocks = acs.getBasicBlocksUsed();
-    nodeAvailCopies = acs.getNodeDataFlowSets();
+    nodeAvailCopies = acs.getNodeInDataFlowSets();
 
     // Transformation: Copy Propagation
     bool modified = false;

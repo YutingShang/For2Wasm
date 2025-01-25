@@ -28,7 +28,7 @@ std::set<std::string> TestNode::getDefinedVariables() const {
     return {};
 }
 
-std::set<std::string> TestNode::getGeneratedExpressions() const {
+std::set<std::string> TestNode::getReferencedExpressions() const {
     return {};
 }
 
