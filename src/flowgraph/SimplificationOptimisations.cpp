@@ -11,7 +11,7 @@ void SimplificationOptimisations::removeAllEmptyControlFlowConstructs(BaseNode* 
 
 bool SimplificationOptimisations::removeEmptyStatements(BaseNode* root) {
     //check the nodes in the tree
-    //if a node is an IfNode, IfElseNode, LoopNode or LoopCondNode and has body, remove it
+    //if a node is an IfNode, IfElseNode, LoopNode or LoopCondNode and has no body, remove it
 
     //dfs of the tree, check each node
 
@@ -26,7 +26,7 @@ bool SimplificationOptimisations::removeEmptyStatements(BaseNode* root) {
         currentNode = nodesToVisit.top();
         nodesToVisit.pop();
 
-        //check if the node is an IfNode, IfElseNode, LoopNode or LoopCondNode and has body, remove it
+        //check if the node is an IfNode, IfElseNode, LoopNode or LoopCondNode and has no body, remove it
         BaseNode* attachedChild = nullptr;
         bool nodeDeleted = false;
 

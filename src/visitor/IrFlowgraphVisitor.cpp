@@ -157,7 +157,8 @@ std::string IrFlowgraphVisitor::visitExitNode(ExitNode *node)
 {
     // set the successor of the current basic block to the endloop basic block
     BasicBlock *loopEndloop = exitStack.top();
-    currentBasicBlock->add_successor(loopEndloop);
+    currentBasicBlock->setContainsExitNode(true);
+    currentBasicBlock->add_successor(loopEndloop, false);  //FALSE - do not check if it is an exit node, always connect the exit node to the endloop basic block
 
     // pop the loop stack
     exitStack.pop();

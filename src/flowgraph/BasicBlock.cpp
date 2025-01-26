@@ -44,10 +44,19 @@ std::string BasicBlock::getText() {
     return basicBlock;
 }
 
-void BasicBlock::add_successor(BasicBlock* successor) {
+void BasicBlock::add_successor(BasicBlock* successor, bool checkIfCurrentIsExit) {
+    if (checkIfCurrentIsExit && currentBlockContainsExitNode) {
+        return;
+    }
+    //otherwise, add the successor
     successors.push_back(successor);
     successor->predecessors.push_back(this);
 }
+
+void BasicBlock::setContainsExitNode(bool containsExitNode) {
+    currentBlockContainsExitNode = containsExitNode;
+}
+
 
 std::vector<BasicBlock*> BasicBlock::get_successors() {
     return successors;

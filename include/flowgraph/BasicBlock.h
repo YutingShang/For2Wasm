@@ -18,7 +18,10 @@ class BasicBlock {
 
         void add_instruction(BaseNode* instruction);
 
-        void add_successor(BasicBlock* successor);
+        //adds a successor to the basic block, either 
+        //1. always add the successor  (e.g. to connect the exit node to the endloop basic block)
+        //2. only add the successor if the current basic block does not contain an exit node
+        void add_successor(BasicBlock* successor, bool checkIfCurrentIsExit = true);
 
         std::string getText();
 
@@ -43,6 +46,10 @@ class BasicBlock {
         std::list<BaseNode*>::iterator insert_sandwich_instruction_node(std::list<BaseNode*>::iterator it, SimpleNode* newNode, bool instructionsListReversed);
 
 
+        //insert a sandwich Basic block between this basic block and its predecessor
+        void insert_sandwich_predecessor_basic_block(BasicBlock* sandwichBasicBlock);
+
+        void setContainsExitNode(bool containsExitNode);
     private:
         
         //NOTE: using a (doubly linked) list instead of a vector to allow for easy removal of instructions
@@ -51,4 +58,5 @@ class BasicBlock {
         std::vector<BasicBlock*> successors;
         std::vector<BasicBlock*> predecessors;      //needed for forward dataflow analysis
 
+        bool currentBlockContainsExitNode = false;   //set to true if the current basic block contains an exit node
 };
