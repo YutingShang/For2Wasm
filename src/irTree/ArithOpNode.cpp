@@ -11,6 +11,10 @@ ArithOpNode::ArithOpNode(std::string op, std::string dest, std::string src1, std
     this->textVector = {op, dest, src1, src2};
 }
 
+BaseNode* ArithOpNode::copyNodeOnly() const {
+    return new ArithOpNode(textVector[0], textVector[1], textVector[2], textVector[3]);
+}
+
 std::string ArithOpNode::getOp() const {
     return textVector[0];
 }

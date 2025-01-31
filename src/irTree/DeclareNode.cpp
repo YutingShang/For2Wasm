@@ -4,6 +4,10 @@ DeclareNode::DeclareNode(std::string var){
     this->textVector = {"DECLARE", var};
 }
 
+BaseNode* DeclareNode::copyNodeOnly() const {
+    return new DeclareNode(textVector[1]);
+}
+
 std::string DeclareNode::getVar() const {
     return textVector[1];
 }

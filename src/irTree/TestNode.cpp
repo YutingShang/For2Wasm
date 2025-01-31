@@ -4,6 +4,10 @@ TestNode::TestNode(std::string var) {
     this->textVector = {"TEST", var};
 }
 
+BaseNode* TestNode::copyNodeOnly() const {
+    return new TestNode(textVector[1]);
+}
+
 std::string TestNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitTestNode(this);
 }

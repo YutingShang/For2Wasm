@@ -94,3 +94,15 @@ void BaseNode::replaceReferencedVariable(std::string oldVar, std::string newVar)
     //default implementation is to do nothing
     //only need to be implemented by nodes that have non-empty referenced var set
 }
+
+void BaseNode::insertSandwichParent(BaseNode* newParent) {
+    //first detach everything, but make a copy of the current parent
+    BaseNode* oldParent = this->parent;
+    oldParent->removeChild(this);
+
+    //now attach the newParent to the oldParent
+    oldParent->addChild(newParent);
+
+    //now attach the current node to the newParent
+    newParent->addChild(this);
+}

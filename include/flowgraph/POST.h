@@ -12,6 +12,9 @@ class POST : public BaseDataFlowAnalysis<std::set<std::string>> {
 
         void printBlockDataFlowSets() override;
 
+        //returns the earliest expressions set for each node (calculated from AnalysisTools::getAllNodesEarliestExpressions)
+        std::unordered_map<BaseNode*, std::set<std::string>> getNodesEarliestExpressionsSets();
+
     private:
 
         std::set<std::string> allExpressions;

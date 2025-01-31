@@ -13,6 +13,9 @@ class USED : public BaseDataFlowAnalysis<std::set<std::string>> {
 
         void printBlockDataFlowSets() override;
 
+        //returns the latest expressions set for each node (which is calculated in order to compute the used set)
+        std::unordered_map<BaseNode*, std::set<std::string>> getNodesLatestExpressionsSets();
+
     private:
 
         // std::set<std::string> allExpressions;            //universe of all expressions in the program - used for complementation

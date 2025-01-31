@@ -8,8 +8,9 @@
 class LoopCondNode : public BaseNode {
     public:
         LoopCondNode(std::string init, std::string cond, std::string body, std::string step, std::string endloop);
-
         ~LoopCondNode() override = default;
+        
+        BaseNode* copyNodeOnly() const override;
 
         void addChild(BaseNode* child) override;
         void addChildAtIndex(BaseNode* child, int index) override;

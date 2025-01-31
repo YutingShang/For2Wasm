@@ -32,6 +32,7 @@ class BaseNode {
 
         virtual void setParent(BaseNode* parent);
         virtual BaseNode* getParent() const;
+        virtual void insertSandwichParent(BaseNode* newParent);   //inserts the newParent node between the current parent and the current node
 
 
         //takes the ReferencedItems and DefinedItems and returns the variables
@@ -59,6 +60,9 @@ class BaseNode {
         // default implementation is to do nothing
         virtual void replaceReferencedVariable(std::string oldVar, std::string newVar);
 
+        //just copy this node, without its children or parent
+        //return type is BaseNode* but the underlying dynamic type is the derived class
+        virtual BaseNode* copyNodeOnly() const = 0;
 
 
 

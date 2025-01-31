@@ -54,3 +54,7 @@ std::set<std::string> USED::transferFunction(BaseNode* instruction, const std::s
 
     return in_used_set;
 }
+
+std::unordered_map<BaseNode*, std::set<std::string>> USED::getNodesLatestExpressionsSets() {
+    return allNodesLatestExpressions;
+}

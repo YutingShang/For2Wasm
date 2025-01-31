@@ -6,6 +6,7 @@ class ReadNode : public SimpleNode {
 public:
     ReadNode(std::string var);
     ~ReadNode() override = default;
+    BaseNode* copyNodeOnly() const override;
 
     std::string getVar() const;
 

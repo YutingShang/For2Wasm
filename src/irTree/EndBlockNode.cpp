@@ -4,6 +4,10 @@ EndBlockNode::EndBlockNode(std::string text)
     : SimpleNode(text) {
 } 
 
+BaseNode* EndBlockNode::copyNodeOnly() const {
+    return new EndBlockNode(textVector[0]);
+}
+
 std::string EndBlockNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitEndBlockNode(this);
 }

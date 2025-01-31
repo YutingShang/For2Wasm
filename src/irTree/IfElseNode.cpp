@@ -5,6 +5,10 @@ IfElseNode::IfElseNode(std::string condition, std::string thenLabel, std::string
     this->textVector = {"IF", condition, thenLabel, elseLabel, endLabel};
 }
 
+BaseNode* IfElseNode::copyNodeOnly() const {
+    return new IfElseNode(textVector[1], textVector[2], textVector[3], textVector[4]);
+}
+
 void IfElseNode::addChild(BaseNode* child) {
     child->setParent(this);
 

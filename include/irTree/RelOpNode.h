@@ -7,6 +7,7 @@ class RelOpNode : public ExpressionNode {
 public:
     RelOpNode(std::string op, std::string dest, std::string src1, std::string src2);
     ~RelOpNode() override = default;
+    BaseNode* copyNodeOnly() const override;
 
     std::string getOp() const;
     std::string getDest() const override;

@@ -1,8 +1,13 @@
 #include "IfNode.h"
+#include "IfElseNode.h"
 
 IfNode::IfNode(std::string condition, std::string thenLabel, std::string endLabel) {
 
     this->textVector = {"IF", condition, thenLabel, endLabel};
+}
+
+BaseNode* IfNode::copyNodeOnly() const {
+    return new IfNode(textVector[1], textVector[2], textVector[3]);
 }
 
 void IfNode::addChild(BaseNode* child) {
@@ -78,4 +83,34 @@ BaseNode* IfNode::removeCurrentNodeFromIRTree() {
 
     //return the child node that has replaced the current node
     return child;
+}
+
+std::unique_ptr<IfElseNode> IfNode::convertToIfElseNode() {
+    //create a new IfElseNode with the same condition, thenLabel, and endLabel
+    std::string thenLabel = this->textVector[2];     //get the label suffix number from the thenLabel
+    std::string labelSuffixNumber;
+
+    size_t firstDigit = thenLabel.find_first_of("0123456789");
+    if (firstDigit != std::string::npos) {
+        labelSuffixNumber = thenLabel.substr(firstDigit);
+    }
+
+    std::string elseLabel = "else" + labelSuffixNumber;
+    IfElseNode* ifElseNode = new IfElseNode(this->textVector[1], this->textVector[2], elseLabel, this->textVector[3]);
+    
+    
+    //then we move the children of the current node to the new node
+    ifElseNode->addChild(this->children[0]);    //condition
+    ifElseNode->addChild(this->children[1]);    //then block
+
+    // create a new ELSE block
+    EndBlockNode *endElseNode = new EndBlockNode("ENDELSE");
+    ifElseNode->addChild(endElseNode);          //else block
+
+    ifElseNode->addChild(this->children[2]);    //endif block
+
+    ///WARNING: deleting the current node from memory - maybe not?
+    // delete this;
+    
+    return std::unique_ptr<IfElseNode>(ifElseNode);
 }

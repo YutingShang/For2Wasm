@@ -8,6 +8,7 @@ class LogicNotNode : public ExpressionNode {
 public:
     LogicNotNode(std::string dest, std::string src);
     ~LogicNotNode() override = default;
+    BaseNode* copyNodeOnly() const override;
 
     std::string getDest() const override;
     void setDest(std::string dest) override;

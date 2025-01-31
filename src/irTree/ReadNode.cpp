@@ -4,6 +4,10 @@ ReadNode::ReadNode(std::string var) {
     this->textVector = {"CALL", "READ", var};
 }
 
+BaseNode* ReadNode::copyNodeOnly() const {
+    return new ReadNode(textVector[2]);
+}
+
 
 std::string ReadNode::getVar() const {
     return textVector[2];

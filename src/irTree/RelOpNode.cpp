@@ -4,6 +4,10 @@ RelOpNode::RelOpNode(std::string op, std::string dest, std::string src1, std::st
     this->textVector = {op, dest, src1, src2};  
 }
 
+BaseNode* RelOpNode::copyNodeOnly() const {
+    return new RelOpNode(textVector[0], textVector[1], textVector[2], textVector[3]);
+}
+
 std::string RelOpNode::getOp() const {
     return textVector[0];
 }

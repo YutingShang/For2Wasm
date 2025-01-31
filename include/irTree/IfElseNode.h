@@ -9,6 +9,7 @@ class IfElseNode : public BaseNode {
 public:
     IfElseNode(std::string condition, std::string thenLabel, std::string elseLabel, std::string endLabel);
     ~IfElseNode() override = default;
+    BaseNode* copyNodeOnly() const override;
 
     void addChild(BaseNode* child) override;
     void addChildAtIndex(BaseNode* child, int index) override;

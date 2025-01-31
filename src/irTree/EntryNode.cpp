@@ -2,6 +2,10 @@
 
 EntryNode::EntryNode() : SimpleNode("ENTRY") {}
 
+BaseNode* EntryNode::copyNodeOnly() const {
+    return new EntryNode();
+}
+
 std::string EntryNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitEntryNode(this);
 }

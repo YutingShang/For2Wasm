@@ -4,6 +4,10 @@ LoopNode::LoopNode(std::string body, std::string endloop){
     this->textVector = {"LOOP", body, endloop};
 }
 
+BaseNode* LoopNode::copyNodeOnly() const {
+    return new LoopNode(textVector[1], textVector[2]);
+}
+
 void LoopNode::addChild(BaseNode* child) {
     child->setParent(this);
 
@@ -84,4 +88,17 @@ BaseNode* LoopNode::removeCurrentNodeFromIRTree() {
 
     //return the child node that has replaced the current node
     return child;
+}
+
+void LoopNode::insertSandwichBodyChild(SimpleNode* newNode) {
+    //remove the current body child, and attach it to the newNode
+    assert(this->children.size() == 2);
+
+    BaseNode* currentBodyStartNode = this->children[0];
+    this->removeChild(currentBodyStartNode);
+    newNode->addChild(currentBodyStartNode);
+
+    //attach the newNode to the LoopNode
+    this->addChild(newNode);
+
 }

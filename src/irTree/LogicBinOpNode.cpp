@@ -4,6 +4,10 @@ LogicBinOpNode::LogicBinOpNode(std::string op, std::string dest, std::string src
     this->textVector = {op, dest, src1, src2};
 }
 
+BaseNode* LogicBinOpNode::copyNodeOnly() const {
+    return new LogicBinOpNode(textVector[0], textVector[1], textVector[2], textVector[3]);
+}
+
 std::string LogicBinOpNode::getOp() const {
     return textVector[0];
 }

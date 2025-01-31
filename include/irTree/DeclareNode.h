@@ -5,6 +5,7 @@ class DeclareNode : public SimpleNode {
 public:
     DeclareNode(std::string var);
     ~DeclareNode() override = default;
+    BaseNode* copyNodeOnly() const override;
 
     std::string getVar() const;
 

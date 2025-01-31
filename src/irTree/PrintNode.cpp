@@ -4,6 +4,10 @@ PrintNode::PrintNode(std::string operand) {
     this->textVector = {"CALL", "PRINT", operand};
 }
 
+BaseNode* PrintNode::copyNodeOnly() const {
+    return new PrintNode(textVector[2]);
+}
+
 std::string PrintNode::getSrc() const {
     return textVector[2];
 }

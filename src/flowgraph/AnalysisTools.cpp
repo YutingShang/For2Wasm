@@ -7,10 +7,13 @@
 #include "ExpressionNode.h"
 #include "MovNode.h"
 #include "VBE.h"
-#include "AVAIL.h"
+#include "AVAIL_PRE.h"
 #include "POST.h"
 #include <algorithm>
-
+#include "InsertableBasicBlock.h"
+#include "LoopNode.h"
+#include "IfNode.h"
+#include "IfElseNode.h"
 
 std::vector<BasicBlock*> AnalysisTools::getBasicBlocks(BasicBlock* entryBasicBlock) {
     std::vector<BasicBlock*> basicBlocks;
@@ -56,6 +59,28 @@ std::set<std::string> AnalysisTools::getAllProgramExpressions(BaseNode* entryNod
         }
     }
     return allExpressions;
+}
+
+std::unordered_map<std::string, ExpressionNode*> AnalysisTools::getAllProgramExpressionsToCloneableNodesMap(BaseNode* entryNode) {
+    std::unordered_map<std::string, ExpressionNode*> allExpressionsToCloneableNodesMap;
+
+    //IR tree traversal (not a graph)
+    std::queue<BaseNode*> toExploreQueue;
+    toExploreQueue.push(entryNode);
+    while (!toExploreQueue.empty()) {
+        BaseNode* current = toExploreQueue.front();
+        toExploreQueue.pop();
+        //get generated expressions, insert into allExpressions set
+        const std::set<std::string>& generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(current);
+        for (const auto &expression : generatedExpressions) {
+            allExpressionsToCloneableNodesMap[expression] = dynamic_cast<ExpressionNode*>(current);   //add the expression to the map, with the corresponding node, overriding any previous is OK
+        }
+        //add children to the queue
+        for (BaseNode* child : current->getChildren()) {
+            toExploreQueue.push(child);
+        }
+    }
+    return allExpressionsToCloneableNodesMap;
 }
 
 std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(BaseNode* node, std::set<std::string> &allExpressions) {
@@ -226,8 +251,8 @@ std::unordered_map<BaseNode*, std::set<std::string>> AnalysisTools::getAllNodesE
     std::unordered_map<BaseNode*, std::set<std::string>> allNodesAnticipatedExpressions = vbe.getNodeInDataFlowSets();
 
     //get the available[B].in expressions of all nodes
-    AVAIL avail(entryBasicBlock);
-    std::unordered_map<BaseNode*, std::set<std::string>> allNodesAvailableExpressions = avail.getNodeInDataFlowSets();
+    AVAIL_PRE avail_pre(entryBasicBlock);
+    std::unordered_map<BaseNode*, std::set<std::string>> allNodesAvailableExpressions = avail_pre.getNodeInDataFlowSets();
 
     //For each node: earliest[B] = anticipated[B].in - available[B].in
     for (auto& [node, anticipatedExpressions] : allNodesAnticipatedExpressions) {
@@ -337,4 +362,73 @@ std::vector<BaseNode*> AnalysisTools::getSuccessorNodes(BaseNode* node, BasicBlo
         }
     }
     return successorNodes;
+}
+
+/////////////////////////////////////////////////////////
+/////////////////////FACTORY METHODS/////////////////////
+/////////////////////////////////////////////////////////
+
+
+InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createLoopBodyStartInsertionStrategy(LoopNode* loopNodeToInsertAfter) {
+
+    class LoopBodyStartInserter : public InsertableBasicBlock::NodeInsertionStrategy {
+        LoopNode* loopNodeToInsertAfter;
+
+        public:
+            explicit LoopBodyStartInserter(LoopNode* loopNodeToInsertAfter)
+                : loopNodeToInsertAfter(loopNodeToInsertAfter) {}
+
+            void insertNodeIntoIRTree(SimpleNode* nodeToInsert) override {
+                // Insert after the loopNodeToInsertAfter
+                loopNodeToInsertAfter->insertSandwichBodyChild(nodeToInsert);
+            }
+    };
+
+    return new LoopBodyStartInserter(loopNodeToInsertAfter);
+}
+
+
+InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createAfterSimpleNodeInsertionStrategy(SimpleNode* simpleNodeToInsertAfter) {
+    
+    class AfterSimpleNodeInserter : public InsertableBasicBlock::NodeInsertionStrategy {
+        SimpleNode* simpleNodeToInsertAfter;
+
+        public:
+            explicit AfterSimpleNodeInserter(SimpleNode* simpleNodeToInsertAfter)
+                : simpleNodeToInsertAfter(simpleNodeToInsertAfter) {}
+
+            void insertNodeIntoIRTree(SimpleNode* nodeToInsert) override {
+                simpleNodeToInsertAfter->insertSandwichChild(nodeToInsert);
+
+            }
+    };
+
+    return new AfterSimpleNodeInserter(simpleNodeToInsertAfter);
+}
+
+InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createNewElseBlockInsertionStrategy(IfNode* ifNodeToInsertAfter) {
+    
+    class NewElseBlockInserter : public InsertableBasicBlock::NodeInsertionStrategy {
+        IfNode* ifNodeToInsertAfter;
+
+        public:
+            explicit NewElseBlockInserter(IfNode* ifNodeToInsertAfter)
+                : ifNodeToInsertAfter(ifNodeToInsertAfter) {}
+
+            void insertNodeIntoIRTree(SimpleNode* nodeToInsert) override {
+                //now that we know we want to insert this nodeToInsert
+                
+                ///FIRST: convert the ifNode to an ifElseNode
+                ///ISSUE: need to change the instructions list pointer - maybe just convert the node implicity??
+                std::unique_ptr<IfElseNode> ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
+
+                ///SECOND: add the nodeToInsert to the ifElseNode BEFORE the ENDELSE node of the else block
+                BaseNode* endElseNode = ifElseNode->getChildren()[2];
+                assert(dynamic_cast<EndBlockNode*>(endElseNode));     //check it should be an EndBlockNode for ENDELSE
+                endElseNode->insertSandwichParent(nodeToInsert);
+
+            }
+    };
+
+    return new NewElseBlockInserter(ifNodeToInsertAfter);
 }

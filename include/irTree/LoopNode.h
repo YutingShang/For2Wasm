@@ -9,8 +9,10 @@ class LoopNode : public BaseNode {
 
     public:
         LoopNode(std::string body, std::string endloop);
-
+        
         ~LoopNode() override = default;
+        
+        BaseNode* copyNodeOnly() const override;
 
         void addChild(BaseNode* child) override;
         void addChildAtIndex(BaseNode* child, int index) override;
@@ -27,4 +29,7 @@ class LoopNode : public BaseNode {
         std::set<std::string> getReferencedExpressions() const override;
 
         BaseNode* removeCurrentNodeFromIRTree() override;
+
+        //inserts a newNode node between the LoopNode node and its existing body child
+        void insertSandwichBodyChild(SimpleNode* newNode);
 };

@@ -4,6 +4,10 @@ LoopCondNode::LoopCondNode(std::string init, std::string cond, std::string body,
     this->textVector = {"LOOP", init, cond, body, step, endloop};
 }
 
+BaseNode* LoopCondNode::copyNodeOnly() const {
+    return new LoopCondNode(textVector[1], textVector[2], textVector[3], textVector[4], textVector[5]);
+}
+
 void LoopCondNode::addChild(BaseNode* child) {
     child->setParent(this);
 

@@ -30,6 +30,7 @@
 #include "tree/Trees.h"
 #include "SimplificationOptimisations.h"
 #include "PropagationOptimizer.h"
+#include "PREOptimizer.h"
 #include "VBE.h"
 #include "AVAIL_PRE.h"
 #include "POST.h"
@@ -176,6 +177,10 @@ int main(int argc, const char **argv)
       CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
       cseOptimizer.iterateCSE_CopyPropagation();
       nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
+    }else if (optFlag == "-PRE") {
+      PREOptimizer preOptimizer(startBasicBlock, nextProgramTempVariableCount);
+      preOptimizer.iteratePartialRedundancyElimination();
+      nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
     }
   }
 
@@ -198,26 +203,68 @@ int main(int argc, const char **argv)
       std::cout << wasm << std::endl;
     }else if (flag1 == "-flowgraph") {
       //redraw the flowgraph
-      startBasicBlock->delete_entire_flowgraph();
+      // startBasicBlock->delete_entire_flowgraph();
       BasicBlock* newStartBasicBlock = new BasicBlock();
       IrFlowgraphVisitor flowgraphVisitor(newStartBasicBlock);
       entryNode->accept(&flowgraphVisitor);
 
-      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newStartBasicBlock);
+      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
       std::cout << dotFlowgraph << std::endl;
     }else if (flag1 == "-analysis") {
         ///////just print out all the analysis
       VBE vbe(startBasicBlock);
-      vbe.printBlockDataFlowSets();
+      // vbe.printBlockDataFlowSets();
+      std::unordered_map<BaseNode*, std::set<std::string>> vbeSets = vbe.getNodeInDataFlowSets();
 
       AVAIL_PRE avail_pre(startBasicBlock);
-      avail_pre.printBlockDataFlowSets();
+      // avail_pre.printBlockDataFlowSets();
+      std::unordered_map<BaseNode*, std::set<std::string>> availSets = avail_pre.getNodeInDataFlowSets();
 
       POST post(startBasicBlock);
-      post.printBlockDataFlowSets();
+      // post.printBlockDataFlowSets();
+      std::unordered_map<BaseNode*, std::set<std::string>> postSets = post.getNodeInDataFlowSets();
 
       USED used(startBasicBlock);
-      used.printBlockDataFlowSets();
+      // used.printBlockDataFlowSets();
+      std::unordered_map<BaseNode*, std::set<std::string>> usedSets = used.getNodeOutDataFlowSets();
+
+
+      std::unordered_map<BaseNode*, std::set<std::string>> latestExpressions = used.getNodesLatestExpressionsSets();
+
+      // std::unordered_map<BaseNode*, std::set<std::string>> earliestExpressions = post.getNodesEarliestExpressionsSets();
+      std::unordered_map<BaseNode*, std::set<std::string>> earliestExpressions = AnalysisTools::getAllNodesEarliestExpressions(startBasicBlock);
+
+      std::vector<BasicBlock*> basicBlocks = AnalysisTools::getBasicBlocks(startBasicBlock);
+      for (auto basicBlock : basicBlocks) {
+        for (auto node : basicBlock->get_instructions_copy()) {
+          std::cout << "Node: " << node->getText() << std::endl;
+          std::cout <<"Anticipated (in) expressions: " << std::endl;
+          for (auto expression : vbeSets[node]) {
+            std::cout << expression << std::endl;
+          }
+          std::cout <<"Available (in) expressions: " << std::endl;
+          for (auto expression : availSets[node]) {
+            std::cout << expression << std::endl;
+          }
+          std::cout <<"Postponable (in) expressions: " << std::endl;
+          for (auto expression : postSets[node]) {
+            std::cout << expression << std::endl;
+          }
+          std::cout <<"Used (out) expressions: " << std::endl;
+          for (auto expression : usedSets[node]) {
+            std::cout << expression << std::endl;
+          }
+          std::cout <<"Earliest expressions: " << std::endl;
+          for (auto expression : earliestExpressions[node]) {
+            std::cout << expression << std::endl;
+          }          
+          std::cout <<"Latest expressions: " << std::endl;
+          for (auto expression : latestExpressions[node]) {
+            std::cout << expression << std::endl;
+          }
+          std::cout << "----------------------------------------" << std::endl;
+        }
+      }
     }
   }
 

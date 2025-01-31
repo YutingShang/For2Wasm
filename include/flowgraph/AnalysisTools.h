@@ -3,6 +3,8 @@
 #include "BasicBlock.h"
 #include <set>
 #include <unordered_map>
+#include "ExpressionNode.h"
+#include "InsertableBasicBlock.h"  // full definition
 
 
 
@@ -20,6 +22,9 @@ class AnalysisTools {
 
         //returns the universe of all expressions in the program
         static std::set<std::string> getAllProgramExpressions(BaseNode* entryNode);
+
+        //returns the set of all expressions in a program, and also a corresponding example node for each expression (so you can convert from expression->node type)
+        static std::unordered_map<std::string, ExpressionNode*> getAllProgramExpressionsToCloneableNodesMap(BaseNode* entryNode);
 
         //returns the set of expressions Ex that are killed by the node (specific to a program)
         static std::set<std::string> getKilledExpressionsAtNode(BaseNode* node, std::set<std::string> &allExpressions);
@@ -61,5 +66,20 @@ class AnalysisTools {
 
         // returns the set of all successor nodes of a node (either just 1 if SimpleNode, or get from successor basic blocks otherwise)
         static std::vector<BaseNode*> getSuccessorNodes(BaseNode* node, BasicBlock* currentBasicBlock);
+
+
+        //FACTORY METHODS to create insertion strategy for new basic blocks 
+
+        //for inserting a new instruction node to the start of the LoopNode body (i.e. the first instruction on the left branch of the LoopNode)
+        static InsertableBasicBlock::NodeInsertionStrategy* createLoopBodyStartInsertionStrategy(LoopNode* loopNodeToInsertAfter);
+
+        //inserts a new instruction after a SimpleNode
+        //think I can use the insertSandwichChild method in SimpleNode to do this
+        static InsertableBasicBlock::NodeInsertionStrategy* createAfterSimpleNodeInsertionStrategy(SimpleNode* simpleNodeToInsertAfter);
+
+        //first converts the IfNode to a new IfElseNode
+        //transforming the THEN block of the IfNode into the THEN branch of the IfElseNode
+        //then inserts a new instruction in the ELSE block of the IfElseNode
+        static InsertableBasicBlock::NodeInsertionStrategy* createNewElseBlockInsertionStrategy(IfNode* ifNodeToInsertAfter);
 
 };

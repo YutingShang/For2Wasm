@@ -62,3 +62,7 @@ std::set<std::string> POST::transferFunction(BaseNode* instruction, const std::s
     return out_post_set;
 }
 
+std::unordered_map<BaseNode*, std::set<std::string>> POST::getNodesEarliestExpressionsSets() {
+    return allNodesEarliestExpressions;
+}
+

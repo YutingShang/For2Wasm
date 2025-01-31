@@ -4,6 +4,10 @@ ExitNode::ExitNode()
     : SimpleNode("EXIT") {
 } 
 
+BaseNode* ExitNode::copyNodeOnly() const {
+    return new ExitNode();
+}
+
 std::string ExitNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitExitNode(this);
 }

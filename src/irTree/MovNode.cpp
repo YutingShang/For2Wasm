@@ -5,6 +5,10 @@ MovNode::MovNode(std::string dest, std::string src)
     this->textVector = {"MOV", dest, src};
 }
 
+BaseNode* MovNode::copyNodeOnly() const {
+    return new MovNode(textVector[1], textVector[2]);
+}
+
 std::string MovNode::getDest() const
 {
     return this->textVector[1];

@@ -4,6 +4,10 @@ LogicNotNode::LogicNotNode(std::string dest, std::string expr) {
     this->textVector = {"NOT", dest, expr};
 }
 
+BaseNode* LogicNotNode::copyNodeOnly() const {
+    return new LogicNotNode(textVector[1], textVector[2]);
+}
+
 std::string LogicNotNode::getDest() const {
     return textVector[1];
 }

@@ -6,6 +6,7 @@
 #include <iterator>
 #include "BaseNode.h"
 #include "SimpleNode.h"
+class InsertableBasicBlock;
 
 class BasicBlock {
 
@@ -13,15 +14,18 @@ class BasicBlock {
 
         BasicBlock();
 
-        ~BasicBlock() = default;
+        virtual ~BasicBlock() = default;
         void delete_entire_flowgraph();
 
         void add_instruction(BaseNode* instruction);
 
-        //adds a successor to the basic block, either 
-        //1. always add the successor  (e.g. to connect the exit node to the endloop basic block)
-        //2. only add the successor if the current basic block does not contain an exit node
+        //adds a successor to the basic block (and the corresponding predecessor to the successor), either 
+        //1. always add the successor  (e.g. to connect the exit node to the endloop basic block) (checkIfCurrentIsExit = false)
+        //2. only add the successor if the current basic block does not contain an exit node (DEFAULT, set checkIfCurrentIsExit to true)
         void add_successor(BasicBlock* successor, bool checkIfCurrentIsExit = true);
+
+        //removes a successor from the basic block, and the corresponding predecessor from the successor
+        void remove_successor(BasicBlock* successor);
 
         std::string getText();
 
@@ -45,12 +49,15 @@ class BasicBlock {
         ///WARNING: pay attention to the order of the instructions list (reversed lists and reversed iterators may behave differently, to the assumed normal order)
         std::list<BaseNode*>::iterator insert_sandwich_instruction_node(std::list<BaseNode*>::iterator it, SimpleNode* newNode, bool instructionsListReversed);
 
+        //calls the insertSandwichParent method on the instruction node at the iterator
+        //iterator is still valid after this, since insertion is before the iterator
+        void insert_parent_instruction_node(std::list<BaseNode*>::iterator it, SimpleNode* newNode);
 
-        //insert a sandwich Basic block between this basic block and its predecessor
-        void insert_sandwich_predecessor_basic_block(BasicBlock* sandwichBasicBlock);
+        //insert a sandwich Basic block between this basic block and its specific predecessor
+        void insert_sandwich_predecessor_basic_block(BasicBlock* currentPredecessor, InsertableBasicBlock* newBasicBlock);
 
         void setContainsExitNode(bool containsExitNode);
-    private:
+    protected:
         
         //NOTE: using a (doubly linked) list instead of a vector to allow for easy removal of instructions
         std::list<BaseNode*> instructions;
