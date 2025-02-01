@@ -12,7 +12,7 @@ class LoopNode : public BaseNode {
         
         ~LoopNode() override = default;
         
-        BaseNode* copyNodeOnly() const override;
+        BaseNode* cloneContent() const override;
 
         void addChild(BaseNode* child) override;
         void addChildAtIndex(BaseNode* child, int index) override;

@@ -6,7 +6,7 @@ IfNode::IfNode(std::string condition, std::string thenLabel, std::string endLabe
     this->textVector = {"IF", condition, thenLabel, endLabel};
 }
 
-BaseNode* IfNode::copyNodeOnly() const {
+BaseNode* IfNode::cloneContent() const {
     return new IfNode(textVector[1], textVector[2], textVector[3]);
 }
 
@@ -79,13 +79,19 @@ BaseNode* IfNode::removeCurrentNodeFromIRTree() {
     //otherwise no children to attach to the parent node, just delete the current node
 
     // delete the current node from memory
-    delete this;
+    // delete this;
 
     //return the child node that has replaced the current node
     return child;
 }
 
-std::unique_ptr<IfElseNode> IfNode::convertToIfElseNode() {
+IfElseNode* IfNode::convertToIfElseNode() {
+
+    //print the current node's children
+    // std::cout <<"current node's children: " <<this->getText() <<std::endl;
+
+    // std::cout <<"current node's tree: " <<this->stringifyIRTree() <<std::endl;
+
     //create a new IfElseNode with the same condition, thenLabel, and endLabel
     std::string thenLabel = this->textVector[2];     //get the label suffix number from the thenLabel
     std::string labelSuffixNumber;
@@ -98,19 +104,33 @@ std::unique_ptr<IfElseNode> IfNode::convertToIfElseNode() {
     std::string elseLabel = "else" + labelSuffixNumber;
     IfElseNode* ifElseNode = new IfElseNode(this->textVector[1], this->textVector[2], elseLabel, this->textVector[3]);
     
+    BaseNode* conditionChild = this->children[0];
+    // std::cout <<"conditionChild: " <<conditionChild->getText() <<std::endl;
+    BaseNode* thenChild = this->children[1];
+    // std::cout <<"thenChild: " <<thenChild->getText() <<std::endl;
+    BaseNode* endIfChild = this->children[2];
+    // std::cout <<"endIfChild: " <<endIfChild->getText() <<std::endl;
+
+    this->removeChild(conditionChild);
+    this->removeChild(thenChild);
+    this->removeChild(endIfChild);
     
     //then we move the children of the current node to the new node
-    ifElseNode->addChild(this->children[0]);    //condition
-    ifElseNode->addChild(this->children[1]);    //then block
+    ifElseNode->addChild(conditionChild);    //condition
+    ifElseNode->addChild(thenChild);    //then block
 
     // create a new ELSE block
     EndBlockNode *endElseNode = new EndBlockNode("ENDELSE");
     ifElseNode->addChild(endElseNode);          //else block
+    ifElseNode->addChild(endIfChild);    //endif block
 
-    ifElseNode->addChild(this->children[2]);    //endif block
+    //get the current node's parent and add the new node to the parent
+    BaseNode* parent = this->getParent();
+    parent->removeChild(this);
+    parent->addChild(ifElseNode);
 
     ///WARNING: deleting the current node from memory - maybe not?
     // delete this;
     
-    return std::unique_ptr<IfElseNode>(ifElseNode);
+    return ifElseNode;
 }

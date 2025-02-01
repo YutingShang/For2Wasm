@@ -4,7 +4,7 @@ ExitNode::ExitNode()
     : SimpleNode("EXIT") {
 } 
 
-BaseNode* ExitNode::copyNodeOnly() const {
+BaseNode* ExitNode::cloneContent() const {
     return new ExitNode();
 }
 

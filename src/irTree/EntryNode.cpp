@@ -2,7 +2,7 @@
 
 EntryNode::EntryNode() : SimpleNode("ENTRY") {}
 
-BaseNode* EntryNode::copyNodeOnly() const {
+BaseNode* EntryNode::cloneContent() const {
     return new EntryNode();
 }
 

@@ -4,7 +4,7 @@ DeclareNode::DeclareNode(std::string var){
     this->textVector = {"DECLARE", var};
 }
 
-BaseNode* DeclareNode::copyNodeOnly() const {
+BaseNode* DeclareNode::cloneContent() const {
     return new DeclareNode(textVector[1]);
 }
 

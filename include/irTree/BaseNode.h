@@ -60,9 +60,9 @@ class BaseNode {
         // default implementation is to do nothing
         virtual void replaceReferencedVariable(std::string oldVar, std::string newVar);
 
-        //just copy this node, without its children or parent
+        //just copy this node, without its children or parent (not a deep copy)
         //return type is BaseNode* but the underlying dynamic type is the derived class
-        virtual BaseNode* copyNodeOnly() const = 0;
+        virtual BaseNode* cloneContent() const = 0;
 
 
 

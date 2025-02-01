@@ -4,7 +4,7 @@ PrintNode::PrintNode(std::string operand) {
     this->textVector = {"CALL", "PRINT", operand};
 }
 
-BaseNode* PrintNode::copyNodeOnly() const {
+BaseNode* PrintNode::cloneContent() const {
     return new PrintNode(textVector[2]);
 }
 

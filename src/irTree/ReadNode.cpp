@@ -4,7 +4,7 @@ ReadNode::ReadNode(std::string var) {
     this->textVector = {"CALL", "READ", var};
 }
 
-BaseNode* ReadNode::copyNodeOnly() const {
+BaseNode* ReadNode::cloneContent() const {
     return new ReadNode(textVector[2]);
 }
 

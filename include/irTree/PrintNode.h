@@ -6,7 +6,7 @@ class PrintNode : public SimpleNode {
 public:
     PrintNode(std::string src);
     ~PrintNode() override = default;
-    BaseNode* copyNodeOnly() const override;
+    BaseNode* cloneContent() const override;
 
     std::string getSrc() const;
 

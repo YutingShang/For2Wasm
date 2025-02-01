@@ -13,7 +13,7 @@ class PlaceholderNode : public BaseNode {
         PlaceholderNode();
         ~PlaceholderNode() override = default;
 
-        BaseNode* copyNodeOnly() const override;
+        BaseNode* cloneContent() const override;
 
         virtual void addChild(BaseNode* child) override;   //override to do nothing
         virtual void addChildAtIndex(BaseNode* child, int index) override;   //override to do nothing

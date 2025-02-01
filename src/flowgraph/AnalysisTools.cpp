@@ -62,7 +62,7 @@ std::set<std::string> AnalysisTools::getAllProgramExpressions(BaseNode* entryNod
 }
 
 std::unordered_map<std::string, ExpressionNode*> AnalysisTools::getAllProgramExpressionsToCloneableNodesMap(BaseNode* entryNode) {
-    std::unordered_map<std::string, ExpressionNode*> allExpressionsToCloneableNodesMap;
+    std::unordered_map<std::string, ExpressionNode*> allExpressionsToCloneableNodesMap;  
 
     //IR tree traversal (not a graph)
     std::queue<BaseNode*> toExploreQueue;
@@ -73,7 +73,9 @@ std::unordered_map<std::string, ExpressionNode*> AnalysisTools::getAllProgramExp
         //get generated expressions, insert into allExpressions set
         const std::set<std::string>& generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(current);
         for (const auto &expression : generatedExpressions) {
-            allExpressionsToCloneableNodesMap[expression] = dynamic_cast<ExpressionNode*>(current);   //add the expression to the map, with the corresponding node, overriding any previous is OK
+            if (allExpressionsToCloneableNodesMap.find(expression) == allExpressionsToCloneableNodesMap.end()) {   //if expression is not already in the map
+                allExpressionsToCloneableNodesMap[expression] = dynamic_cast<ExpressionNode*>(current->cloneContent());   //add the expression to the map, with the corresponding prototype node
+            }
         }
         //add children to the queue
         for (BaseNode* child : current->getChildren()) {
@@ -375,10 +377,11 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createLoopBodyStartI
         LoopNode* loopNodeToInsertAfter;
 
         public:
+            //explicit constructor
             explicit LoopBodyStartInserter(LoopNode* loopNodeToInsertAfter)
                 : loopNodeToInsertAfter(loopNodeToInsertAfter) {}
 
-            void insertNodeIntoIRTree(SimpleNode* nodeToInsert) override {
+            void firstInsertionStrategy(SimpleNode* nodeToInsert) override {
                 // Insert after the loopNodeToInsertAfter
                 loopNodeToInsertAfter->insertSandwichBodyChild(nodeToInsert);
             }
@@ -397,9 +400,8 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createAfterSimpleNod
             explicit AfterSimpleNodeInserter(SimpleNode* simpleNodeToInsertAfter)
                 : simpleNodeToInsertAfter(simpleNodeToInsertAfter) {}
 
-            void insertNodeIntoIRTree(SimpleNode* nodeToInsert) override {
+            void firstInsertionStrategy(SimpleNode* nodeToInsert) override {
                 simpleNodeToInsertAfter->insertSandwichChild(nodeToInsert);
-
             }
     };
 
@@ -415,12 +417,13 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createNewElseBlockIn
             explicit NewElseBlockInserter(IfNode* ifNodeToInsertAfter)
                 : ifNodeToInsertAfter(ifNodeToInsertAfter) {}
 
-            void insertNodeIntoIRTree(SimpleNode* nodeToInsert) override {
+            void firstInsertionStrategy(SimpleNode* nodeToInsert) override {
                 //now that we know we want to insert this nodeToInsert
                 
                 ///FIRST: convert the ifNode to an ifElseNode
                 ///ISSUE: need to change the instructions list pointer - maybe just convert the node implicity??
-                std::unique_ptr<IfElseNode> ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
+                // std::unique_ptr<IfElseNode> ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
+                IfElseNode* ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
 
                 ///SECOND: add the nodeToInsert to the ifElseNode BEFORE the ENDELSE node of the else block
                 BaseNode* endElseNode = ifElseNode->getChildren()[2];

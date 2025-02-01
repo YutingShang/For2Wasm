@@ -11,7 +11,7 @@ ArithOpNode::ArithOpNode(std::string op, std::string dest, std::string src1, std
     this->textVector = {op, dest, src1, src2};
 }
 
-BaseNode* ArithOpNode::copyNodeOnly() const {
+BaseNode* ArithOpNode::cloneContent() const {
     return new ArithOpNode(textVector[0], textVector[1], textVector[2], textVector[3]);
 }
 

@@ -7,7 +7,7 @@ public:
 
     ~MovNode() override = default;
 
-    BaseNode* copyNodeOnly() const override;
+    BaseNode* cloneContent() const override;
 
     std::string getDest() const;
 

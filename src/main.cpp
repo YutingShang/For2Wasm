@@ -208,7 +208,7 @@ int main(int argc, const char **argv)
       IrFlowgraphVisitor flowgraphVisitor(newStartBasicBlock);
       entryNode->accept(&flowgraphVisitor);
 
-      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
+      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newStartBasicBlock);
       std::cout << dotFlowgraph << std::endl;
     }else if (flag1 == "-analysis") {
         ///////just print out all the analysis

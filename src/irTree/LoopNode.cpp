@@ -4,7 +4,7 @@ LoopNode::LoopNode(std::string body, std::string endloop){
     this->textVector = {"LOOP", body, endloop};
 }
 
-BaseNode* LoopNode::copyNodeOnly() const {
+BaseNode* LoopNode::cloneContent() const {
     return new LoopNode(textVector[1], textVector[2]);
 }
 
@@ -84,7 +84,7 @@ BaseNode* LoopNode::removeCurrentNodeFromIRTree() {
     //otherwise no children to attach to the parent node, just delete the current node
 
     // delete the current node from memory
-    delete this;
+    // delete this;
 
     //return the child node that has replaced the current node
     return child;

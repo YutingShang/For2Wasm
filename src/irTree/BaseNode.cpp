@@ -98,11 +98,12 @@ void BaseNode::replaceReferencedVariable(std::string oldVar, std::string newVar)
 void BaseNode::insertSandwichParent(BaseNode* newParent) {
     //first detach everything, but make a copy of the current parent
     BaseNode* oldParent = this->parent;
+    int indexInParent = this->getPositionInParent();
     oldParent->removeChild(this);
 
     //now attach the newParent to the oldParent
-    oldParent->addChild(newParent);
+    oldParent->addChildAtIndex(newParent, indexInParent);
 
-    //now attach the current node to the newParent
+    //now attach the current node to the newParent (assume just add child to end)
     newParent->addChild(this);
 }

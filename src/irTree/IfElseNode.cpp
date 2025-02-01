@@ -5,7 +5,7 @@ IfElseNode::IfElseNode(std::string condition, std::string thenLabel, std::string
     this->textVector = {"IF", condition, thenLabel, elseLabel, endLabel};
 }
 
-BaseNode* IfElseNode::copyNodeOnly() const {
+BaseNode* IfElseNode::cloneContent() const {
     return new IfElseNode(textVector[1], textVector[2], textVector[3], textVector[4]);
 }
 
@@ -84,7 +84,7 @@ BaseNode* IfElseNode::removeCurrentNodeFromIRTree() {
     //otherwise no children to attach to the parent node, just delete the current node
 
     // delete the current node from memory
-    delete this;
+    // delete this;
 
     //return the child node that has replaced the current node
     return child;

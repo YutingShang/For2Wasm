@@ -8,7 +8,7 @@ class EndBlockNode : public SimpleNode {
 public:
     EndBlockNode(std::string text);        //text is ENDTHEN ENDTHEN ENDIF ENDLOOP ENDBODY etc.
     ~EndBlockNode() override = default;
-    BaseNode* copyNodeOnly() const override;
+    BaseNode* cloneContent() const override;
 
     std::string accept(IrBaseVisitor* visitor) override;
 

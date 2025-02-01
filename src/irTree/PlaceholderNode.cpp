@@ -4,7 +4,7 @@ PlaceholderNode::PlaceholderNode() {
     this->textVector = {"PLACEHOLDER"};
 }
 
-BaseNode* PlaceholderNode::copyNodeOnly() const {
+BaseNode* PlaceholderNode::cloneContent() const {
     return new PlaceholderNode();
 }
 

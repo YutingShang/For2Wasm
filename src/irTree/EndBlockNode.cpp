@@ -4,7 +4,7 @@ EndBlockNode::EndBlockNode(std::string text)
     : SimpleNode(text) {
 } 
 
-BaseNode* EndBlockNode::copyNodeOnly() const {
+BaseNode* EndBlockNode::cloneContent() const {
     return new EndBlockNode(textVector[0]);
 }
 

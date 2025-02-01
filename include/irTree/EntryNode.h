@@ -9,7 +9,7 @@ class EntryNode : public SimpleNode {
 public:
     EntryNode();
     ~EntryNode() override = default;
-    BaseNode* copyNodeOnly() const override;
+    BaseNode* cloneContent() const override;
 
     std::string accept(IrBaseVisitor* visitor) override;
 

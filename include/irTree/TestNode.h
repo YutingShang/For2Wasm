@@ -6,7 +6,7 @@ class TestNode : public SimpleNode {
 public:
     TestNode(std::string var);
     ~TestNode() override = default;
-    BaseNode* copyNodeOnly() const override;
+    BaseNode* cloneContent() const override;
 
     std::string getVar() const;
 

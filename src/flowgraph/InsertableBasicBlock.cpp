@@ -12,18 +12,18 @@ void InsertableBasicBlock::addPlaceholderInstructionNode() {
     instructions.push_back(new PlaceholderNode());
 }
 
-std::list<BaseNode*>::iterator InsertableBasicBlock::removePlaceholderInstructionNode(std::list<BaseNode*>::iterator it) {
-    //remove the placeholder instruction node from the instructions list
-    PlaceholderNode* placeholderNode = dynamic_cast<PlaceholderNode*>(*it);
-    assert(placeholderNode != nullptr);
-    it = instructions.erase(it);
+// std::list<BaseNode*>::iterator InsertableBasicBlock::removePlaceholderInstructionNode(std::list<BaseNode*>::iterator it) {
+//     //remove the placeholder instruction node from the instructions list
+//     PlaceholderNode* placeholderNode = dynamic_cast<PlaceholderNode*>(*it);
+//     assert(placeholderNode != nullptr);
+//     it = instructions.erase(it);
 
-    assert(placeholderNode->getParent() == nullptr);
-    assert(placeholderNode->getChildren().empty());
-    delete placeholderNode;
+//     assert(placeholderNode->getParent() == nullptr);
+//     assert(placeholderNode->getChildren().empty());
+//     delete placeholderNode;
 
-    return it;
-}
+//     return it;
+// }
 
 void InsertableBasicBlock::executeNodeIRInsertion(std::list<BaseNode*>::iterator it, SimpleNode* nodeToInsert) {
     //use the strategy to insert the node into the IR tree

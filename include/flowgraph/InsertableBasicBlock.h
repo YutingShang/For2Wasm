@@ -12,6 +12,7 @@
 ///NOTE: currently only supports inserting a single SIMPLENODE!!! instruction node into the IR tree?
 ///but might also work if inserting linear sequence of simpleNode instructions into the IR tree
 
+//insertable basic block wil always contain a PLACEHOLDER instruction node!!
 class InsertableBasicBlock : public BasicBlock {
 
     public:
@@ -19,8 +20,34 @@ class InsertableBasicBlock : public BasicBlock {
         //use strategy pattern so users can define their own method to insert the instruction node into the IR tree
         //ONLY WORKS FOR SIMPLENODES!!!
         class NodeInsertionStrategy {   //inner class
+
             public:
-                virtual void insertNodeIntoIRTree(SimpleNode* node) = 0;
+                //either uses the first insertion strategy or the default subsequent insertion strategy
+                virtual void insertNodeIntoIRTree(SimpleNode* node){
+                    if (isFirstInsertion){
+                        firstInsertionStrategy(node);
+                        lastInsertedNode = node;
+                        isFirstInsertion = false;
+                    }
+                    else{
+                        subsequentInsertionStrategy(node);
+                    }
+                }
+
+                //first insertion strategy (e.g. could involve more complex logic) - must be overridden by user
+                virtual void firstInsertionStrategy(SimpleNode* node)=0;
+
+                //default insertion strategy (e.g. insert another instruction) - must be overridden by user
+                virtual void subsequentInsertionStrategy(SimpleNode* node){
+                    //insert after the last inserted node
+                    lastInsertedNode->insertSandwichChild(node);
+                    lastInsertedNode = node;
+                }
+
+            protected:
+                bool isFirstInsertion = true;
+
+                SimpleNode* lastInsertedNode;  //for subsequent insertions, just insert after the last inserted node
         };
 
         //constructor to take in the strategy
@@ -38,7 +65,7 @@ class InsertableBasicBlock : public BasicBlock {
         //remove the placeholder instruction node after insertion
         //pass in iterator to the placeholder instruction node
         //returns iterator to the next instruction node (probably the end of the basic block instructions list)
-        std::list<BaseNode*>::iterator removePlaceholderInstructionNode(std::list<BaseNode*>::iterator it);
+        // std::list<BaseNode*>::iterator removePlaceholderInstructionNode(std::list<BaseNode*>::iterator it);
 
     private:
         NodeInsertionStrategy* insertionStrategy;

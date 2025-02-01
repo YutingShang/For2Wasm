@@ -12,7 +12,7 @@ class IfNode : public BaseNode {
     
         IfNode(std::string condition, std::string thenLabel, std::string endLabel);     
         ~IfNode() override = default;
-        BaseNode* copyNodeOnly() const override;
+        BaseNode* cloneContent() const override;
 
         void addChild(BaseNode* child) override;
         void addChildAtIndex(BaseNode* child, int index) override;
@@ -30,5 +30,5 @@ class IfNode : public BaseNode {
         //converts an IfNode to an IfElseNode, with empty else block
         ///WARNING: will delete the current IfNode from memory, need to ensure references are no longer pointing to it
         ///TODO: maybe convert references to the current IfNode to smart pointers too
-        std::unique_ptr<IfElseNode> convertToIfElseNode();
+        IfElseNode* convertToIfElseNode();
 };

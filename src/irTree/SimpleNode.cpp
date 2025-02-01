@@ -41,7 +41,7 @@ BaseNode* SimpleNode::removeCurrentNodeFromIRTree() {
     }
 
     // delete the current node from memory
-    delete this;
+    // delete this;
 
     //return the child node that has replaced the current node
     return child;

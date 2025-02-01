@@ -4,7 +4,7 @@ TestNode::TestNode(std::string var) {
     this->textVector = {"TEST", var};
 }
 
-BaseNode* TestNode::copyNodeOnly() const {
+BaseNode* TestNode::cloneContent() const {
     return new TestNode(textVector[1]);
 }
 

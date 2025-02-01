@@ -9,7 +9,7 @@ class ArithOpNode : public ExpressionNode {
 public:
     ArithOpNode(std::string op, std::string dest, std::string src1, std::string src2);
     ~ArithOpNode() override = default;
-    BaseNode* copyNodeOnly() const override;
+    BaseNode* cloneContent() const override;
 
     std::string getOp() const;
     std::string getDest() const override;

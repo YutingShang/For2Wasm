@@ -7,7 +7,7 @@ class ExitNode : public SimpleNode
 public:
     ExitNode(); // text is EXIT
     ~ExitNode() override = default;
-    BaseNode* copyNodeOnly() const override;
+    BaseNode* cloneContent() const override;
     
     std::string accept(IrBaseVisitor *visitor) override;
 

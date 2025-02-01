@@ -4,7 +4,7 @@ LoopCondNode::LoopCondNode(std::string init, std::string cond, std::string body,
     this->textVector = {"LOOP", init, cond, body, step, endloop};
 }
 
-BaseNode* LoopCondNode::copyNodeOnly() const {
+BaseNode* LoopCondNode::cloneContent() const {
     return new LoopCondNode(textVector[1], textVector[2], textVector[3], textVector[4], textVector[5]);
 }
 
@@ -86,7 +86,7 @@ BaseNode* LoopCondNode::removeCurrentNodeFromIRTree() {
     //otherwise no children to attach to the parent node, just delete the current node
  
     // delete the current node from memory, and recursively any children it is still attached to
-    delete this;
+    // delete this;
  
 
     //return the child node that has replaced the current node
