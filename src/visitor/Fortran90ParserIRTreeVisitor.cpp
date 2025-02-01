@@ -542,11 +542,9 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
     /// NOTE: ignoring <elseIfConstruct> for now
     if (ctx->children.size() == 3)
     { // just an <ifThenStmt> <conditionalBody> <endIfStmt>
-        std::string condLabel = "cond" + std::to_string(ifCount);
-        std::string thenLabel = "then" + std::to_string(ifCount);
-        std::string endLabel = "endif" + std::to_string(ifCount++); // increment the ifCount
-    
-        IfNode *ifNode = new IfNode(condLabel, thenLabel, endLabel);
+        std::string labelNumber = std::to_string(ifCount++);
+        
+        IfNode *ifNode = new IfNode(labelNumber);
         previousParentNode->addChild(ifNode);
         previousParentNode = ifNode;
 
@@ -571,12 +569,9 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
     }
     else if (ctx->children.size() == 4)
     { // <ifThenStmt> <conditionalBody> <elseConstruct> <endIfStmt>
-        std::string condLabel = "cond" + std::to_string(ifCount);
-        std::string thenLabel = "then" + std::to_string(ifCount);
-        std::string elseLabel = "else" + std::to_string(ifCount);
-        std::string endLabel = "endif" + std::to_string(ifCount++); // increment the ifCount
+        std::string labelNumber = std::to_string(ifCount++);   // increment the ifCount
       
-        IfElseNode *ifNode = new IfElseNode(condLabel, thenLabel, elseLabel, endLabel);
+        IfElseNode *ifNode = new IfElseNode(labelNumber);
         previousParentNode->addChild(ifNode);
         previousParentNode = ifNode;
 
@@ -666,14 +661,10 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
     if (dynamic_cast<Fortran90Parser::CommaLoopControlContext*>(ctx->children[1]) || dynamic_cast<Fortran90Parser::LoopControlContext*>(ctx->children[1])){
 
         //create a LoopCondNode with the loopControl
-        std::string initLabel = "init" + std::to_string(loopCount);
-        std::string bodyLabel = "body" + std::to_string(loopCount);
-        std::string condLabel = "cond" + std::to_string(loopCount);
-        std::string stepLabel = "step" + std::to_string(loopCount);
-        std::string endloopLabel = "endloop" + std::to_string(loopCount++);
+        std::string labelNumber = std::to_string(loopCount++);
 
         //create the new LoopCondNode first, attach to the previousParentNode
-        LoopCondNode *loopNode = new LoopCondNode(initLabel, condLabel, bodyLabel, stepLabel, endloopLabel);
+        LoopCondNode *loopNode = new LoopCondNode(labelNumber);
         previousParentNode->addChild(loopNode);
         previousParentNode = loopNode;
 
@@ -703,10 +694,9 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
     }else{
 
         //create a normal LoopNode
-        std::string bodyLabel = "body" + std::to_string(loopCount);
-        std::string endloopLabel = "endloop" + std::to_string(loopCount++);
+        std::string labelNumber = std::to_string(loopCount++);
 
-        LoopNode *loopNode = new LoopNode(bodyLabel, endloopLabel);
+        LoopNode *loopNode = new LoopNode(labelNumber);
         previousParentNode->addChild(loopNode);
         previousParentNode = loopNode;
 

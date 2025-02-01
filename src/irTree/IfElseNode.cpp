@@ -1,14 +1,69 @@
 #include "IfElseNode.h"
 
-IfElseNode::IfElseNode(std::string condition, std::string thenLabel, std::string elseLabel, std::string endLabel) {
-
-    this->textVector = {"IF", condition, thenLabel, elseLabel, endLabel};
+IfElseNode::IfElseNode(std::string labelNumber): labelNumber(labelNumber) {
+    this->textVector = {"IF", "cond" + labelNumber, 
+                                "then" + labelNumber, 
+                                "else" + labelNumber, 
+                                "endif" + labelNumber};
 }
 
 BaseNode* IfElseNode::cloneContent() const {
-    return new IfElseNode(textVector[1], textVector[2], textVector[3], textVector[4]);
+    return new IfElseNode(labelNumber);
 }
 
+std::string IfElseNode::stringifyIRTree() const {
+    std::string tree = "\t" + getText();       //IF cond then else end
+
+    for (int i=1; i<this->textVector.size(); i++){        //prints the label for cond, then, else, end
+        tree += "\n" + this->textVector[i] +": " + this->children[i-1]->stringifyIRTree();
+    }
+
+    return tree;
+}
+
+/////////////////////////GETTERS AND SETTERS/////////////////////////
+
+std::string IfElseNode::getConditionLabel() const {
+    return textVector[1];
+}
+
+std::string IfElseNode::getThenLabel() const {
+    return textVector[2];
+}
+
+std::string IfElseNode::getElseLabel() const {
+    return textVector[3];
+}
+
+std::string IfElseNode::getEndLabel() const {
+    return textVector[4];
+}
+
+std::string IfElseNode::getLabelNumber() const {
+    return labelNumber;
+}
+
+/////////////////////////VISITOR PATTERN/////////////////////////
+
+std::string IfElseNode::accept(IrBaseVisitor* visitor) {
+    return visitor->visitIfElseNode(this);
+}
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
+
+std::set<std::string> IfElseNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> IfElseNode::getDefinedVariables() const {
+    return {};
+}
+
+std::set<std::string> IfElseNode::getReferencedExpressions() const {
+    return {};
+}
+
+/////////////////////////TREE MANIPULATION METHODS/////////////////////////
 void IfElseNode::addChild(BaseNode* child) {
     child->setParent(this);
 
@@ -30,31 +85,6 @@ void IfElseNode::addChildAtIndex(BaseNode* child, int index) {
     }
 }
 
-std::string IfElseNode::stringifyIRTree() const {
-    std::string tree = "\t" + getText();       //IF cond then else end
-
-    for (int i=1; i<this->textVector.size(); i++){        //prints the label for cond, then, else, end
-        tree += "\n" + this->textVector[i] +": " + this->children[i-1]->stringifyIRTree();
-    }
-
-    return tree;
-}
-
-std::string IfElseNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitIfElseNode(this);
-}
-
-std::set<std::string> IfElseNode::getReferencedVariables() const {
-    return {};
-}
-
-std::set<std::string> IfElseNode::getDefinedVariables() const {
-    return {};
-}
-
-std::set<std::string> IfElseNode::getReferencedExpressions() const {
-    return {};
-}
 
 BaseNode* IfElseNode::removeCurrentNodeFromIRTree() {
     //first assert that the then and else statements are empty, if not throw error

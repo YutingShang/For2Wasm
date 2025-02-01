@@ -6,9 +6,13 @@ BaseNode* EntryNode::cloneContent() const {
     return new EntryNode();
 }
 
+/////////////////////////VISITOR PATTERN/////////////////////////
+
 std::string EntryNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitEntryNode(this);
 }
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
 
 std::set<std::string> EntryNode::getReferencedVariables() const {
     return {};

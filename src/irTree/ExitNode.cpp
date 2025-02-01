@@ -8,9 +8,13 @@ BaseNode* ExitNode::cloneContent() const {
     return new ExitNode();
 }
 
+/////////////////////////VISITOR PATTERN/////////////////////////
+
 std::string ExitNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitExitNode(this);
 }
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
 
 std::set<std::string> ExitNode::getReferencedVariables() const {
     return {};

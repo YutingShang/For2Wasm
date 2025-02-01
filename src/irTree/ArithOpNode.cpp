@@ -1,19 +1,28 @@
 #include "ArithOpNode.h"
 
 ArithOpNode::ArithOpNode(std::string op, std::string dest, std::string src1, std::string src2) {
-    if (op != "ADD" && op != "SUB" && op != "MUL" && op != "DIV") {
+    if (!isValidArithOp(op)) {
         throw std::runtime_error("Invalid arithmetic operation: " + op);
     }
-    if (src1.at(0) == '$' || src2.at(0) == '$') {
+    if (isStringConstant(src1) || isStringConstant(src2)) {
         throw std::runtime_error("Invalid arithmetic operands, cannot be string constants: " + src1 + " or " + src2);
     }
+    if (!isVariable(dest)) {
+        throw std::runtime_error("Invalid destination variable: " + dest);
+    }
 
-    this->textVector = {op, dest, src1, src2};
+    textVector = {op, dest, src1, src2};
+}
+
+bool ArithOpNode::isValidArithOp(const std::string& op) const {
+    return op == "ADD" || op == "SUB" || op == "MUL" || op == "DIV";
 }
 
 BaseNode* ArithOpNode::cloneContent() const {
-    return new ArithOpNode(textVector[0], textVector[1], textVector[2], textVector[3]);
+    return new ArithOpNode(getOp(), getDest(), getSrc1(), getSrc2());
 }
+
+/////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string ArithOpNode::getOp() const {
     return textVector[0];
@@ -23,29 +32,46 @@ std::string ArithOpNode::getDest() const {
     return textVector[1];
 }
 
-void ArithOpNode::setDest(std::string dest) {
-    textVector[1] = dest;
-}
-
 std::string ArithOpNode::getSrc1() const {
     return textVector[2];
 }
 
 std::string ArithOpNode::getSrc2() const {
     return textVector[3];
-} 
+}
+
+void ArithOpNode::setOp(std::string op) {
+    if (!isValidArithOp(op)) {
+        throw std::runtime_error("Invalid arithmetic operation: " + op);
+    }
+    textVector[0] = op;
+}
+
+void ArithOpNode::setDest(std::string dest) {
+    textVector[1] = dest;
+}
 
 void ArithOpNode::setSrc1(std::string src1) {
+    if (isStringConstant(src1)) {
+        throw std::runtime_error("Invalid arithmetic operand, cannot be string constant: " + src1);
+    }
     textVector[2] = src1;
 }
 
 void ArithOpNode::setSrc2(std::string src2) {
+    if (isStringConstant(src2)) {
+        throw std::runtime_error("Invalid arithmetic operand, cannot be string constant: " + src2);
+    }
     textVector[3] = src2;
 }
+
+/////////////////////////VISITOR PATTERN/////////////////////////
 
 std::string ArithOpNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitArithOpNode(this);
 }
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
 
 std::set<std::string> ArithOpNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;
@@ -63,20 +89,19 @@ std::set<std::string> ArithOpNode::getDefinedVariables() const {
 }
 
 std::set<std::string> ArithOpNode::getReferencedExpressions() const {
-    std::string op = getOp();
     //the sources will either be user variables/temp variables or pos integer constants (no need to check for strings $ as they won't appear in the sources)
     //valid expression can be 'a+b' or 'a+3'
 
     //e.g. if x = x+y, then we say x+y has not been used/referenced by this node (NOTE: this is different to generated expressions)
-    if (op == "ADD"){
-        return {getSrc1() + "+" + getSrc2()};
-    }else if (op == "SUB"){
-        return {getSrc1() + "-" + getSrc2()};
-    }else if (op == "MUL"){
-        return {getSrc1() + "*" + getSrc2()};
-    }else if (op == "DIV"){
-        return {getSrc1() + "/" + getSrc2()};
-    }
+    const std::string op = getOp();
+    const std::string src1 = getSrc1();
+    const std::string src2 = getSrc2();
+
+    if (op == "ADD") return {src1 + "+" + src2};
+    if (op == "SUB") return {src1 + "-" + src2};
+    if (op == "MUL") return {src1 + "*" + src2};
+    if (op == "DIV") return {src1 + "/" + src2};
+    
     throw std::runtime_error("Invalid arithmetic operation: " + op);
 }
 

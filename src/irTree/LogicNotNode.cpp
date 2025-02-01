@@ -1,32 +1,44 @@
 #include "LogicNotNode.h"
 
 LogicNotNode::LogicNotNode(std::string dest, std::string expr) {
+    if (!isVariable(dest)) {
+        throw std::runtime_error("Invalid destination variable: " + dest);
+    }
+    if (isStringConstant(expr)) {
+        throw std::runtime_error("Invalid logic NOT operation operand, cannot be string constant: " + expr);
+    }
     this->textVector = {"NOT", dest, expr};
 }
 
 BaseNode* LogicNotNode::cloneContent() const {
-    return new LogicNotNode(textVector[1], textVector[2]);
+    return new LogicNotNode(getDest(), getSrc());
 }
+
+/////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string LogicNotNode::getDest() const {
     return textVector[1];
-}
-
-void LogicNotNode::setDest(std::string dest) {
-    textVector[1] = dest;
 }
 
 std::string LogicNotNode::getSrc() const {
     return textVector[2];
 }
 
+void LogicNotNode::setDest(std::string dest) {
+    textVector[1] = dest;
+}
+
 void LogicNotNode::setSrc(std::string src) {
     textVector[2] = src;
 }
 
+/////////////////////////VISITOR PATTERN/////////////////////////
+
 std::string LogicNotNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitLogicNotNode(this);
 }
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
 
 std::set<std::string> LogicNotNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;

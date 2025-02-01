@@ -1,24 +1,36 @@
 #include "TestNode.h"
 
 TestNode::TestNode(std::string var) {
+    if (isStringConstant(var)) {
+        throw std::runtime_error("Invalid test node variable, cannot be string constant: " + var);
+    }
     this->textVector = {"TEST", var};
 }
 
 BaseNode* TestNode::cloneContent() const {
-    return new TestNode(textVector[1]);
+    return new TestNode(getVar());
 }
 
-std::string TestNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitTestNode(this);
-}
+/////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string TestNode::getVar() const {
     return this->textVector[1];
 }
 
 void TestNode::setVar(std::string var) {
+    if (isStringConstant(var)) {
+        throw std::runtime_error("Invalid test node variable, cannot be string constant: " + var);
+    }
     this->textVector[1] = var;
 }
+
+/////////////////////////VISITOR PATTERN/////////////////////////
+
+std::string TestNode::accept(IrBaseVisitor* visitor) {
+    return visitor->visitTestNode(this);
+}
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
 
 std::set<std::string> TestNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;

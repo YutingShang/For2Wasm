@@ -1,14 +1,63 @@
 #include "IfNode.h"
 #include "IfElseNode.h"
 
-IfNode::IfNode(std::string condition, std::string thenLabel, std::string endLabel) {
-
-    this->textVector = {"IF", condition, thenLabel, endLabel};
+IfNode::IfNode(std::string labelNumber): labelNumber(labelNumber) {
+    this->textVector = {"IF", "cond" + labelNumber, "then" + labelNumber, "endif" + labelNumber};
 }
 
 BaseNode* IfNode::cloneContent() const {
-    return new IfNode(textVector[1], textVector[2], textVector[3]);
+    return new IfNode(labelNumber);
 }
+
+std::string IfNode::stringifyIRTree() const {
+    std::string tree = "\t" + getText();
+
+    for (int i=1; i<this->textVector.size(); i++){
+        tree += "\n" + this->textVector[i] +": " + this->children[i-1]->stringifyIRTree();
+    }
+
+    return tree;
+}
+
+/////////////////////////GETTERS AND SETTERS/////////////////////////
+
+std::string IfNode::getConditionLabel() const {
+    return textVector[1];
+}
+
+std::string IfNode::getThenLabel() const {
+    return textVector[2];
+}
+
+std::string IfNode::getEndLabel() const {
+    return textVector[3];
+}
+
+std::string IfNode::getLabelNumber() const {
+    return labelNumber;
+}
+
+/////////////////////////VISITOR PATTERN/////////////////////////
+
+std::string IfNode::accept(IrBaseVisitor* visitor) {
+    return visitor->visitIfNode(this);
+}
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
+
+std::set<std::string> IfNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> IfNode::getDefinedVariables() const {
+    return {};
+}
+
+std::set<std::string> IfNode::getReferencedExpressions() const {
+    return {};
+}
+
+/////////////////////////TREE MANIPULATION METHODS/////////////////////////
 
 void IfNode::addChild(BaseNode* child) {
     child->setParent(this);
@@ -26,33 +75,7 @@ void IfNode::addChildAtIndex(BaseNode* child, int index) {
     } else {
         throw std::runtime_error("IfNode can only have 3 children");
     }
-}
-
-std::string IfNode::stringifyIRTree() const {
-    std::string tree = "\t" + getText();
-
-    for (int i=1; i<this->textVector.size(); i++){
-        tree += "\n" + this->textVector[i] +": " + this->children[i-1]->stringifyIRTree();
-    }
-
-    return tree;
-}
-
-std::string IfNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitIfNode(this);
-}
-
-std::set<std::string> IfNode::getReferencedVariables() const {
-    return {};
-}
-
-std::set<std::string> IfNode::getDefinedVariables() const {
-    return {};
-}
-
-std::set<std::string> IfNode::getReferencedExpressions() const {
-    return {};
-}
+}       
 
 BaseNode* IfNode::removeCurrentNodeFromIRTree() {
     //first assert that the then statement is empty, if not throw error
@@ -94,15 +117,15 @@ IfElseNode* IfNode::convertToIfElseNode() {
 
     //create a new IfElseNode with the same condition, thenLabel, and endLabel
     std::string thenLabel = this->textVector[2];     //get the label suffix number from the thenLabel
-    std::string labelSuffixNumber;
+    // std::string labelSuffixNumber;
 
-    size_t firstDigit = thenLabel.find_first_of("0123456789");
-    if (firstDigit != std::string::npos) {
-        labelSuffixNumber = thenLabel.substr(firstDigit);
-    }
+    // size_t firstDigit = thenLabel.find_first_of("0123456789");
+    // if (firstDigit != std::string::npos) {
+    //     labelSuffixNumber = thenLabel.substr(firstDigit);
+    // }
 
-    std::string elseLabel = "else" + labelSuffixNumber;
-    IfElseNode* ifElseNode = new IfElseNode(this->textVector[1], this->textVector[2], elseLabel, this->textVector[3]);
+    std::string elseLabel = "else" + labelNumber;
+    IfElseNode* ifElseNode = new IfElseNode(labelNumber);
     
     BaseNode* conditionChild = this->children[0];
     // std::cout <<"conditionChild: " <<conditionChild->getText() <<std::endl;

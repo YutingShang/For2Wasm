@@ -7,9 +7,11 @@
 
 class ExpressionNode : public SimpleNode {
 public:
-    ExpressionNode();
+    //Constructor and destructor
+    ExpressionNode() ;
     ~ExpressionNode() override = default;
 
+    //Getters and setters - must be implemented by subclasses
     virtual std::string getDest() const = 0;
     virtual void setDest(std::string dest) = 0;
 };

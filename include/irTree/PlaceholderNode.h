@@ -8,20 +8,22 @@
 //Placeholder node is not actually connected to the IR tree, it is just a placeholder for the basic block
 
 class PlaceholderNode : public BaseNode {
+public:
+    //Constructor and destructor
+    PlaceholderNode();
+    ~PlaceholderNode() override = default;
+    BaseNode* cloneContent() const override;
 
-    public:
-        PlaceholderNode();
-        ~PlaceholderNode() override = default;
+    //Visitor pattern - override to throw error - placeholder node should not be in IR tree
+    virtual std::string accept(IrBaseVisitor* visitor) override;    
 
-        BaseNode* cloneContent() const override;
+    //Analysis methods - override to return empty set
+    virtual std::set<std::string> getReferencedVariables() const override;    
+    virtual std::set<std::string> getDefinedVariables() const override;    
+    virtual std::set<std::string> getReferencedExpressions() const override;    
 
-        virtual void addChild(BaseNode* child) override;   //override to do nothing
-        virtual void addChildAtIndex(BaseNode* child, int index) override;   //override to do nothing
-        virtual std::string accept(IrBaseVisitor* visitor) override;    //override to throw error - placeholder node should not be in IR tree
-        virtual BaseNode* removeCurrentNodeFromIRTree() override;    //override to throw error - placeholder node should not be in IR tree
-
-        virtual std::set<std::string> getReferencedVariables() const override;    //override to return empty set
-        virtual std::set<std::string> getDefinedVariables() const override;    //override to return empty set
-        virtual std::set<std::string> getReferencedExpressions() const override;    //override to return empty set
-
+    //Tree manipulation methods - override to do nothing or throw error - placeholder node should not be in IR tree
+    virtual void addChild(BaseNode* child) override;   
+    virtual void addChildAtIndex(BaseNode* child, int index) override;   
+    virtual BaseNode* removeCurrentNodeFromIRTree() override;    
 };

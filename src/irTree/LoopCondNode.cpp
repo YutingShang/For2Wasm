@@ -1,12 +1,70 @@
 #include "LoopCondNode.h"
 
-LoopCondNode::LoopCondNode(std::string init, std::string cond, std::string body, std::string step, std::string endloop) {
-    this->textVector = {"LOOP", init, cond, body, step, endloop};
+LoopCondNode::LoopCondNode(std::string labelNumber): labelNumber(labelNumber) {
+    this->textVector = {"LOOP", "init" + labelNumber, "cond" + labelNumber, "body" + labelNumber, "step" + labelNumber, "endloop" + labelNumber};
 }
 
 BaseNode* LoopCondNode::cloneContent() const {
-    return new LoopCondNode(textVector[1], textVector[2], textVector[3], textVector[4], textVector[5]);
+    return new LoopCondNode(getLabelNumber());
 }
+
+std::string LoopCondNode::stringifyIRTree() const {
+    std::string tree = "\t" + getText();
+    tree += "\n" + this->textVector[1] +": " + this->children[0]->stringifyIRTree();      //adds init label
+    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds cond label
+    tree += "\n" + this->textVector[3] +": " + this->children[2]->stringifyIRTree();      //adds body label
+    tree += "\n" + this->textVector[4] +": " + this->children[3]->stringifyIRTree();      //adds step label
+    tree += "\n" + this->textVector[5] +": " + this->children[4]->stringifyIRTree();      //adds endloop label
+    return tree;
+}
+
+/////////////////////////GETTERS AND SETTERS/////////////////////////
+
+std::string LoopCondNode::getInitLabel() const {
+    return this->textVector[1];
+}
+
+std::string LoopCondNode::getCondLabel() const {
+    return this->textVector[2];
+}
+
+std::string LoopCondNode::getBodyLabel() const {
+    return this->textVector[3];
+}
+
+std::string LoopCondNode::getStepLabel() const {
+    return this->textVector[4];
+}
+
+std::string LoopCondNode::getEndLoopLabel() const {
+    return this->textVector[5];
+}
+
+std::string LoopCondNode::getLabelNumber() const {
+    return this->labelNumber;
+}
+
+/////////////////////////VISITOR PATTERN/////////////////////////
+
+std::string LoopCondNode::accept(IrBaseVisitor* visitor) {
+    return visitor->visitLoopCondNode(this);
+}
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
+
+std::set<std::string> LoopCondNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> LoopCondNode::getDefinedVariables() const {
+    return {};
+}
+
+std::set<std::string> LoopCondNode::getReferencedExpressions() const {
+    return {};
+}
+
+/////////////////////////TREE MANIPULATION/////////////////////////
 
 void LoopCondNode::addChild(BaseNode* child) {
     child->setParent(this);
@@ -25,40 +83,6 @@ void LoopCondNode::addChildAtIndex(BaseNode* child, int index) {
     } else {
         throw std::runtime_error("LoopCondNode can only have five children");
     }
-}
-
-std::string LoopCondNode::stringifyIRTree() const {
-    std::string tree = "\t" + getText();
-    tree += "\n" + this->textVector[1] +": " + this->children[0]->stringifyIRTree();      //adds init label
-    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds cond label
-    tree += "\n" + this->textVector[3] +": " + this->children[2]->stringifyIRTree();      //adds body label
-    tree += "\n" + this->textVector[4] +": " + this->children[3]->stringifyIRTree();      //adds step label
-    tree += "\n" + this->textVector[5] +": " + this->children[4]->stringifyIRTree();      //adds endloop label
-    return tree;
-}
-
-std::string LoopCondNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitLoopCondNode(this);
-}
-
-std::string LoopCondNode::getBodyLabel() const {
-    return this->textVector[3];
-}
-
-std::string LoopCondNode::getEndLoopLabel() const {
-    return this->textVector[5];
-}
-
-std::set<std::string> LoopCondNode::getReferencedVariables() const {
-    return {};
-}
-
-std::set<std::string> LoopCondNode::getDefinedVariables() const {
-    return {};
-}
-
-std::set<std::string> LoopCondNode::getReferencedExpressions() const {
-    return {};
 }
 
 BaseNode* LoopCondNode::removeCurrentNodeFromIRTree() {

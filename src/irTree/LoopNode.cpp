@@ -1,12 +1,55 @@
 #include "LoopNode.h"
 
-LoopNode::LoopNode(std::string body, std::string endloop){
-    this->textVector = {"LOOP", body, endloop};
+LoopNode::LoopNode(std::string labelNumber): labelNumber(labelNumber) {
+    this->textVector = {"LOOP", "body" + labelNumber, "endloop" + labelNumber};
 }
 
 BaseNode* LoopNode::cloneContent() const {
-    return new LoopNode(textVector[1], textVector[2]);
+    return new LoopNode(getLabelNumber());
 }
+
+std::string LoopNode::stringifyIRTree() const {
+    std::string tree = "\t" + getText();
+    tree += "\n" + this->textVector[1] +": " + this->children[0]->stringifyIRTree();      //adds body label
+    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds endloop label
+    return tree;
+}
+
+/////////////////////////GETTERS AND SETTERS/////////////////////////
+
+std::string LoopNode::getBodyLabel() const {
+    return this->textVector[1];
+}
+
+std::string LoopNode::getEndloopLabel() const {
+    return this->textVector[2];
+}
+
+std::string LoopNode::getLabelNumber() const {
+    return this->labelNumber;
+}
+
+/////////////////////////VISITOR PATTERN/////////////////////////
+
+std::string LoopNode::accept(IrBaseVisitor* visitor) {
+    return visitor->visitLoopNode(this);
+}
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
+
+std::set<std::string> LoopNode::getReferencedVariables() const {
+    return {};
+}
+
+std::set<std::string> LoopNode::getDefinedVariables() const {
+    return {};
+}
+
+std::set<std::string> LoopNode::getReferencedExpressions() const {
+    return {};
+}
+
+/////////////////////////TREE MANIPULATION/////////////////////////
 
 void LoopNode::addChild(BaseNode* child) {
     child->setParent(this);
@@ -25,37 +68,6 @@ void LoopNode::addChildAtIndex(BaseNode* child, int index) {
     } else {
         throw std::runtime_error("LoopNode can only have two children");
     }
-}
-
-std::string LoopNode::stringifyIRTree() const {
-    std::string tree = "\t" + getText();
-    tree += "\n" + this->textVector[1] +": " + this->children[0]->stringifyIRTree();      //adds body label
-    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds endloop label
-    return tree;
-}
-
-std::string LoopNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitLoopNode(this);
-}
-
-std::string LoopNode::getBodyLabel() const {
-    return this->textVector[1];
-}
-
-std::string LoopNode::getEndloopLabel() const {
-    return this->textVector[2];
-}
-
-std::set<std::string> LoopNode::getReferencedVariables() const {
-    return {};
-}
-
-std::set<std::string> LoopNode::getDefinedVariables() const {
-    return {};
-}
-
-std::set<std::string> LoopNode::getReferencedExpressions() const {
-    return {};
 }
 
 BaseNode* LoopNode::removeCurrentNodeFromIRTree() {

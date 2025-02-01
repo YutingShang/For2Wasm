@@ -4,6 +4,8 @@ SimpleNode::SimpleNode() : BaseNode() {}
 
 SimpleNode::SimpleNode(std::string text) : BaseNode(text) {}
 
+/////////////////////////TREE MANIPULATION/////////////////////////
+
 void SimpleNode::addChild(BaseNode* child) {
     child->setParent(this);
 

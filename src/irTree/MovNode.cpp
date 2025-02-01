@@ -1,31 +1,44 @@
 #include "MovNode.h"
 
-MovNode::MovNode(std::string dest, std::string src)
-{
-    this->textVector = {"MOV", dest, src};
+MovNode::MovNode(std::string dest, std::string src) {
+    if (isStringConstant(src)) {
+        throw std::runtime_error("Invalid operand : cannot be a string constant");
+    }
+    textVector = {"MOV", dest, src};
 }
 
 BaseNode* MovNode::cloneContent() const {
-    return new MovNode(textVector[1], textVector[2]);
+    return new MovNode(getDest(), getSrc());
 }
 
-std::string MovNode::getDest() const
-{
-    return this->textVector[1];
+/////////////////////////GETTERS AND SETTERS/////////////////////////
+
+std::string MovNode::getDest() const {
+    return textVector[1];
 }
 
-std::string MovNode::getSrc() const
-{
-    return this->textVector[2];
+std::string MovNode::getSrc() const {
+    return textVector[2];
+}
+
+void MovNode::setDest(std::string dest) {
+    textVector[1] = dest;
 }
 
 void MovNode::setSrc(std::string src) {
+    if (isStringConstant(src)) {
+        throw std::runtime_error("Invalid operand : cannot be a string constant");
+    }
     textVector[2] = src;
 }
+
+/////////////////////////VISITOR PATTERN/////////////////////////
 
 std::string MovNode::accept(IrBaseVisitor* visitor) {
     return visitor->visitMovNode(this);
 }
+
+/////////////////////////ANALYSIS METHODS/////////////////////////
 
 std::set<std::string> MovNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;

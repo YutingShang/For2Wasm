@@ -32,11 +32,6 @@ std::string BaseNode::getText() const
     return text;
 }
 
-std::vector<BaseNode *> BaseNode::getChildren() const
-{
-    return this->children;
-}
-
 std::string BaseNode::stringifyIRTree() const
 {
     std::string tree = "\t" + getText();
@@ -48,21 +43,7 @@ std::string BaseNode::stringifyIRTree() const
     return tree;
 }
 
-//checks if the item is a variable (temp or user-defined), false if it is a string or positive integer constant
-bool BaseNode::isVariable(std::string item) const{
-
-    bool isPositiveInteger = true;
-    for (char c : item) {
-        if (!isdigit(c)) {
-            isPositiveInteger = false;
-            break;
-        }
-    }
-    //it is a variable if it is not a positive integer and is not a string const $
-    bool isVariable = !isPositiveInteger && item[0] != '$';
-
-    return isVariable;
-}
+/////////////////////////GETTERS AND SETTERS/////////////////////////
 
 void BaseNode::setParent(BaseNode* parent) {
     this->parent = parent;
@@ -72,9 +53,9 @@ BaseNode* BaseNode::getParent() const {
     return this->parent;
 }
 
-void BaseNode::removeChild(BaseNode* child) {
-    child->setParent(nullptr);       //also set the parent of the child to nullptr
-    this->children.erase(std::remove(this->children.begin(), this->children.end(), child), this->children.end());
+std::vector<BaseNode *> BaseNode::getChildren() const
+{
+    return this->children;
 }
 
 int BaseNode::getPositionInParent() const {
@@ -90,9 +71,18 @@ int BaseNode::getPositionInParent() const {
     return indexInParent;
 }
 
+/////////////////////////ANALYSIS METHODS/////////////////////////
+
 void BaseNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
     //default implementation is to do nothing
     //only need to be implemented by nodes that have non-empty referenced var set
+}
+
+/////////////////////////TREE MANIPULATION METHODS/////////////////////////
+
+void BaseNode::removeChild(BaseNode* child) {
+    child->setParent(nullptr);       //also set the parent of the child to nullptr
+    this->children.erase(std::remove(this->children.begin(), this->children.end(), child), this->children.end());
 }
 
 void BaseNode::insertSandwichParent(BaseNode* newParent) {
@@ -106,4 +96,19 @@ void BaseNode::insertSandwichParent(BaseNode* newParent) {
 
     //now attach the current node to the newParent (assume just add child to end)
     newParent->addChild(this);
+}
+
+/////////////////////////VALIDATION METHODS/////////////////////////
+bool BaseNode::isVariable(std::string item) const{
+
+    bool isPositiveInteger = std::all_of(item.begin(), item.end(), ::isdigit);
+    
+    //it is a variable if it is not a positive integer and is not a string const $
+    bool isVariable = !isPositiveInteger && !isStringConstant(item);
+
+    return isVariable;
+}
+
+bool BaseNode::isStringConstant(const std::string& operand) const {
+    return !operand.empty() && operand[0] == '$';
 }
