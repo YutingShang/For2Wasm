@@ -17,8 +17,8 @@ bool RelOpNode::isValidRelOp(const std::string& op) const {
     return op == "EQ" || op == "NE" || op == "LT" || op == "LE" || op == "GT" || op == "GE";
 }
 
-BaseNode* RelOpNode::cloneContent() const {
-    return new RelOpNode(getOp(), getDest(), getSrc1(), getSrc2());
+std::shared_ptr<BaseNode> RelOpNode::cloneContent() const {
+    return std::make_shared<RelOpNode>(getOp(), getDest(), getSrc1(), getSrc2());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -69,8 +69,8 @@ void RelOpNode::setSrc2(std::string src2) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string RelOpNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitRelOpNode(this);
+std::string RelOpNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitRelOpNode(std::static_pointer_cast<RelOpNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

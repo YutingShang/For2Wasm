@@ -2,7 +2,7 @@
 #include "VBE.h"
 
 AVAIL_PRE::AVAIL_PRE(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::FORWARD) {
-    BaseNode* rootNode = entryBasicBlock->get_instructions_copy().front();
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
 
     //get all anticipated (VBE) expressions in the program
@@ -42,7 +42,7 @@ std::set<std::string> AVAIL_PRE::meetOperation(const std::set<std::string>& curr
 }
 
 //transfer function for AVAIL_PRE - returns the set of variables that are available at the after processing the current instruction (going downwards)
-std::set<std::string> AVAIL_PRE::transferFunction(BaseNode* instruction, const std::set<std::string>& in_pre_avail_set) {
+std::set<std::string> AVAIL_PRE::transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& in_pre_avail_set) {
     std::set<std::string> out_pre_avail_set = in_pre_avail_set;
 
     //get the anticipated[B].in and killed expressions from the instruction

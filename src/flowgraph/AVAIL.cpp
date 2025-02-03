@@ -2,7 +2,7 @@
 
 
 AVAIL::AVAIL(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::FORWARD) {
-    BaseNode* rootNode = entryBasicBlock->get_instructions_copy().front();
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
 
     //set the initial set to the universe of all expressions
@@ -38,7 +38,7 @@ std::set<std::string> AVAIL::meetOperation(const std::set<std::string>& current_
 }
 
 //transfer function for AVAIL - returns the set of variables that are available at the after processing the current instruction (going downwards)
-std::set<std::string> AVAIL::transferFunction(BaseNode* instruction, const std::set<std::string>& in_avail_set) {
+std::set<std::string> AVAIL::transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& in_avail_set) {
     std::set<std::string> out_avail_set = in_avail_set;
 
     //get the generated and killed expressions from the instruction

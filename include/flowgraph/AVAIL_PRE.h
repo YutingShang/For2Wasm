@@ -21,7 +21,7 @@ class AVAIL_PRE : public BaseDataFlowAnalysis<std::set<std::string>> {
 
         //member variables
         std::set<std::string> allExpressions;            //universe of all expressions in the program
-        std::unordered_map<BaseNode*, std::set<std::string>> allNodesAnticipatedInExpressions;  //anticipated[B].in - used for earliest - to calculate latest
+        std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesAnticipatedInExpressions;  //anticipated[B].in - used for earliest - to calculate latest
 
         
     protected:
@@ -30,6 +30,6 @@ class AVAIL_PRE : public BaseDataFlowAnalysis<std::set<std::string>> {
         std::set<std::string> meetOperation(const std::set<std::string>& current_pre_avail_set, const std::set<std::string>& predecessor_pre_avail_set) override;
 
         //transfer function for AVAIL
-        std::set<std::string> transferFunction(BaseNode* instruction, const std::set<std::string>& in_pre_avail_set) override;
+        std::set<std::string> transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& in_pre_avail_set) override;
 
 };

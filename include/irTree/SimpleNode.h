@@ -10,16 +10,19 @@ public:
     SimpleNode(std::string text);
     ~SimpleNode() override = default;
 
+    //Getters and setters
+    std::shared_ptr<BaseNode> getSingleChild() const;
+
     //Tree manipulation methods
-    void addChild(BaseNode *child) override;
-    void addChildAtIndex(BaseNode* child, int index) override;
-    BaseNode* removeCurrentNodeFromIRTree() override;
+    void addChild(std::shared_ptr<BaseNode> child) override;
+    void addChildAtIndex(std::shared_ptr<BaseNode> child, int index) override;
+    std::shared_ptr<BaseNode> removeCurrentNodeFromIRTree() override;
 
     //inserts a newNode node between the current node and its existing child
-    void insertSandwichChild(SimpleNode* newNode);
+    void insertSandwichChild(std::shared_ptr<SimpleNode> newNode);
 
     //replace the current node with another SimpleNode
-    void replaceCurrentNodeInIRTree(SimpleNode* newNode);
+    void replaceCurrentNodeInIRTree(std::shared_ptr<SimpleNode> newNode);
 
     //NOTE: visitor pattern must be implemented by child nodes
     //NOTE: analysis methods must be implemented by child nodes

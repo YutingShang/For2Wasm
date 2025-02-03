@@ -60,14 +60,14 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
         return;
     }else{
         //IR tree visitor
-        EntryNode *entryNode = new EntryNode(); // will be used to store the IR tree
+        std::shared_ptr<EntryNode> entryNode = std::make_shared<EntryNode>(); // will be used to store the IR tree
         Fortran90ParserIRTreeVisitor irVisitor(parser, entryNode);
         astTree->accept(&irVisitor);
 
         //flowgraph
         BasicBlock *startBasicBlock = new BasicBlock();
         IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
-        entryNode->accept(&flowgraphVisitor);
+        entryNode->accept(flowgraphVisitor);
 
         //optimisations
         int nextProgramTempVariableCount = 0;

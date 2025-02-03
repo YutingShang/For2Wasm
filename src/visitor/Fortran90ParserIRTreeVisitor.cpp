@@ -60,18 +60,18 @@ std::any Fortran90ParserIRTreeVisitor::visitTerminal(antlr4::tree::TerminalNode 
     std::vector<std::string> reservedTerminalKeywords = {"EXIT", "ENDIF"};
     if (std::find(reservedTerminalKeywords.begin(), reservedTerminalKeywords.end(), textUPPER) != reservedTerminalKeywords.end())
     {
-        SimpleNode *instructionNode;
+        std::shared_ptr<SimpleNode> instructionNode;
 
         if (textUPPER == "EXIT")
         {
-            instructionNode = new ExitNode();
+            instructionNode = std::make_shared<ExitNode>();
         }
         else
         {
-            instructionNode = new EndBlockNode(textUPPER);
+            instructionNode = std::make_shared<EndBlockNode>(textUPPER);
         }
 
-        previousParentNode->addChild(instructionNode);
+        previousParentNode.lock()->addChild(instructionNode);
         previousParentNode = instructionNode;
 
     }
@@ -89,11 +89,11 @@ std::any Fortran90ParserIRTreeVisitor::visitAssignmentStmt(Fortran90Parser::Assi
 
     // then process the current node
     // create a new SimpleNode with the instruction
-    MovNode *movNode = new MovNode(variableName, expression);
+    std::shared_ptr<MovNode> movNode = std::make_shared<MovNode>(variableName, expression);
 
     // assign the previous parent node as the parent of the current node
     // in this case, the previous parent node would be the expression evaluated
-    previousParentNode->addChild(movNode);
+    previousParentNode.lock()->addChild(movNode);
 
     // update the previous parent node to be the current node
     previousParentNode = movNode;
@@ -121,8 +121,8 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel2Expr(Fortran90Parser::Level2Ex
         std::string addOperand1 = std::any_cast<std::string>(ctx->children[1]->accept(this)); // recurse on the addOperand
 
         // print out the const values in the IR without # at the front
-        ArithOpNode *arithOpNode = new ArithOpNode("SUB", tempResultVar, "0", addOperand1);
-        previousParentNode->addChild(arithOpNode);
+        std::shared_ptr<ArithOpNode> arithOpNode = std::make_shared<ArithOpNode>("SUB", tempResultVar, "0", addOperand1);
+        previousParentNode.lock()->addChild(arithOpNode);
         previousParentNode = arithOpNode;
     }
     else
@@ -134,8 +134,8 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel2Expr(Fortran90Parser::Level2Ex
         std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
         std::string addOperand1 = std::any_cast<std::string>(ctx->children[0]->accept(this));
         std::string addOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
-        ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, otherTempResultVar, addOperand1, addOperand2);
-        previousParentNode->addChild(arithOpNode);
+        std::shared_ptr<ArithOpNode> arithOpNode = std::make_shared<ArithOpNode>(operationSymbol, otherTempResultVar, addOperand1, addOperand2);
+        previousParentNode.lock()->addChild(arithOpNode);
         previousParentNode = arithOpNode;
     }
 
@@ -151,8 +151,8 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel2Expr(Fortran90Parser::Level2Ex
 
         std::string operation = ctx->children[index - 1]->getText();
         std::string operationSymbol = (operation == "+") ? "ADD" : "SUB";
-        ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, newTempVar, lastTempVar, nextAddOperand);
-        previousParentNode->addChild(arithOpNode);
+        std::shared_ptr<ArithOpNode> arithOpNode = std::make_shared<ArithOpNode>(operationSymbol, newTempVar, lastTempVar, nextAddOperand);
+        previousParentNode.lock()->addChild(arithOpNode);
         previousParentNode = arithOpNode;
 
         lastTempVar = newTempVar;
@@ -183,8 +183,8 @@ std::any Fortran90ParserIRTreeVisitor::visitAddOperand(Fortran90Parser::AddOpera
 
         std::string tempResultVar = getNewTempVariableName();
         std::string lastTempVar = tempResultVar;
-        ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, tempResultVar, multOperand1, multOperand2);
-        previousParentNode->addChild(arithOpNode);
+        std::shared_ptr<ArithOpNode> arithOpNode = std::make_shared<ArithOpNode>(operationSymbol, tempResultVar, multOperand1, multOperand2);
+        previousParentNode.lock()->addChild(arithOpNode);
         previousParentNode = arithOpNode;
 
         // repeat for the next multOperand
@@ -196,8 +196,8 @@ std::any Fortran90ParserIRTreeVisitor::visitAddOperand(Fortran90Parser::AddOpera
             std::string newTempVar = getNewTempVariableName();
             std::string operation = ctx->children[index - 1]->getText();
             std::string operationSymbol = (operation == "*") ? "MUL" : "DIV";
-            ArithOpNode *arithOpNode = new ArithOpNode(operationSymbol, newTempVar, lastTempVar, nextMultOperand);
-            previousParentNode->addChild(arithOpNode);
+            std::shared_ptr<ArithOpNode> arithOpNode = std::make_shared<ArithOpNode>(operationSymbol, newTempVar, lastTempVar, nextMultOperand);
+            previousParentNode.lock()->addChild(arithOpNode);
             previousParentNode = arithOpNode;
 
             lastTempVar = newTempVar;
@@ -231,8 +231,8 @@ std::any Fortran90ParserIRTreeVisitor::visitPrintStmt(Fortran90Parser::PrintStmt
         std::string outputItem = ctx->children[3]->getText();
 
         // check if the outputItem is a string or a variable/number etc and print accordingly
-        PrintNode *printNode = new PrintNode(getItemToPrint(outputItem));
-        previousParentNode->addChild(printNode);
+        std::shared_ptr<PrintNode> printNode = std::make_shared<PrintNode>(getItemToPrint(outputItem));
+        previousParentNode.lock()->addChild(printNode);
         previousParentNode = printNode;
     }
     else
@@ -244,8 +244,8 @@ std::any Fortran90ParserIRTreeVisitor::visitPrintStmt(Fortran90Parser::PrintStmt
         // print out each item in the list
         for (std::string item : outputList)
         {
-            PrintNode *printNode = new PrintNode(item);      //already called getItemToPrint when retrieving the outputList
-            previousParentNode->addChild(printNode);
+            std::shared_ptr<PrintNode> printNode = std::make_shared<PrintNode>(item);      //already called getItemToPrint when retrieving the outputList
+            previousParentNode.lock()->addChild(printNode);
             previousParentNode = printNode;
         }
     }
@@ -299,8 +299,8 @@ std::any Fortran90ParserIRTreeVisitor::visitReadStmt(Fortran90Parser::ReadStmtCo
     if (ctx->children[2]->children.size() == 0)
     {
         std::string inputVar = ctx->children[2]->getText();
-        ReadNode *readNode = new ReadNode(inputVar);
-        previousParentNode->addChild(readNode);
+        std::shared_ptr<ReadNode> readNode = std::make_shared<ReadNode>(inputVar);
+        previousParentNode.lock()->addChild(readNode);
         previousParentNode = readNode;
     }
     else
@@ -310,8 +310,8 @@ std::any Fortran90ParserIRTreeVisitor::visitReadStmt(Fortran90Parser::ReadStmtCo
 
         for (std::string item : inputItemList)
         {
-            ReadNode *readNode = new ReadNode(item);
-            previousParentNode->addChild(readNode);
+            std::shared_ptr<ReadNode> readNode = std::make_shared<ReadNode>(item);
+            previousParentNode.lock()->addChild(readNode);
             previousParentNode = readNode;
         }
     }
@@ -370,8 +370,8 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
     {
 
         std::string variable = ctx->children[entityDeclListIndex]->getText();
-        DeclareNode *declareNode = new DeclareNode(variable);
-        previousParentNode->addChild(declareNode);
+        std::shared_ptr<DeclareNode> declareNode = std::make_shared<DeclareNode>(variable);
+        previousParentNode.lock()->addChild(declareNode);
         previousParentNode = declareNode;
     }
     else
@@ -380,8 +380,8 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
         std::vector<std::string> variables = std::any_cast<std::vector<std::string>>(ctx->children[entityDeclListIndex]->accept(this));
         for (std::string variable : variables)
         {
-            DeclareNode *declareNode = new DeclareNode(variable);
-            previousParentNode->addChild(declareNode);
+            std::shared_ptr<DeclareNode> declareNode = std::make_shared<DeclareNode>(variable);
+            previousParentNode.lock()->addChild(declareNode);
             previousParentNode = declareNode;
         }
     }
@@ -420,8 +420,8 @@ std::any Fortran90ParserIRTreeVisitor::visitEquivOperand(Fortran90Parser::EquivO
     std::string orOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
     std::string tempResultVar = getNewTempVariableName();
     std::string lastTempVar = tempResultVar;
-    LogicBinOpNode *orNode = new LogicBinOpNode("OR", tempResultVar, orOperand1, orOperand2);
-    previousParentNode->addChild(orNode);
+    std::shared_ptr<LogicBinOpNode> orNode = std::make_shared<LogicBinOpNode>("OR", tempResultVar, orOperand1, orOperand2);
+    previousParentNode.lock()->addChild(orNode);
     previousParentNode = orNode;
 
     // repeat for the next multOperand
@@ -430,8 +430,8 @@ std::any Fortran90ParserIRTreeVisitor::visitEquivOperand(Fortran90Parser::EquivO
     {
         std::string nextOrOperand = std::any_cast<std::string>(ctx->children[index]->accept(this));
         std::string newTempVar = getNewTempVariableName();
-        LogicBinOpNode *orNode = new LogicBinOpNode("OR", newTempVar, lastTempVar, nextOrOperand);
-        previousParentNode->addChild(orNode);
+        std::shared_ptr<LogicBinOpNode> orNode = std::make_shared<LogicBinOpNode>("OR", newTempVar, lastTempVar, nextOrOperand);
+        previousParentNode.lock()->addChild(orNode);
         previousParentNode = orNode;
 
         lastTempVar = newTempVar;
@@ -452,8 +452,8 @@ std::any Fortran90ParserIRTreeVisitor::visitOrOperand(Fortran90Parser::OrOperand
     std::string andOperand2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
     std::string tempResultVar = getNewTempVariableName();
     std::string lastTempVar = tempResultVar;
-    LogicBinOpNode *andNode = new LogicBinOpNode("AND", tempResultVar, andOperand1, andOperand2);
-    previousParentNode->addChild(andNode);
+    std::shared_ptr<LogicBinOpNode> andNode = std::make_shared<LogicBinOpNode>("AND", tempResultVar, andOperand1, andOperand2);
+    previousParentNode.lock()->addChild(andNode);
     previousParentNode = andNode;
 
     // repeat for the next andOperand
@@ -462,8 +462,8 @@ std::any Fortran90ParserIRTreeVisitor::visitOrOperand(Fortran90Parser::OrOperand
     {
         std::string nextAndOperand = std::any_cast<std::string>(ctx->children[index]->accept(this));
         std::string newTempVar = getNewTempVariableName();
-        LogicBinOpNode *andNode = new LogicBinOpNode("AND", newTempVar, lastTempVar, nextAndOperand);
-        previousParentNode->addChild(andNode);
+        std::shared_ptr<LogicBinOpNode> andNode = std::make_shared<LogicBinOpNode>("AND", newTempVar, lastTempVar, nextAndOperand);
+        previousParentNode.lock()->addChild(andNode);
         previousParentNode = andNode;
 
         lastTempVar = newTempVar;
@@ -485,8 +485,8 @@ std::any Fortran90ParserIRTreeVisitor::visitAndOperand(Fortran90Parser::AndOpera
 
     std::string expr = std::any_cast<std::string>(ctx->children[1]->accept(this));
     std::string tempVar = getNewTempVariableName();
-    LogicNotNode *logicNotNode = new LogicNotNode(tempVar, expr);
-    previousParentNode->addChild(logicNotNode);
+    std::shared_ptr<LogicNotNode> logicNotNode = std::make_shared<LogicNotNode>(tempVar, expr);
+    previousParentNode.lock()->addChild(logicNotNode);
     previousParentNode = logicNotNode;
 
     return tempVar;
@@ -508,8 +508,8 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel4Expr(Fortran90Parser::Level4Ex
     std::string level3Expr2 = std::any_cast<std::string>(ctx->children[2]->accept(this));
     std::string tempResultVar = getNewTempVariableName();
     std::string lastTempVar = tempResultVar;
-    RelOpNode *relOpNode = new RelOpNode(operationSymbol, tempResultVar, level3Expr1, level3Expr2);
-    previousParentNode->addChild(relOpNode);
+    std::shared_ptr<RelOpNode> relOpNode = std::make_shared<RelOpNode>(operationSymbol, tempResultVar, level3Expr1, level3Expr2);
+    previousParentNode.lock()->addChild(relOpNode);
     previousParentNode = relOpNode;
 
     // repeat for the next level3Expr
@@ -522,8 +522,8 @@ std::any Fortran90ParserIRTreeVisitor::visitLevel4Expr(Fortran90Parser::Level4Ex
 
         std::string operation = ctx->children[index - 1]->getText();
         std::string operationSymbol = getRelationalOperator(operation);
-        RelOpNode *relOpNode = new RelOpNode(operationSymbol, newTempVar, lastTempVar, nextLevel3Expr);
-        previousParentNode->addChild(relOpNode);
+        std::shared_ptr<RelOpNode> relOpNode = std::make_shared<RelOpNode>(operationSymbol, newTempVar, lastTempVar, nextLevel3Expr);
+        previousParentNode.lock()->addChild(relOpNode);
         previousParentNode = relOpNode;
 
         lastTempVar = newTempVar;
@@ -543,9 +543,9 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
     if (ctx->children.size() == 3)
     { // just an <ifThenStmt> <conditionalBody> <endIfStmt>
         std::string labelNumber = std::to_string(ifCount++);
-        
-        IfNode *ifNode = new IfNode(labelNumber);
-        previousParentNode->addChild(ifNode);
+
+        std::shared_ptr<IfNode> ifNode = std::make_shared<IfNode>(labelNumber);
+        previousParentNode.lock()->addChild(ifNode);
         previousParentNode = ifNode;
 
         // process the condition block, will create its own nodes
@@ -558,8 +558,8 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
         // otherwise conditionalBody can contain multiple <executionPartConstruct> it will visitChildren
         // or conditionalBody will contain some other (non-terminal) statement (e.g. print) it will visit
         ctx->children[1]->accept(this);
-        EndBlockNode *endThenNode = new EndBlockNode("ENDTHEN");
-        previousParentNode->addChild(endThenNode);
+        std::shared_ptr<EndBlockNode> endThenNode = std::make_shared<EndBlockNode>("ENDTHEN");
+        previousParentNode.lock()->addChild(endThenNode);
         previousParentNode = ifNode;
 
         // process endIfStmt - would just print "ENDIF"
@@ -571,8 +571,8 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
     { // <ifThenStmt> <conditionalBody> <elseConstruct> <endIfStmt>
         std::string labelNumber = std::to_string(ifCount++);   // increment the ifCount
       
-        IfElseNode *ifNode = new IfElseNode(labelNumber);
-        previousParentNode->addChild(ifNode);
+        std::shared_ptr<IfElseNode> ifNode = std::make_shared<IfElseNode>(labelNumber);
+        previousParentNode.lock()->addChild(ifNode);
         previousParentNode = ifNode;
 
         // process conditional block
@@ -581,14 +581,14 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
 
         // process then block
         ctx->children[1]->accept(this);
-        EndBlockNode *endThenNode = new EndBlockNode("ENDTHEN");
-        previousParentNode->addChild(endThenNode);
+        std::shared_ptr<EndBlockNode> endThenNode = std::make_shared<EndBlockNode>("ENDTHEN");
+        previousParentNode.lock()->addChild(endThenNode);
         previousParentNode = ifNode;
 
         // process elseConstruct
         ctx->children[2]->accept(this); // a elseConstruct
-        EndBlockNode *endElseNode = new EndBlockNode("ENDELSE");
-        previousParentNode->addChild(endElseNode);
+        std::shared_ptr<EndBlockNode> endElseNode = std::make_shared<EndBlockNode>("ENDELSE");
+        previousParentNode.lock()->addChild(endElseNode);
         previousParentNode = ifNode;
 
         // process endIfStmt
@@ -611,8 +611,8 @@ std::any Fortran90ParserIRTreeVisitor::visitIfThenStmt(Fortran90Parser::IfThenSt
     std::string conditionVar = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
     // TEST <var>  - not actually used in conversion to WASM
-    TestNode *testNode = new TestNode(conditionVar);
-    previousParentNode->addChild(testNode);
+    std::shared_ptr<TestNode> testNode = std::make_shared<TestNode>(conditionVar);
+    previousParentNode.lock()->addChild(testNode);
     previousParentNode = testNode;
 
     return nullptr;
@@ -641,8 +641,8 @@ std::any Fortran90ParserIRTreeVisitor::visitElseConstruct(Fortran90Parser::ElseC
 
 std::any Fortran90ParserIRTreeVisitor::visitEndIfStmt(Fortran90Parser::EndIfStmtContext *ctx)
 {
-    EndBlockNode *endIfNode = new EndBlockNode("ENDIF");
-    previousParentNode->addChild(endIfNode);
+    std::shared_ptr<EndBlockNode> endIfNode = std::make_shared<EndBlockNode>("ENDIF");
+    previousParentNode.lock()->addChild(endIfNode);
     previousParentNode = endIfNode;
     return nullptr;
 }
@@ -664,15 +664,15 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
         std::string labelNumber = std::to_string(loopCount++);
 
         //create the new LoopCondNode first, attach to the previousParentNode
-        LoopCondNode *loopNode = new LoopCondNode(labelNumber);
-        previousParentNode->addChild(loopNode);
+        std::shared_ptr<LoopCondNode> loopNode = std::make_shared<LoopCondNode>(labelNumber);
+        previousParentNode.lock()->addChild(loopNode);
         previousParentNode = loopNode;
 
         //process the commaLoopControl or loopControl, add as first child of the loopNode
         //but capture the loopControl struct, so I can break away the connections between the initialisationNode, condition block and the step block
         doLoopStruct loopControl = std::any_cast<doLoopStruct>(ctx->children[1]->accept(this));
-        loopControl.initialisationEndNode->removeChild(loopControl.condTopNode);
-        loopControl.condEndNode->removeChild(loopControl.stepTopNode);
+        loopControl.initialisationEndNode->removeChild(*loopControl.condTopNode);
+        loopControl.condEndNode->removeChild(*loopControl.stepTopNode);
 
         //add the condition as the second child of the loopNode
         loopNode->addChild(loopControl.condTopNode);    
@@ -682,9 +682,8 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
         for(size_t i = 2; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct into sequential nodes
             ctx->children[i]->accept(this);
         }
-        EndBlockNode *endBodyNode = new EndBlockNode("ENDBODY");    //add an ENDBODY at the end of the loop body
-        previousParentNode->addChild(endBodyNode);
- 
+        std::shared_ptr<EndBlockNode> endBodyNode = std::make_shared<EndBlockNode>("ENDBODY");    //add an ENDBODY at the end of the loop body
+        previousParentNode.lock()->addChild(endBodyNode);
         //add the step block to the loopNode as the fourth child
         loopNode->addChild(loopControl.stepTopNode);
 
@@ -696,23 +695,23 @@ std::any Fortran90ParserIRTreeVisitor::visitBlockDoConstruct(Fortran90Parser::Bl
         //create a normal LoopNode
         std::string labelNumber = std::to_string(loopCount++);
 
-        LoopNode *loopNode = new LoopNode(labelNumber);
-        previousParentNode->addChild(loopNode);
+        std::shared_ptr<LoopNode> loopNode = std::make_shared<LoopNode>(labelNumber);
+        previousParentNode.lock()->addChild(loopNode);
         previousParentNode = loopNode;
 
         // process the body of the loop, either starting at index 1 
         for(size_t i = 1; i < ctx->children.size() - 1; i++){      //process each executionPartConstruct into sequential nodes
             ctx->children[i]->accept(this);
         }
-        EndBlockNode *endBodyNode = new EndBlockNode("ENDBODY");    //add an ENDBODY at the end of the loop body
-        previousParentNode->addChild(endBodyNode);
+        std::shared_ptr<EndBlockNode> endBodyNode = std::make_shared<EndBlockNode>("ENDBODY");    //add an ENDBODY at the end of the loop body
+        previousParentNode.lock()->addChild(endBodyNode);
 
         previousParentNode = loopNode;
     }
 
     //add the ENDLOOP at the end of the loop
-    EndBlockNode *endLoopNode = new EndBlockNode("ENDLOOP");
-    previousParentNode->addChild(endLoopNode);
+    std::shared_ptr<EndBlockNode> endLoopNode = std::make_shared<EndBlockNode>("ENDLOOP");
+    previousParentNode.lock()->addChild(endLoopNode);
     previousParentNode = endLoopNode;
 
     return nullptr;
@@ -746,8 +745,8 @@ std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopCon
     std::string initialisationExpression = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
     //create a MovNode to initialise the loop variable
-    MovNode *movNode = new MovNode(variableName, initialisationExpression);
-    previousParentNode->addChild(movNode);
+    std::shared_ptr<MovNode> movNode = std::make_shared<MovNode>(variableName, initialisationExpression);
+    previousParentNode.lock()->addChild(movNode);
     previousParentNode = movNode;
 
     //store the MovNode as the initialisationEndNode
@@ -758,16 +757,16 @@ std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopCon
     //create a GT RelOpNode, and a TestNode
     //since the terminating condition for the do loop is when loop variable > terminatingExpression
     std::string tempBoolVar = getNewTempVariableName();
-    RelOpNode *relOpNode = new RelOpNode("GT", tempBoolVar, variableName, terminatingExpression);
-    previousParentNode->addChild(relOpNode);
+    std::shared_ptr<RelOpNode> relOpNode = std::make_shared<RelOpNode>("GT", tempBoolVar, variableName, terminatingExpression);
+    previousParentNode.lock()->addChild(relOpNode);
     previousParentNode = relOpNode;
-    TestNode *testNode = new TestNode(tempBoolVar);
-    previousParentNode->addChild(testNode);
+    std::shared_ptr<TestNode> testNode = std::make_shared<TestNode>(tempBoolVar);
+    previousParentNode.lock()->addChild(testNode);
     previousParentNode = testNode;
 
     //whichever is the child of the movNode is the start of the 'terminating condition expression'
     //while the TEST node is the end of the 'terminating condition expression'
-    loopControl.condTopNode = movNode->getChildren()[0];
+    loopControl.condTopNode = movNode->getSingleChild();
     loopControl.condEndNode = testNode;
 
     //process the step commaExpr if it exists, otherwise set to 1
@@ -778,17 +777,17 @@ std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopCon
 
     //create a ArithOpNode for the step expression
     std::string tempLoopVar = getNewTempVariableName();
-    ArithOpNode *arithOpNode = new ArithOpNode("ADD", tempLoopVar, variableName, stepExpression);
-    previousParentNode->addChild(arithOpNode);
+    std::shared_ptr<ArithOpNode> arithOpNode = std::make_shared<ArithOpNode>("ADD", tempLoopVar, variableName, stepExpression);
+    previousParentNode.lock()->addChild(arithOpNode);
     previousParentNode = arithOpNode;
     //then MOVE the tempLoopVar back to the loop variable
-    MovNode *stepMovNode = new MovNode(variableName, tempLoopVar);
-    previousParentNode->addChild(stepMovNode);
+    std::shared_ptr<MovNode> stepMovNode = std::make_shared<MovNode>(variableName, tempLoopVar);
+    previousParentNode.lock()->addChild(stepMovNode);
     previousParentNode = stepMovNode;
 
     //the stepTopNode is the child of the condEndNode
     //and the stepEndNode is the MovNode
-    loopControl.stepTopNode = testNode->getChildren()[0];
+    loopControl.stepTopNode = testNode->getSingleChild();
 
     //return a struct in order to construct a LoopCondNode in BlockDoConstruct
     return loopControl;

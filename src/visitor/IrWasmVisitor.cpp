@@ -40,11 +40,11 @@ std::string IrWasmVisitor::getMemoryImportCode() {
     return memoryImportCode;
 }
 
-std::string IrWasmVisitor::getEntireProgramCode(BaseNode* startNode) {
+std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>& startNode) {
     
     std::string header = "(module\n";
     std::string mainCode = "(func (export \"main\")\n";
-    mainCode += startNode->accept(this);
+    mainCode += startNode->accept(*this);
     mainCode += ")\n)";     //to close the module and main function
 
     // after the main code, flags will be set, so we can add the imports
@@ -61,7 +61,7 @@ std::string IrWasmVisitor::getEntireProgramCode(BaseNode* startNode) {
     return header + mainCode;
 }
 
-std::string IrWasmVisitor::visitArithOpNode(ArithOpNode* node) {
+std::string IrWasmVisitor::visitArithOpNode(const std::shared_ptr<ArithOpNode>& node) {
     std::string wasmCode = convertSrcToWASM(node->getSrc1(), stringMapIndicies) + convertSrcToWASM(node->getSrc2(), stringMapIndicies);
 
     std::string arithOp = node->getOp();
@@ -77,14 +77,14 @@ std::string IrWasmVisitor::visitArithOpNode(ArithOpNode* node) {
     wasmCode += convertDestToWASM(node->getDest());
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 
 }
 
-std::string IrWasmVisitor::visitLogicBinOpNode(LogicBinOpNode* node) {
+std::string IrWasmVisitor::visitLogicBinOpNode(const std::shared_ptr<LogicBinOpNode>& node) {
     std::string wasmCode = convertSrcToWASM(node->getSrc1(), stringMapIndicies) + convertSrcToWASM(node->getSrc2(), stringMapIndicies);
 
     std::string logicOp = node->getOp();
@@ -96,25 +96,25 @@ std::string IrWasmVisitor::visitLogicBinOpNode(LogicBinOpNode* node) {
     wasmCode += convertDestToWASM(node->getDest());
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitLogicNotNode(LogicNotNode* node) {
+std::string IrWasmVisitor::visitLogicNotNode(const std::shared_ptr<LogicNotNode>& node) {
     std::string wasmCode = convertSrcToWASM(node->getSrc(), stringMapIndicies);
     wasmCode += "i32.eqz\n";
     wasmCode += convertDestToWASM(node->getDest());
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitRelOpNode(RelOpNode* node) {
+std::string IrWasmVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node) {
     std::string wasmCode = convertSrcToWASM(node->getSrc1(), stringMapIndicies) + convertSrcToWASM(node->getSrc2(), stringMapIndicies);
 
     std::string relOp = node->getOp();
@@ -134,24 +134,24 @@ std::string IrWasmVisitor::visitRelOpNode(RelOpNode* node) {
     wasmCode += convertDestToWASM(node->getDest());
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitMovNode(MovNode* node) {
+std::string IrWasmVisitor::visitMovNode(const std::shared_ptr<MovNode>& node) {
     std::string wasmCode = convertSrcToWASM(node->getSrc(), stringMapIndicies);
     wasmCode += convertDestToWASM(node->getDest());
    
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitEndBlockNode(EndBlockNode* node) {
+std::string IrWasmVisitor::visitEndBlockNode(const std::shared_ptr<EndBlockNode>& node) {
     std::string wasmCode = "";
     //DON'T add ) if it is ENDBODY, since we add br $bodyLabel when we process the ENDLOOP node
     if (node->getText() != "ENDBODY") {    
@@ -159,86 +159,86 @@ std::string IrWasmVisitor::visitEndBlockNode(EndBlockNode* node) {
     }
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitExitNode(ExitNode* node) {
+std::string IrWasmVisitor::visitExitNode(const std::shared_ptr<ExitNode>& node) {
     std::string endloopLabel = exitStack.top();
     exitStack.pop();
     std::string wasmCode = "br $" + endloopLabel + "\n";
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitLoopNode(LoopNode* node) {
+std::string IrWasmVisitor::visitLoopNode(const std::shared_ptr<LoopNode>& node) {
 
     std::string wasmCode = "(block $" + node->getEndloopLabel() + "\n";
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
     exitStack.push(node->getEndloopLabel());
-    wasmCode += node->getChildren()[0]->accept(this);    // process the body of the loop
+    wasmCode += node->getChildren()[0]->accept(*this);    // process the body of the loop
     wasmCode += "br $" + node->getBodyLabel() + "\n)\n";     // for end of one of the block statement
     
-    std::string endloopCode = node->getChildren()[1]->accept(this);
+    std::string endloopCode = node->getChildren()[1]->accept(*this);
     return wasmCode + endloopCode;
 }
 
-std::string IrWasmVisitor::visitLoopCondNode(LoopCondNode* node) {
+std::string IrWasmVisitor::visitLoopCondNode(const std::shared_ptr<LoopCondNode>& node) {
     std::string wasmCode = "(block $" + node->getEndLoopLabel() + "\n";
     
     //sandwich the initialisation code between the block and the loop - unnecessary but might make it clearer it is the initialisation logic
-    std::string initCode = node->getChildren()[0]->accept(this);       
+    std::string initCode = node->getChildren()[0]->accept(*this);       
     wasmCode += initCode;
 
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
-    std::string conditionCode = node->getChildren()[1]->accept(this);
+    std::string conditionCode = node->getChildren()[1]->accept(*this);
     //does not need to use exitStack here, since we know where the EXIT is 
     //we are adding it at the start of the loop, after the termination condition check
     std::string extraTerminationCode = "(if \n(then \n br $" + node->getEndLoopLabel() + "\n)\n)\n";
-    std::string bodyCode = node->getChildren()[2]->accept(this);
-    std::string stepCode = node->getChildren()[3]->accept(this);
+    std::string bodyCode = node->getChildren()[2]->accept(*this);
+    std::string stepCode = node->getChildren()[3]->accept(*this);
     std::string extraEndloopCode = "br $" + node->getBodyLabel() + "\n)\n";
-    std::string afterEndNodeCode = node->getChildren()[4]->accept(this);
+    std::string afterEndNodeCode = node->getChildren()[4]->accept(*this);
     wasmCode += conditionCode + extraTerminationCode + bodyCode + stepCode + extraEndloopCode + afterEndNodeCode;
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitIfNode(IfNode* node) {
-    std::string conditionCode = node->getChildren()[0]->accept(this);
-    std::string thenCode = node->getChildren()[1]->accept(this);
+std::string IrWasmVisitor::visitIfNode(const std::shared_ptr<IfNode>& node) {
+    std::string conditionCode = node->getChildren()[0]->accept(*this);
+    std::string thenCode = node->getChildren()[1]->accept(*this);
 
     
-    std::string endCode = node->getChildren()[2]->accept(this);
+    std::string endCode = node->getChildren()[2]->accept(*this);
     return conditionCode + "(if\n(then\n" + thenCode + endCode;
 }
 
-std::string IrWasmVisitor::visitIfElseNode(IfElseNode* node) {
+std::string IrWasmVisitor::visitIfElseNode(const std::shared_ptr<IfElseNode>& node) {
 
-    std::string conditionCode = node->getChildren()[0]->accept(this);
-    std::string thenCode = node->getChildren()[1]->accept(this);
+    std::string conditionCode = node->getChildren()[0]->accept(*this);
+    std::string thenCode = node->getChildren()[1]->accept(*this);
 
-    std::string elseCode = node->getChildren()[2]->accept(this);
-    std::string endCode = node->getChildren()[3]->accept(this);    //also contains rest of code
+    std::string elseCode = node->getChildren()[2]->accept(*this);
+    std::string endCode = node->getChildren()[3]->accept(*this);    //also contains rest of code
     return conditionCode + "(if\n(then\n" + thenCode + "(else\n" + elseCode + endCode;
 }
 
-std::string IrWasmVisitor::visitDeclareNode(DeclareNode* node) {
+std::string IrWasmVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode>& node) {
     std::string wasmCode = "(local $" + node->getVar() + " i32)\n";
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitPrintNode(PrintNode* node) {
+std::string IrWasmVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node) {
     std::string wasmCode = convertSrcToWASM(node->getSrc(), stringMapIndicies);
 
     if (isStringConst(node->getSrc())) {
@@ -250,19 +250,19 @@ std::string IrWasmVisitor::visitPrintNode(PrintNode* node) {
     }
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
 }
 
-std::string IrWasmVisitor::visitReadNode(ReadNode* node) {
+std::string IrWasmVisitor::visitReadNode(const std::shared_ptr<ReadNode>& node) {
     std::string wasmCode = "call $read\n";
     wasmCode += "local.set $" + node->getVar() + "\n";
     importRead = true;
 
     if (node->getChildren().size() == 1) {
-        std::string restOfCode = node->getChildren()[0]->accept(this);
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
     }
     return wasmCode;
@@ -271,18 +271,18 @@ std::string IrWasmVisitor::visitReadNode(ReadNode* node) {
 // Nodes in this class are part of the IR tree purely for annotation purposes
 // They have no equivalent in the wasm code generation
 
-std::string IrWasmVisitor::visitTestNode(TestNode* node) {
+std::string IrWasmVisitor::visitTestNode(const std::shared_ptr<TestNode>& node) {
     if (node->getChildren().size() == 1) {
-        return node->getChildren()[0]->accept(this);
+        return node->getChildren()[0]->accept(*this);
     }
     // just skip this node - TEST probably shouldn't have a child
     return "";
 }
 
-std::string IrWasmVisitor::visitEntryNode(EntryNode* node) {
+std::string IrWasmVisitor::visitEntryNode(const std::shared_ptr<EntryNode>& node) {
     // just skip the ENTRY node, and process its child
     if (node->getChildren().size() == 1) {
-        return node->getChildren()[0]->accept(this);
+        return node->getChildren()[0]->accept(*this);
     }
     // in case it has no children, empty program
     return "";
@@ -340,4 +340,3 @@ std::string IrWasmVisitor::convertDestToWASM(const std::string &dest) {
     //otherwise it is a temp variable, so we leave it on the stack
     return wasmCode;
 }
-

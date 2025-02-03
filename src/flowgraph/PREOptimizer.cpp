@@ -15,7 +15,7 @@
 
 
 PREOptimizer::PREOptimizer(BasicBlock* entryBasicBlock, int nextProgramTempVariableCount) : entryBasicBlock(entryBasicBlock), nextProgramTempVariableCount(nextProgramTempVariableCount) {
-    BaseNode* rootNode = entryBasicBlock->get_instructions_copy().front();
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     this->allExpressionsToCloneableNodesMap = AnalysisTools::getAllProgramExpressionsToCloneableNodesMap(rootNode);
     //get all expressions in the program, just take the keys from the map instead of traversing the IR tree again
     for (auto it = allExpressionsToCloneableNodesMap.begin(); it != allExpressionsToCloneableNodesMap.end(); ++it) {
@@ -91,33 +91,33 @@ void PREOptimizer::addNewBasicBlocksToMultiplePredecessorNodes()
             for (BasicBlock* predecessor : predecessors)
             {
                 //if it is an EndBlockNode, the insertion is more simple, so no need to create a new basic block
-                BaseNode* lastInstruction = predecessor->get_instructions_copy().back();
-                if (dynamic_cast<EndBlockNode*>(lastInstruction) == nullptr)
+                std::shared_ptr<BaseNode> lastInstruction = predecessor->get_instructions_copy().back().lock();
+                if (std::dynamic_pointer_cast<EndBlockNode>(lastInstruction) == nullptr)
                 {   
                     //otherwise, check what the last instruction is
                     /// ONE: it is a TestNode. This means we need to convert IfNode --> IfElseNode
                     /// TWO: it is a LoopNode. This means we need to insert a new instruction at the start of the LoopNode body
                     /// THREE: it is a SimpleNode (not TestNode). This means we need to insert a new instruction after the SimpleNode
                     InsertableBasicBlock::NodeInsertionStrategy* insertionStrategy;
-                    if (dynamic_cast<TestNode*>(lastInstruction) != nullptr)
+                    if (std::dynamic_pointer_cast<TestNode>(lastInstruction) != nullptr)
                     {
                         //go backwards from the test node to find the if node
-                        IfNode* ifNode;
-                        for (BaseNode* node = lastInstruction; node != nullptr; node = node->getParent()) {
-                            if (dynamic_cast<IfNode*>(node) != nullptr) {
-                                ifNode = dynamic_cast<IfNode*>(node);
+                        std::shared_ptr<IfNode> ifNode;
+                        for (std::shared_ptr<BaseNode> node = lastInstruction; node != nullptr; node = node->getParent()) {
+                            if (std::dynamic_pointer_cast<IfNode>(node) != nullptr) {
+                                ifNode = std::dynamic_pointer_cast<IfNode>(node);
                                 break;
                             }
                         }
                         insertionStrategy = AnalysisTools::createNewElseBlockInsertionStrategy(ifNode);
                     }
-                    else if (dynamic_cast<LoopNode*>(lastInstruction) != nullptr)
+                    else if (std::dynamic_pointer_cast<LoopNode>(lastInstruction) != nullptr)
                     {
-                        insertionStrategy = AnalysisTools::createLoopBodyStartInsertionStrategy(dynamic_cast<LoopNode*>(lastInstruction));
+                        insertionStrategy = AnalysisTools::createLoopBodyStartInsertionStrategy(std::dynamic_pointer_cast<LoopNode>(lastInstruction));
                     }
                     else
                     {
-                        insertionStrategy = AnalysisTools::createAfterSimpleNodeInsertionStrategy(dynamic_cast<SimpleNode*>(lastInstruction));
+                        insertionStrategy = AnalysisTools::createAfterSimpleNodeInsertionStrategy(std::dynamic_pointer_cast<SimpleNode>(lastInstruction));
                     }
                   
 
@@ -143,9 +143,9 @@ bool PREOptimizer::basicBlockRemovePartialRedundancy(BasicBlock* basicBlock) {
     //iterate through all the instructions in the basic block
     //if the current instruction generates an expression which is partially redundant, then remove it
 
-    std::list<BaseNode*>& instructions = basicBlock->get_instructions_reference();
+    std::list<std::weak_ptr<BaseNode>>& instructions = basicBlock->get_instructions_reference();
     for (auto it = instructions.begin(); it != instructions.end();) {
-        BaseNode* instruction = *it;
+        std::shared_ptr<BaseNode> instruction = it->lock();
 
 
         ///FIRST: check if you need to add any t=x+y nodes
@@ -157,12 +157,12 @@ bool PREOptimizer::basicBlockRemovePartialRedundancy(BasicBlock* basicBlock) {
             modified = true;
             // std::cout<<"Node: " << instruction->getText() << std::endl;
             
-            ExpressionNode* newExpressionNode = getNewTempExpressionNodeToAdd(tempExpression);
+            std::shared_ptr<ExpressionNode> newExpressionNode = getNewTempExpressionNodeToAdd(tempExpression);
             // std::cout << "Adding new node: " << newExpressionNode->getText() << std::endl;
 
             //If it is a placeholder node, then we need to use the insertion strategy
             //Otherwise, we can just insert the node above the current instruction
-            if (dynamic_cast<PlaceholderNode*>(instruction) != nullptr) {
+            if (std::dynamic_pointer_cast<PlaceholderNode>(instruction) != nullptr) {
                 InsertableBasicBlock* insertableBasicBlock = dynamic_cast<InsertableBasicBlock*>(basicBlock);
                 // std::cout <<"Node: " << instruction->getText() << std::endl;
                 // std::cout <<"using insertion strategy for instruction: " <<instruction->getText() <<std::endl;
@@ -191,12 +191,12 @@ bool PREOptimizer::basicBlockRemovePartialRedundancy(BasicBlock* basicBlock) {
 
                 std::string tempVar = getOrAddNewTempVariableForExpression(expression);
 
-                ExpressionNode* expressionNode = dynamic_cast<ExpressionNode*>(instruction);
+                std::shared_ptr<ExpressionNode> expressionNode = std::dynamic_pointer_cast<ExpressionNode>(instruction);
                 if (expressionNode == nullptr) {
                     throw std::runtime_error("ERROR while handling PRE: Instruction is not an ExpressionNode subclass, node: " + instruction->getText());
                 }
                 std::string originalDest = expressionNode->getDest();
-                MovNode* movNode = new MovNode(originalDest, tempVar);
+                std::shared_ptr<MovNode> movNode = std::make_shared<MovNode>(originalDest, tempVar);
 
                 // std::cout <<"Node: " << instruction->getText() << std::endl;
                 // std::cout <<"Replacing node with: " << movNode->getText() << std::endl;
@@ -217,7 +217,7 @@ bool PREOptimizer::basicBlockRemovePartialRedundancy(BasicBlock* basicBlock) {
 }
 
 //because I guess at a particular node, multiple new t=x+y could needed to be added
-std::set<std::string> PREOptimizer::getTempExpressionsToAdd(BaseNode* instruction) {
+std::set<std::string> PREOptimizer::getTempExpressionsToAdd(std::shared_ptr<BaseNode> instruction) {
     //latest intersect used.out
     std::set<std::string> latestExpressions = nodeLatestExpressionsSets[instruction];
     std::set<std::string> usedOut = nodeOutUsedSets[instruction];
@@ -230,7 +230,7 @@ std::set<std::string> PREOptimizer::getTempExpressionsToAdd(BaseNode* instructio
     return result;
 }
 
-ExpressionNode* PREOptimizer::getNewTempExpressionNodeToAdd(std::string &expression) {
+std::shared_ptr<ExpressionNode> PREOptimizer::getNewTempExpressionNodeToAdd(std::string &expression) {
 
     std::string tempVar;
     if (expressionToTempVarMap.find(expression) != expressionToTempVarMap.end()) {
@@ -242,20 +242,20 @@ ExpressionNode* PREOptimizer::getNewTempExpressionNodeToAdd(std::string &express
         tempVar = "_s" + std::to_string(nextProgramTempVariableCount++);
         expressionToTempVarMap[expression] = tempVar;
         //add a declare statement to the start of the program
-        DeclareNode* declareTempVarNode = new DeclareNode(tempVar);
+        std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(tempVar);
 
         //get the first instruction of the program from the first basic block
         ///WARNING: this assumes the instructions are in normal order, not reversed
-        std::list<BaseNode*>::iterator declarationIterator = entryBasicBlock->get_instructions_reference().begin();
+        std::list<std::weak_ptr<BaseNode>>::iterator declarationIterator = entryBasicBlock->get_instructions_reference().begin();
         entryBasicBlock->insert_sandwich_instruction_node(declarationIterator, declareTempVarNode, false);
     }
 
     //now fetch the node from the other map (expressionToCloneableNodesMap)
-    ExpressionNode* cloneableNode = allExpressionsToCloneableNodesMap[expression];
+    std::shared_ptr<ExpressionNode>& cloneableNode = allExpressionsToCloneableNodesMap[expression];
     if (cloneableNode == nullptr) {
         throw std::runtime_error("ERROR while handling PRE: Cloneable node not found for expression: " + expression);
     }
-    ExpressionNode* newExpressionNode = dynamic_cast<ExpressionNode*>(cloneableNode->cloneContent());
+    std::shared_ptr<ExpressionNode> newExpressionNode = std::dynamic_pointer_cast<ExpressionNode>(cloneableNode->cloneContent());
     if (newExpressionNode == nullptr) {
         throw std::runtime_error("ERROR while handling PRE: node is not an ExpressionNode subclass: " + expression);
     }
@@ -277,17 +277,17 @@ std::string PREOptimizer::getOrAddNewTempVariableForExpression(std::string &expr
     expressionToTempVarMap[expression] = programTempVar;
 
     //add a declare statement to the start of the program
-    DeclareNode* declareTempVarNode = new DeclareNode(programTempVar);
+    std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(programTempVar);
 
     //get the first instruction of the program from the first basic block
     ///WARNING: this assumes the instructions are in normal order, not reversed
-    std::list<BaseNode*>::iterator declarationIterator = entryBasicBlock->get_instructions_reference().begin();
+    std::list<std::weak_ptr<BaseNode>>::iterator declarationIterator = entryBasicBlock->get_instructions_reference().begin();
     entryBasicBlock->insert_sandwich_instruction_node(declarationIterator, declareTempVarNode, false);
 
     return programTempVar;
 }
 
-bool PREOptimizer::isExpressionReplacedByTemp(BaseNode* instruction, std::string &expression) {
+bool PREOptimizer::isExpressionReplacedByTemp(std::shared_ptr<BaseNode> instruction, std::string &expression) {
     //if the instruction is a MovNode and the expression is the same as the dest, then return true
     std::set<std::string> unionSet;
 

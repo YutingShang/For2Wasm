@@ -7,8 +7,8 @@ TestNode::TestNode(std::string var) {
     this->textVector = {"TEST", var};
 }
 
-BaseNode* TestNode::cloneContent() const {
-    return new TestNode(getVar());
+std::shared_ptr<BaseNode> TestNode::cloneContent() const {
+    return std::make_shared<TestNode>(getVar());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -26,8 +26,8 @@ void TestNode::setVar(std::string var) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string TestNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitTestNode(this);
+std::string TestNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitTestNode(std::static_pointer_cast<TestNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

@@ -14,18 +14,18 @@ class USED : public BaseDataFlowAnalysis<std::set<std::string>> {
         void printBlockDataFlowSets() override;
 
         //returns the latest expressions set for each node (which is calculated in order to compute the used set)
-        std::unordered_map<BaseNode*, std::set<std::string>> getNodesLatestExpressionsSets();
+        std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getNodesLatestExpressionsSets();
 
     private:
 
         // std::set<std::string> allExpressions;            //universe of all expressions in the program - used for complementation
-        std::unordered_map<BaseNode*, std::set<std::string>> allNodesLatestExpressions;  //latest[B] for all nodes
+        std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesLatestExpressions;  //latest[B] for all nodes
         
 
     protected:
 
         std::set<std::string> meetOperation(const std::set<std::string>& current_used_set, const std::set<std::string>& successor_used_set) override;
 
-        std::set<std::string> transferFunction(BaseNode* instruction, const std::set<std::string>& out_used_set) override;
+        std::set<std::string> transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& out_used_set) override;
 
 };

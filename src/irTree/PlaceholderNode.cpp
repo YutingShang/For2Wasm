@@ -4,12 +4,12 @@ PlaceholderNode::PlaceholderNode() {
     this->textVector = {"PLACEHOLDER"};
 }
 
-BaseNode* PlaceholderNode::cloneContent() const {
-    return new PlaceholderNode();
+std::shared_ptr<BaseNode> PlaceholderNode::cloneContent() const {
+    return std::make_shared<PlaceholderNode>();
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
-std::string PlaceholderNode::accept(IrBaseVisitor* visitor) {
+std::string PlaceholderNode::accept(IrBaseVisitor& visitor) {
     //throw error - placeholder node should not be in IR tree
     throw std::runtime_error("Placeholder node should not be in IR tree");
 }
@@ -32,15 +32,15 @@ std::set<std::string> PlaceholderNode::getReferencedExpressions() const {
 }
 
 /////////////////////////TREE MANIPULATION/////////////////////////
-void PlaceholderNode::addChild(BaseNode* child) {
+void PlaceholderNode::addChild(std::shared_ptr<BaseNode> child) {
     //do nothing
 }
 
-void PlaceholderNode::addChildAtIndex(BaseNode* child, int index) {
+void PlaceholderNode::addChildAtIndex(std::shared_ptr<BaseNode> child, int index) {
     //do nothing
 }
 
-BaseNode* PlaceholderNode::removeCurrentNodeFromIRTree() {
+std::shared_ptr<BaseNode> PlaceholderNode::removeCurrentNodeFromIRTree() {
     //throw error - placeholder node should not be in IR tree
     throw std::runtime_error("Placeholder node should not be in IR tree");
 }

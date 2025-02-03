@@ -1,7 +1,7 @@
 #include "VBE.h"
 
 VBE::VBE(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis(entryBasicBlock, AnalysisDirection::BACKWARD) {
-    BaseNode* rootNode = entryBasicBlock->get_instructions_copy().front();
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
 
     //set the initial set to the universe of all expressions
@@ -35,7 +35,7 @@ std::set<std::string> VBE::meetOperation(const std::set<std::string>& current_vb
     return result;
 }
 
-std::set<std::string> VBE::transferFunction(BaseNode* instruction, const std::set<std::string>& out_vbe_set) {
+std::set<std::string> VBE::transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& out_vbe_set) {
     std::set<std::string> in_vbe_set = out_vbe_set;
 
     //get the generated and killed expressions from the instruction

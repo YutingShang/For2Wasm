@@ -52,10 +52,10 @@ bool PropagationOptimizer::basicBlockPropagation(BasicBlock *basicBlock, Propaga
 
     // now for each instruction, check its in-availCopies set as specified in the pseudo code above
 
-    std::list<BaseNode *> &instructions = basicBlock->get_instructions_reference();
+    std::list<std::weak_ptr<BaseNode>> &instructions = basicBlock->get_instructions_reference();
     for (auto it = instructions.begin(); it != instructions.end();)
     {
-        BaseNode *instruction = *it;
+        std::shared_ptr<BaseNode> instruction = it->lock();
         std::set<std::pair<std::string, std::string>> inAvailCopiesSet = nodeAvailCopies[instruction];  //get the in-availCopies set for the current instruction
         std::set<std::string> referencedVariables = instruction->getReferencedVariables();
         std::set<std::pair<std::string, std::string>> generatedCopyStatements = AnalysisTools::getGeneratedCopyStatementsAtNode(instruction);
@@ -162,7 +162,7 @@ std::string PropagationOptimizer::getFinalReplacementVariable(std::string var, s
     return lastNonTempVar;
 }
 
-void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromBasicBlock, BaseNode *startSearchFromInstructionNode, std::string tempVar) {
+void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromBasicBlock, std::shared_ptr<BaseNode> startSearchFromInstructionNode, std::string tempVar) {
     ///On a backwards control flow, find the (MOV _t0 a) instruction, and remove it
     // do a DFS backwards from the current basic block as the start node
 
@@ -201,24 +201,26 @@ void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromB
     }
 }
 
-bool PropagationOptimizer::basicBlockRemoveMovTempInstruction(BasicBlock *basicBlock, std::string tempVar, BaseNode* beginBackwardsFromThisNode) {
+bool PropagationOptimizer::basicBlockRemoveMovTempInstruction(BasicBlock *basicBlock, std::string tempVar, std::shared_ptr<BaseNode> beginBackwardsFromThisNode) {
     bool found = false;
     
-    std::list<BaseNode *> &instructions = basicBlock->get_instructions_reference();
+    std::list<std::weak_ptr<BaseNode>> &instructions = basicBlock->get_instructions_reference();
     instructions.reverse();
     
-    std::list<BaseNode*>::iterator it2;
+    std::list<std::weak_ptr<BaseNode>>::iterator it2;
     if (beginBackwardsFromThisNode == nullptr) {
         it2 = instructions.begin();        //default start from the end of the basic block
     } else {
-        it2 = std::find(instructions.begin(), instructions.end(), beginBackwardsFromThisNode);     //start backwards search from the beginBackwardsFromThisNode
+        it2 = std::find_if(instructions.begin(), instructions.end(), [beginBackwardsFromThisNode](std::weak_ptr<BaseNode> node) {
+            return node.lock() == beginBackwardsFromThisNode;
+        });     //start backwards search from the beginBackwardsFromThisNode
     }
 
     //find the (MOV _t0 a) instruction and remove it if it exists
     for (auto it = instructions.begin(); it != instructions.end(); ++it) {
-        BaseNode *instruction = *it;
-        if (dynamic_cast<MovNode *>(instruction) != nullptr) {
-            MovNode *movNode = dynamic_cast<MovNode *>(instruction);
+        std::shared_ptr<BaseNode> instruction = it->lock();
+        if (std::dynamic_pointer_cast<MovNode>(instruction) != nullptr) {
+            std::shared_ptr<MovNode> movNode = std::dynamic_pointer_cast<MovNode>(instruction);
             if (movNode->getDest() == tempVar) {
                 basicBlock->remove_instruction_node(it);
                 found = true;

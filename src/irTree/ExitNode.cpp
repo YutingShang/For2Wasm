@@ -4,14 +4,14 @@ ExitNode::ExitNode()
     : SimpleNode("EXIT") {
 } 
 
-BaseNode* ExitNode::cloneContent() const {
-    return new ExitNode();
+std::shared_ptr<BaseNode> ExitNode::cloneContent() const {
+    return std::make_shared<ExitNode>();
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string ExitNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitExitNode(this);
+std::string ExitNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitExitNode(std::static_pointer_cast<ExitNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

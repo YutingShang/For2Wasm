@@ -7,8 +7,8 @@ DeclareNode::DeclareNode(std::string var){
     this->textVector = {"DECLARE", var};
 }
 
-BaseNode* DeclareNode::cloneContent() const {
-    return new DeclareNode(getVar());
+std::shared_ptr<BaseNode> DeclareNode::cloneContent() const {
+    return std::make_shared<DeclareNode>(getVar());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -26,8 +26,8 @@ void DeclareNode::setVar(std::string var) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string DeclareNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitDeclareNode(this);
+std::string DeclareNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitDeclareNode(std::static_pointer_cast<DeclareNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

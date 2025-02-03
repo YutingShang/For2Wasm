@@ -10,8 +10,8 @@ LogicNotNode::LogicNotNode(std::string dest, std::string expr) {
     this->textVector = {"NOT", dest, expr};
 }
 
-BaseNode* LogicNotNode::cloneContent() const {
-    return new LogicNotNode(getDest(), getSrc());
+std::shared_ptr<BaseNode> LogicNotNode::cloneContent() const {
+    return std::make_shared<LogicNotNode>(getDest(), getSrc());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -34,8 +34,8 @@ void LogicNotNode::setSrc(std::string src) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string LogicNotNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitLogicNotNode(this);
+std::string LogicNotNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitLogicNotNode(std::static_pointer_cast<LogicNotNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

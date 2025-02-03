@@ -6,24 +6,24 @@
 
 //interface for all nodes in the IR tree
 
-class BaseNode {
+class BaseNode: public std::enable_shared_from_this<BaseNode> {
     public:
         //Constructor and destructor
         BaseNode();   //default constructor - used for when we want to create derived nodes without initialising text
         BaseNode(std::string text);
-        virtual ~BaseNode();       //destructor - recursively deletes all children
-        virtual BaseNode* cloneContent() const = 0;     //just copy this node, without its children or parent (not a deep copy). Must be implemented by derived classes to give the correct dynamic type
+        virtual ~BaseNode() = default;       //destructor - automatically handled by smart pointers
+        virtual std::shared_ptr<BaseNode> cloneContent() const = 0;     //just copy this node, without its children or parent (not a deep copy). Must be implemented by derived classes to give the correct dynamic type
         virtual std::string getText() const;    //returns the text of the node
         virtual std::string stringifyIRTree() const;      //print out entire IR tree in text form, including labels and indentation - can be overridden by derived classes
 
         //Getters and setters
-        virtual void setParent(BaseNode* parent);
-        virtual BaseNode* getParent() const;
-        virtual std::vector<BaseNode*> getChildren() const;
+        virtual void setParent(std::shared_ptr<BaseNode> parent);     //caller must ensure that the argument node is not nullptr
+        virtual std::shared_ptr<BaseNode> getParent() const;           //returns a shared pointer to the parent node, easier to use than weak pointer
+        virtual std::vector<std::shared_ptr<BaseNode>> getChildren() const;
         virtual int getPositionInParent() const;
 
         //Visitor pattern - must be implemented by all nodes
-        virtual std::string accept(IrBaseVisitor* visitor) = 0;     
+        virtual std::string accept(IrBaseVisitor& visitor) = 0;     
 
         //Analysis methods
         //Takes the ReferencedItems and DefinedItems and returns the variables
@@ -41,21 +41,21 @@ class BaseNode {
         //Tree manipulation methods
         //Adds a NEW child to the node (either at the end or at a specific index), must be implemented to specify the number of children allowed for each node class - Different to insertSandwichChild defined in SimpleNode
         //NOTE: must handle the parent-child relationship! (e.g. use setParent in addChild and addChildAtIndex)
-        virtual void addChild(BaseNode* child) = 0;
-        virtual void addChildAtIndex(BaseNode* child, int index) = 0;
-        virtual void removeChild(BaseNode* child);
-        virtual void insertSandwichParent(BaseNode* newParent);   //inserts the newParent node between the current parent and the current node
+        virtual void addChild(std::shared_ptr<BaseNode> child) = 0;
+        virtual void addChildAtIndex(std::shared_ptr<BaseNode> child, int index) = 0;
+        virtual void removeChild(BaseNode& child);           //only need access to the child node, not sharing ownership
+        virtual void insertSandwichParent(std::shared_ptr<BaseNode> newParent);   //inserts the newParent node between the current parent and the current node
 
         //edits IR tree by removing the node, and adding its children to the parent node (calls getPositionInParent to find the correct position)
         //NOTE: must be implemented by simple node, and then how to remove IF and LOOP nodes etc.
         //RETURNS: this will return the child node that has replaced the current node - could be nullptr if the node has no children!!
         //CAREFUL: the caller of this function must not use the current node after it has been removed from the IR tree to avoid use-after-free errors
-        virtual BaseNode* removeCurrentNodeFromIRTree() = 0;
+        virtual std::shared_ptr<BaseNode> removeCurrentNodeFromIRTree() = 0;
 
     protected:
         std::vector<std::string> textVector;     //vector of tokens in the instruction, first will contain the operation e.g. MOV a b
-        BaseNode* parent = nullptr;
-        std::vector<BaseNode*> children = {};    //vector of children of the node
+        std::weak_ptr<BaseNode> parent;         //weak pointer to the parent node
+        std::vector<std::shared_ptr<BaseNode>> children = {};    //vector of children of the node
 
         //VALIDATION METHODS
         //checks if the item is a variable (temp or user-defined), false if it is a string or positive integer constant

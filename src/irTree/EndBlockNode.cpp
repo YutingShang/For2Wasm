@@ -7,8 +7,8 @@ EndBlockNode::EndBlockNode(std::string text) {
     textVector = {text};
 }
 
-BaseNode* EndBlockNode::cloneContent() const {
-    return new EndBlockNode(getText());
+std::shared_ptr<BaseNode> EndBlockNode::cloneContent() const {
+    return std::make_shared<EndBlockNode>(getText());
 }
 
 bool EndBlockNode::isValidEndBlock(std::string text) {
@@ -17,8 +17,8 @@ bool EndBlockNode::isValidEndBlock(std::string text) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string EndBlockNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitEndBlockNode(this);
+std::string EndBlockNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitEndBlockNode(std::static_pointer_cast<EndBlockNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

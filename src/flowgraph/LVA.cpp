@@ -39,7 +39,7 @@ std::set<std::string> LVA::meetOperation(const std::set<std::string>& current_li
 }
 
 //transfer function for LVA - returns the set of variables that are live after processing the current instruction (going upwards)
-std::set<std::string> LVA::transferFunction(BaseNode* instruction, const std::set<std::string>& out_live_set) {
+std::set<std::string> LVA::transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& out_live_set) {
     //copy the dataflow set to a new set
     std::set<std::string> in_live_set = out_live_set;
 

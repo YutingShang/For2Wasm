@@ -15,7 +15,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
     // Analysis: LVA
     LVA lva(entryBasicBlock);
     std::vector<BasicBlock *> basicBlocks = lva.getBasicBlocksUsed();
-    std::unordered_map<BaseNode*, std::set<std::string>> nodeLiveSets = lva.getNodeOutDataFlowSets();
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeLiveSets = lva.getNodeOutDataFlowSets();
 
     // Transformation: Remove dead code
     bool removed = false;
@@ -32,7 +32,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
 }
 
 
-bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::vector<BasicBlock *> &basicBlocks, std::unordered_map<BaseNode*, std::set<std::string>> &nodeLiveSets)
+bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::vector<BasicBlock *> &basicBlocks, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> &nodeLiveSets)
 {
     bool modified = false;
     // iterate through the instructions in the basic block, starting from the bottom
@@ -43,13 +43,13 @@ bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::
 
     // gets a REFERENCE of the instructions
     ///NOTE: modifies the instructions directly with remove_instruction_node method
-    std::list<BaseNode *>& instructions = basicBlock->get_instructions_reference(); 
+    std::list<std::weak_ptr<BaseNode>>& instructions = basicBlock->get_instructions_reference(); 
     instructions.reverse();              // reverse the instructions to iterate from the bottom up (remove_instruction_node needs a normal iterator it)
     for (auto it = instructions.begin(); it != instructions.end();)
     {
         // for each instruction, the (out)live set is stored in the current out_live_set variable
         
-        BaseNode *instruction = *it;
+        std::shared_ptr<BaseNode> instruction = it->lock();
         std::set<std::string> out_live_set = nodeLiveSets[instruction];
         std::set<std::string> def_set = instruction->getDefinedVariables();
 

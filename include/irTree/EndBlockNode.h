@@ -9,10 +9,10 @@ public:
     //Constructor and destructor
     EndBlockNode(std::string text);        //text is ENDTHEN ENDTHEN ENDIF ENDLOOP ENDBODY etc.
     ~EndBlockNode() override = default;
-    BaseNode* cloneContent() const override;
+    std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Visitor pattern
-    std::string accept(IrBaseVisitor* visitor) override;
+    std::string accept(IrBaseVisitor& visitor) override;
 
     //Analysis methods
     std::set<std::string> getReferencedVariables() const override;

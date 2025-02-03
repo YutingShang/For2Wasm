@@ -2,14 +2,14 @@
 
 EntryNode::EntryNode() : SimpleNode("ENTRY") {}
 
-BaseNode* EntryNode::cloneContent() const {
-    return new EntryNode();
+std::shared_ptr<BaseNode> EntryNode::cloneContent() const {
+    return std::make_shared<EntryNode>();
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string EntryNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitEntryNode(this);
+std::string EntryNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitEntryNode(std::static_pointer_cast<EntryNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

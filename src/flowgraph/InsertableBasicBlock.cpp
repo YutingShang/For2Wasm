@@ -9,7 +9,8 @@ InsertableBasicBlock::InsertableBasicBlock(NodeInsertionStrategy* strategy) : in
 
 void InsertableBasicBlock::addPlaceholderInstructionNode() {
     //add placeholder instruction node to the instructions list
-    instructions.push_back(new PlaceholderNode());
+    placeholderNode = std::make_shared<PlaceholderNode>();     //the insertable basic block owns the placeholder node
+    instructions.push_back(placeholderNode);
 }
 
 // std::list<BaseNode*>::iterator InsertableBasicBlock::removePlaceholderInstructionNode(std::list<BaseNode*>::iterator it) {
@@ -25,7 +26,7 @@ void InsertableBasicBlock::addPlaceholderInstructionNode() {
 //     return it;
 // }
 
-void InsertableBasicBlock::executeNodeIRInsertion(std::list<BaseNode*>::iterator it, SimpleNode* nodeToInsert) {
+void InsertableBasicBlock::executeNodeIRInsertion(std::list<std::weak_ptr<BaseNode>>::iterator it, std::shared_ptr<SimpleNode> nodeToInsert) {
     //use the strategy to insert the node into the IR tree
     insertionStrategy->insertNodeIntoIRTree(nodeToInsert);
     

@@ -27,77 +27,77 @@ IrFlowgraphVisitor::IrFlowgraphVisitor(BasicBlock *startBasicBlock)
     currentBasicBlock = startBasicBlock;
 }
 
-std::string IrFlowgraphVisitor::visitSimpleNode(SimpleNode *node)
+std::string IrFlowgraphVisitor::visitSimpleNode(const std::shared_ptr<SimpleNode> &node)
 {
     //for simple nodes with 1 child, just add the instruction to the current basic block, and process the child if it exists
     currentBasicBlock->add_instruction(node);
 
     if (node->getChildren().size() == 1)
     {
-        node->getChildren()[0]->accept(this);
+        node->getChildren()[0]->accept(*this);
     }
 
     return ""; // like returning nullptr - not used
 }
 
-std::string IrFlowgraphVisitor::visitEntryNode(EntryNode *node)
+std::string IrFlowgraphVisitor::visitEntryNode(const std::shared_ptr<EntryNode> &node)
 {
 
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitArithOpNode(ArithOpNode *node)
+std::string IrFlowgraphVisitor::visitArithOpNode(const std::shared_ptr<ArithOpNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitLogicBinOpNode(LogicBinOpNode *node)
+std::string IrFlowgraphVisitor::visitLogicBinOpNode(const std::shared_ptr<LogicBinOpNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitLogicNotNode(LogicNotNode *node)
+std::string IrFlowgraphVisitor::visitLogicNotNode(const std::shared_ptr<LogicNotNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitRelOpNode(RelOpNode *node)
+std::string IrFlowgraphVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitMovNode(MovNode *node)
+std::string IrFlowgraphVisitor::visitMovNode(const std::shared_ptr<MovNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitEndBlockNode(EndBlockNode *node)
+std::string IrFlowgraphVisitor::visitEndBlockNode(const std::shared_ptr<EndBlockNode> &node)
 {
 
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitDeclareNode(DeclareNode *node)
+std::string IrFlowgraphVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitPrintNode(PrintNode *node)
+std::string IrFlowgraphVisitor::visitPrintNode(const std::shared_ptr<PrintNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitReadNode(ReadNode *node)
+std::string IrFlowgraphVisitor::visitReadNode(const std::shared_ptr<ReadNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitTestNode(TestNode *node)
+std::string IrFlowgraphVisitor::visitTestNode(const std::shared_ptr<TestNode> &node)
 {
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitLoopNode(LoopNode *node)
+std::string IrFlowgraphVisitor::visitLoopNode(const std::shared_ptr<LoopNode> &node)
 {
     // add the LOOP instruction to end of the current basic block
     currentBasicBlock->add_instruction(node);
@@ -113,33 +113,33 @@ std::string IrFlowgraphVisitor::visitLoopNode(LoopNode *node)
     BasicBlock *loopBody = currentBasicBlock;
 
     // process the body of the loop - should contain an EXIT instruction
-    node->getChildren()[0]->accept(this);
+    node->getChildren()[0]->accept(*this);
 
     // last instruction of the loop body should connect back to the loop body basic block
     currentBasicBlock->add_successor(loopBody);
 
     // process the end of the loop, i.e. ENDLOOP or the endloopLabel of the loop
     currentBasicBlock = loopEndloop;
-    node->getChildren()[1]->accept(this);
+    node->getChildren()[1]->accept(*this);
 
     return "";
 }
 
-std::string IrFlowgraphVisitor::visitLoopCondNode(LoopCondNode *node)
+std::string IrFlowgraphVisitor::visitLoopCondNode(const std::shared_ptr<LoopCondNode> &node)
 {
 
     //add the LOOP instruction to the current basic block, add the initialisation code also the the same basic block
     currentBasicBlock->add_instruction(node);
-    node->getChildren()[0]->accept(this);
+    node->getChildren()[0]->accept(*this);
     //create a new basic block for the termination condition of the loop
     startNewBasicBlockSuccessor();
     BasicBlock *terminationConditionBasicBlock = currentBasicBlock;     //save the basic block for later
-    node->getChildren()[1]->accept(this);
+    node->getChildren()[1]->accept(*this);
 
     //create a new basic block for the loop body+step code, process the two children
     startNewBasicBlockSuccessor();
-    node->getChildren()[2]->accept(this);
-    node->getChildren()[3]->accept(this);
+    node->getChildren()[2]->accept(*this);
+    node->getChildren()[3]->accept(*this);
 
     //connect the loop body+step code to the termination condition basic block
     currentBasicBlock->add_successor(terminationConditionBasicBlock);
@@ -148,12 +148,12 @@ std::string IrFlowgraphVisitor::visitLoopCondNode(LoopCondNode *node)
     //and create a new basic block for the ENDLOOP instruction
     currentBasicBlock = terminationConditionBasicBlock;
     startNewBasicBlockSuccessor();
-    node->getChildren()[4]->accept(this);
+    node->getChildren()[4]->accept(*this);
 
     return "";
 }
 
-std::string IrFlowgraphVisitor::visitExitNode(ExitNode *node)
+std::string IrFlowgraphVisitor::visitExitNode(const std::shared_ptr<ExitNode> &node)
 {
     // set the successor of the current basic block to the endloop basic block
     BasicBlock *loopEndloop = exitStack.top();
@@ -167,13 +167,13 @@ std::string IrFlowgraphVisitor::visitExitNode(ExitNode *node)
     return visitSimpleNode(node);
 }
 
-std::string IrFlowgraphVisitor::visitIfNode(IfNode *node)
+std::string IrFlowgraphVisitor::visitIfNode(const std::shared_ptr<IfNode> &node)
 {
     // add the IF instruction to the current basic block
     currentBasicBlock->add_instruction(node);
 
     // process the condition until TEST- keep adding this to the current basic block with the IF instruction
-    node->getChildren()[0]->accept(this);
+    node->getChildren()[0]->accept(*this);
 
     // create a new basic block for the ENDIF instruction to be filled in later
     // this is a direct successor of the TEST block, since there is no ELSE block
@@ -184,7 +184,7 @@ std::string IrFlowgraphVisitor::visitIfNode(IfNode *node)
     startNewBasicBlockSuccessor();
 
     // process the THEN control flow in the new current basic block
-    node->getChildren()[1]->accept(this);
+    node->getChildren()[1]->accept(*this);
 
     // last basic block of the "then" branch, will contain the ENDTHEN instruction
     // connect it to the ENDIF basic block
@@ -192,12 +192,12 @@ std::string IrFlowgraphVisitor::visitIfNode(IfNode *node)
 
     // now set the current basic block to the ENDIF basic block and process from there
     currentBasicBlock = endIfBasicBlock;
-    node->getChildren()[2]->accept(this);
+    node->getChildren()[2]->accept(*this);
 
     return "";
 }
 
-std::string IrFlowgraphVisitor::visitIfElseNode(IfElseNode *node)
+std::string IrFlowgraphVisitor::visitIfElseNode(const std::shared_ptr<IfElseNode> &node)
 {
     // add the IF instruction to the current basic block
     currentBasicBlock->add_instruction(node);
@@ -206,14 +206,14 @@ std::string IrFlowgraphVisitor::visitIfElseNode(IfElseNode *node)
     BasicBlock *endIfBasicBlock = new BasicBlock();
 
     // process the condition until TEST- keep adding this to the current basic block
-    node->getChildren()[0]->accept(this);
+    node->getChildren()[0]->accept(*this);
 
     // then create a new basic block for the THEN control flow
     BasicBlock *savedCurrentBasicBlock = currentBasicBlock;
     startNewBasicBlockSuccessor();
 
     // process the THEN control flow
-    node->getChildren()[1]->accept(this);
+    node->getChildren()[1]->accept(*this);
 
     // the last basic block of the "then" branch, will contain the ENDTHEN instruction
     // connect it to the ENDIF basic block
@@ -222,7 +222,7 @@ std::string IrFlowgraphVisitor::visitIfElseNode(IfElseNode *node)
     // process the ELSE control flow, first set the current basic block back to the saved basic block with the TEST instruction
     currentBasicBlock = savedCurrentBasicBlock;
     startNewBasicBlockSuccessor();
-    node->getChildren()[2]->accept(this);
+    node->getChildren()[2]->accept(*this);
 
     // the last basic block of the "else" branch, will contain the ENDELSE instruction
     // connect it to the ENDIF basic block
@@ -230,7 +230,7 @@ std::string IrFlowgraphVisitor::visitIfElseNode(IfElseNode *node)
 
     // now set the current basic block to the ENDIF basic block and process from there
     currentBasicBlock = endIfBasicBlock;
-    node->getChildren()[3]->accept(this);
+    node->getChildren()[3]->accept(*this);
 
     return "";
 }

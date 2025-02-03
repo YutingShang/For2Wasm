@@ -5,8 +5,8 @@ PrintNode::PrintNode(std::string operand) {
     this->textVector = {"CALL", "PRINT", operand};
 }
 
-BaseNode* PrintNode::cloneContent() const {
-    return new PrintNode(getSrc());
+std::shared_ptr<BaseNode> PrintNode::cloneContent() const {
+    return std::make_shared<PrintNode>(getSrc());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -21,8 +21,8 @@ void PrintNode::setSrc(std::string src) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string PrintNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitPrintNode(this);
+std::string PrintNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitPrintNode(std::static_pointer_cast<PrintNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

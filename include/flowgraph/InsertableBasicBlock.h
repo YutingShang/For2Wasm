@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BasicBlock.h"
+#include "PlaceholderNode.h"
 
 
 // this class is used for when you want to insert a new basic block into the flowgraph (but it doesn't connect nicely to the IR tree)
@@ -23,7 +24,7 @@ class InsertableBasicBlock : public BasicBlock {
 
             public:
                 //either uses the first insertion strategy or the default subsequent insertion strategy
-                virtual void insertNodeIntoIRTree(SimpleNode* node){
+                virtual void insertNodeIntoIRTree(std::shared_ptr<SimpleNode> node){
                     if (isFirstInsertion){
                         firstInsertionStrategy(node);
                         lastInsertedNode = node;
@@ -35,19 +36,22 @@ class InsertableBasicBlock : public BasicBlock {
                 }
 
                 //first insertion strategy (e.g. could involve more complex logic) - must be overridden by user
-                virtual void firstInsertionStrategy(SimpleNode* node)=0;
+                virtual void firstInsertionStrategy(std::shared_ptr<SimpleNode> node)=0;
 
                 //default insertion strategy (e.g. insert another instruction) - must be overridden by user
-                virtual void subsequentInsertionStrategy(SimpleNode* node){
+                virtual void subsequentInsertionStrategy(std::shared_ptr<SimpleNode> node){
                     //insert after the last inserted node
-                    lastInsertedNode->insertSandwichChild(node);
+                    if (lastInsertedNode.expired()){
+                        throw std::runtime_error("No last inserted node found");
+                    }
+                    lastInsertedNode.lock()->insertSandwichChild(node);
                     lastInsertedNode = node;
                 }
 
             protected:
                 bool isFirstInsertion = true;
 
-                SimpleNode* lastInsertedNode;  //for subsequent insertions, just insert after the last inserted node
+                std::weak_ptr<SimpleNode> lastInsertedNode;  //for subsequent insertions, just insert after the last inserted node
         };
 
         //constructor to take in the strategy
@@ -56,7 +60,7 @@ class InsertableBasicBlock : public BasicBlock {
         //uses the strategy when needed to insert the node into the IR tree
         //And also adds the placeholder instruction node to the instructions list, BEFORE the current iterator (iterator still valid after)
         //does not delete the placeholder instruction node after insertion
-        void executeNodeIRInsertion(std::list<BaseNode*>::iterator it, SimpleNode* nodeToInsert);
+        void executeNodeIRInsertion(std::list<std::weak_ptr<BaseNode>>::iterator it, std::shared_ptr<SimpleNode> nodeToInsert);
 
         //to the instructions list, add the placeholder instruction node
         //call in constructor
@@ -69,6 +73,9 @@ class InsertableBasicBlock : public BasicBlock {
 
     private:
         NodeInsertionStrategy* insertionStrategy;
+
+        //the insertable basic block owns the placeholder node
+        std::shared_ptr<PlaceholderNode> placeholderNode;
 
         
 

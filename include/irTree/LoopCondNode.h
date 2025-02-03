@@ -12,7 +12,7 @@ class LoopCondNode : public BaseNode {
         //Constructor and destructor
         LoopCondNode(std::string labelNumber);
         ~LoopCondNode() override = default;
-        BaseNode* cloneContent() const override;
+        std::shared_ptr<BaseNode> cloneContent() const override;
         std::string stringifyIRTree() const override;
 
         //Getters and setters
@@ -22,9 +22,14 @@ class LoopCondNode : public BaseNode {
         std::string getStepLabel() const;
         std::string getEndLoopLabel() const;
         std::string getLabelNumber() const;   //the label for each of the cond, body, step, endloop
+        std::shared_ptr<BaseNode> getInitNode() const;
+        std::shared_ptr<BaseNode> getCondNode() const;
+        std::shared_ptr<BaseNode> getBodyNode() const;
+        std::shared_ptr<BaseNode> getStepNode() const;
+        std::shared_ptr<BaseNode> getEndLoopNode() const;
 
         //Visitor pattern
-        std::string accept(IrBaseVisitor* visitor) override;
+        std::string accept(IrBaseVisitor& visitor) override;
 
         //Analysis methods
         std::set<std::string> getReferencedVariables() const override;
@@ -32,9 +37,9 @@ class LoopCondNode : public BaseNode {
         std::set<std::string> getReferencedExpressions() const override;
 
         //Tree manipulation methods
-        void addChild(BaseNode* child) override;
-        void addChildAtIndex(BaseNode* child, int index) override;
-        BaseNode* removeCurrentNodeFromIRTree() override;
+        void addChild(std::shared_ptr<BaseNode> child) override;
+        void addChildAtIndex(std::shared_ptr<BaseNode> child, int index) override;
+        std::shared_ptr<BaseNode> removeCurrentNodeFromIRTree() override;
 
     private:
         std::string labelNumber;

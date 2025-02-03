@@ -4,6 +4,8 @@
 #include "AnalysisTools.h"
 #include "AVAIL.h"
 #include "ExpressionNode.h"
+#include <map>
+
 class PREOptimizer {
 
     public:
@@ -21,8 +23,8 @@ class PREOptimizer {
         BasicBlock* entryBasicBlock;
         std::vector<BasicBlock*> basicBlocks;
         std::set<std::string> allExpressions;    //need for complementation for the second check
-        std::unordered_map<BaseNode*, std::set<std::string>> nodeLatestExpressionsSets;
-        std::unordered_map<BaseNode*, std::set<std::string>> nodeOutUsedSets;
+        std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeLatestExpressionsSets;
+        std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeOutUsedSets;
         int nextProgramTempVariableCount;
 
         //each expression has a new temporary variable _s associated with it
@@ -39,7 +41,7 @@ class PREOptimizer {
         //expression: first node of the expression       (e.g. x+y: Node(z=x+y))
         //so like [expression: clone-able node]      - because for each instance you replace, you actually want to create a new node, to hold the invariant that each node pointer is unique
         //(stores an expression node, so that it can be cloned - after this you go to expressionToTempVarMap to replace the dest variable)
-        std::unordered_map<std::string, ExpressionNode*> allExpressionsToCloneableNodesMap;
+        std::unordered_map<std::string, std::shared_ptr<ExpressionNode>> allExpressionsToCloneableNodesMap;
 
         //adds new basic blocks to the flowgraph to basic blocks that have more than one predecessor
         //adds the new basic block between that node and its predecessor
@@ -55,16 +57,16 @@ class PREOptimizer {
         ///CHECKS: returns set of expressions that are in (latest[B] ∩ out-used[B])
         //e.g. at this node, need to add t=x+y, so return x+y
         //returns the expressions to add to a temp assignment at that instruction
-        std::set<std::string> getTempExpressionsToAdd(BaseNode* instruction);
+        std::set<std::string> getTempExpressionsToAdd(std::shared_ptr<BaseNode> instruction);
 
         //gets the temp assignment node for the expression, to be added to the instruction
         //either retrieves it from expressionToTempVarMap (and allExpressionsToCloneableNodesMap)
         //or creates a new temp variable and adds it to the expressionToTempVarMap (note the allExpressionsToCloneableNodesMap contains all the expressions anyways)
-        ExpressionNode* getNewTempExpressionNodeToAdd(std::string &expression);
+        std::shared_ptr<ExpressionNode> getNewTempExpressionNodeToAdd(std::string &expression);
 
         ///CHECKS: does the check for (¬latest[B] ∪ out-used[B])
         //you should pass in an expression already in e_useB, to check if it should be replaced by a temp variable in the expressionToTempVarMap
-        bool isExpressionReplacedByTemp(BaseNode* instruction, std::string &expression);
+        bool isExpressionReplacedByTemp(std::shared_ptr<BaseNode> instruction, std::string &expression);
 
       
 

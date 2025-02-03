@@ -13,8 +13,8 @@ LogicBinOpNode::LogicBinOpNode(std::string op, std::string dest, std::string src
     this->textVector = {op, dest, src1, src2};
 }
 
-BaseNode* LogicBinOpNode::cloneContent() const {
-    return new LogicBinOpNode(getOp(), getDest(), getSrc1(), getSrc2());
+std::shared_ptr<BaseNode> LogicBinOpNode::cloneContent() const {
+    return std::make_shared<LogicBinOpNode>(getOp(), getDest(), getSrc1(), getSrc2());
 }
 
 bool LogicBinOpNode::isValidLogicBinOp(const std::string& op) const {
@@ -69,8 +69,8 @@ void LogicBinOpNode::setSrc2(std::string src2) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string LogicBinOpNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitLogicBinOpNode(this);
+std::string LogicBinOpNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitLogicBinOpNode(std::static_pointer_cast<LogicBinOpNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

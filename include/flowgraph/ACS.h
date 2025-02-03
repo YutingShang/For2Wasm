@@ -28,6 +28,6 @@ class ACS : public BaseDataFlowAnalysis<std::set<std::pair<std::string, std::str
         std::set<std::pair<std::string, std::string>> meetOperation(const std::set<std::pair<std::string, std::string>>& current_availCopies_set, const std::set<std::pair<std::string, std::string>>& predecessor_availCopies_set) override;
 
         //transfer function for ACS
-        std::set<std::pair<std::string, std::string>> transferFunction(BaseNode* instruction, const std::set<std::pair<std::string, std::string>>& in_availCopies_set) override;
+        std::set<std::pair<std::string, std::string>> transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::pair<std::string, std::string>>& in_availCopies_set) override;
 
 };

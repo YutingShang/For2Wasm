@@ -7,8 +7,8 @@ IfElseNode::IfElseNode(std::string labelNumber): labelNumber(labelNumber) {
                                 "endif" + labelNumber};
 }
 
-BaseNode* IfElseNode::cloneContent() const {
-    return new IfElseNode(labelNumber);
+std::shared_ptr<BaseNode> IfElseNode::cloneContent() const {
+    return std::make_shared<IfElseNode>(labelNumber);
 }
 
 std::string IfElseNode::stringifyIRTree() const {
@@ -43,10 +43,26 @@ std::string IfElseNode::getLabelNumber() const {
     return labelNumber;
 }
 
+std::shared_ptr<BaseNode> IfElseNode::getConditionNode() const {
+    return children[0];
+}
+
+std::shared_ptr<BaseNode> IfElseNode::getThenNode() const {
+    return children[1];
+}
+
+std::shared_ptr<BaseNode> IfElseNode::getElseNode() const {
+    return children[2];
+}
+
+std::shared_ptr<BaseNode> IfElseNode::getEndIfNode() const {
+    return children[3];
+}
+
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string IfElseNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitIfElseNode(this);
+std::string IfElseNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitIfElseNode(std::static_pointer_cast<IfElseNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////
@@ -64,8 +80,8 @@ std::set<std::string> IfElseNode::getReferencedExpressions() const {
 }
 
 /////////////////////////TREE MANIPULATION METHODS/////////////////////////
-void IfElseNode::addChild(BaseNode* child) {
-    child->setParent(this);
+void IfElseNode::addChild(std::shared_ptr<BaseNode> child) {
+    child->setParent(shared_from_this());
 
     if (this->children.size() < 4) {
         this->children.push_back(child);
@@ -74,8 +90,8 @@ void IfElseNode::addChild(BaseNode* child) {
     }
 }
 
-void IfElseNode::addChildAtIndex(BaseNode* child, int index) {
-    child->setParent(this);
+void IfElseNode::addChildAtIndex(std::shared_ptr<BaseNode> child, int index) {
+    child->setParent(shared_from_this());
 
     //will just append to the end if vector is of size 3, and inserting to index 3
     if (this->children.size() < 4 && index < 4) {
@@ -86,35 +102,36 @@ void IfElseNode::addChildAtIndex(BaseNode* child, int index) {
 }
 
 
-BaseNode* IfElseNode::removeCurrentNodeFromIRTree() {
+std::shared_ptr<BaseNode> IfElseNode::removeCurrentNodeFromIRTree() {
     //first assert that the then and else statements are empty, if not throw error
-    if (dynamic_cast<EndBlockNode*>(this->children[1]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[1]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[1])->getText()!="ENDTHEN")) {
+    std::shared_ptr<EndBlockNode> thenNode = std::dynamic_pointer_cast<EndBlockNode>(this->getThenNode());
+    if (thenNode == nullptr || (thenNode != nullptr && thenNode->getText()!="ENDTHEN")) {
         throw std::runtime_error("IfNode cannot be removed from IR tree, body of THEN statement is not empty");
     }
-    if (dynamic_cast<EndBlockNode*>(this->children[2]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[2]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[2])->getText()!="ENDELSE")) {
+    std::shared_ptr<EndBlockNode> elseNode = std::dynamic_pointer_cast<EndBlockNode>(this->getElseNode());
+    if (elseNode == nullptr || (elseNode != nullptr && elseNode->getText()!="ENDELSE")) {
         throw std::runtime_error("IfNode cannot be removed from IR tree, body of ELSE statement is not empty");
     }
 
     //get the position of the IF node in the parent node
     int indexInParent = this->getPositionInParent();
 
-    BaseNode* parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
-    this->parent->removeChild(this);          //remove child to make space for the new nodes
+    std::shared_ptr<BaseNode> parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
+    parent->removeChild(*this);          //remove child to make space for the new nodes
 
     //get what is after the ENDIF and attach it to the parent node
-    assert(dynamic_cast<EndBlockNode*>(this->children[3]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[3])->getText()=="ENDIF");
-    EndBlockNode* endIfNode = dynamic_cast<EndBlockNode*>(this->children[3]);
+    std::shared_ptr<EndBlockNode> endIfNode = std::dynamic_pointer_cast<EndBlockNode>(this->getEndIfNode());
+    assert(endIfNode != nullptr && endIfNode->getText()=="ENDIF");
 
-    BaseNode* child = nullptr;
+    std::shared_ptr<BaseNode> child = nullptr;
     if (endIfNode->getChildren().size() == 1) {        //get the single child of the ENDIF node
-        child = endIfNode->getChildren()[0];
-        endIfNode->removeChild(child);           //remove the child from the ENDIF node, so it doesn't get deleted
+        child = endIfNode->getSingleChild();
+        endIfNode->removeChild(*child);           //remove the child from the ENDIF node, so it doesn't get deleted
         parent->addChildAtIndex(child, indexInParent);
     } 
-    //otherwise no children to attach to the parent node, just delete the current node
+    //otherwise no children to attach to the parent node
 
-    // delete the current node from memory
-    // delete this;
+    //should have no more references to the current node (at least none in the IR tree), will be handled by smart pointers
 
     //return the child node that has replaced the current node
     return child;

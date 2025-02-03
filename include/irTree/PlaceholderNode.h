@@ -12,10 +12,10 @@ public:
     //Constructor and destructor
     PlaceholderNode();
     ~PlaceholderNode() override = default;
-    BaseNode* cloneContent() const override;
+    std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Visitor pattern - override to throw error - placeholder node should not be in IR tree
-    virtual std::string accept(IrBaseVisitor* visitor) override;    
+    virtual std::string accept(IrBaseVisitor& visitor) override;    
 
     //Analysis methods - override to return empty set
     virtual std::set<std::string> getReferencedVariables() const override;    
@@ -23,7 +23,7 @@ public:
     virtual std::set<std::string> getReferencedExpressions() const override;    
 
     //Tree manipulation methods - override to do nothing or throw error - placeholder node should not be in IR tree
-    virtual void addChild(BaseNode* child) override;   
-    virtual void addChildAtIndex(BaseNode* child, int index) override;   
-    virtual BaseNode* removeCurrentNodeFromIRTree() override;    
+    virtual void addChild(std::shared_ptr<BaseNode> child) override;   
+    virtual void addChildAtIndex(std::shared_ptr<BaseNode> child, int index) override;   
+    virtual std::shared_ptr<BaseNode> removeCurrentNodeFromIRTree() override;    
 };

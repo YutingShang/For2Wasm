@@ -4,7 +4,7 @@
 
 
 POST::POST(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::FORWARD) {
-    BaseNode* rootNode = entryBasicBlock->get_instructions_copy().front();
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
 
     //get all earliest[B] expressions in the program
@@ -44,7 +44,7 @@ std::set<std::string> POST::meetOperation(const std::set<std::string>& current_p
 }
 
 //transfer function for AVAIL_PRE - returns the set of variables that are available at the after processing the current instruction (going downwards)
-std::set<std::string> POST::transferFunction(BaseNode* instruction, const std::set<std::string>& in_post_set) {
+std::set<std::string> POST::transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& in_post_set) {
     std::set<std::string> out_post_set = in_post_set;
 
     //get the earliest[B] and used/referenced expressions from the instruction
@@ -62,7 +62,7 @@ std::set<std::string> POST::transferFunction(BaseNode* instruction, const std::s
     return out_post_set;
 }
 
-std::unordered_map<BaseNode*, std::set<std::string>> POST::getNodesEarliestExpressionsSets() {
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> POST::getNodesEarliestExpressionsSets() {
     return allNodesEarliestExpressions;
 }
 

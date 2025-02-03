@@ -14,7 +14,7 @@ class Fortran90ParserIRTreeVisitor : public Fortran90ParserBaseVisitor
 {
 public:
     // constructor
-    Fortran90ParserIRTreeVisitor(Fortran90Parser &parser, BaseNode* startNode) : parser(parser) , previousParentNode(startNode){};
+    Fortran90ParserIRTreeVisitor(Fortran90Parser &parser, std::shared_ptr<BaseNode> startNode) : parser(parser) , previousParentNode(startNode){};
 
     virtual std::any visitChildren(antlr4::tree::ParseTree *node) override;
 
@@ -90,20 +90,17 @@ private:
     std::string getStringIndex(std::string str);
     std::string getItemToPrint(std::string outputItem);       // check if the outputItem is a string or a variable/number etc.
     std::string getRelationalOperator(std::string operation); // get the relational operator, convert from <, > to LT, GT etc.
-    // int conditionCount = 0;      //for naming the block labels
-    // int thenCount = 0;
-    // int elseCount = 0;
 
     int ifCount = 0; // for naming the [if..else..endif] block labels, each control structure will have the same number
     int loopCount = 0;
 
-    BaseNode* previousParentNode;     // store the previous parent node in the flow diagram, so we can assign the current node as a child of the previous parent node
+    std::weak_ptr<BaseNode> previousParentNode;     // store the previous parent node in the flow diagram, so we can assign the current node as a child of the previous parent node
 
-    // for constructing the LoopCondNode
+    // for constructing the LoopCondNode - struct needs to store nodes for temporary construction, e.g. after separating node connections, still need node to exist
     struct doLoopStruct {
-        BaseNode *initialisationEndNode; // will be a MoveNode
-        BaseNode *condTopNode;
-        BaseNode *condEndNode;        //will be a > test node
-        BaseNode *stepTopNode;
+        std::shared_ptr<BaseNode> initialisationEndNode; // will be a MoveNode
+        std::shared_ptr<BaseNode> condTopNode;
+        std::shared_ptr<BaseNode> condEndNode;        //will be a > test node
+        std::shared_ptr<BaseNode> stepTopNode;
     };
 };

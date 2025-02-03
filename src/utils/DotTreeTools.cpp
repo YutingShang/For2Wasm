@@ -1,20 +1,20 @@
 #include "DotTreeTools.h"
 
-std::string DotTreeTools::irTreeToDot(BaseNode *root)
+std::string DotTreeTools::irTreeToDot(std::shared_ptr<BaseNode> root)
 {
 
     std::stringstream dot;
     dot << "digraph Tree {\n";
 
     int nodeCount = 0;
-    std::unordered_map<BaseNode *, int> nodeToIndex; // map to store node and its index - used in dot file
+    std::unordered_map<std::shared_ptr<BaseNode>, int> nodeToIndex; // map to store node and its index - used in dot file
 
-    std::stack<BaseNode *> stack;
+    std::stack<std::shared_ptr<BaseNode>> stack;
     stack.push(root);
 
     while (!stack.empty())
     {
-        BaseNode *currentNode = stack.top();
+        std::shared_ptr<BaseNode> currentNode = stack.top();
         stack.pop();
 
         if (nodeToIndex.find(currentNode) == nodeToIndex.end())
@@ -28,7 +28,7 @@ std::string DotTreeTools::irTreeToDot(BaseNode *root)
         }
 
         // add children to stack
-        for (BaseNode *child : currentNode->getChildren())
+        for (std::shared_ptr<BaseNode> child : currentNode->getChildren())
         {
             // create child node if not in map
             if (nodeToIndex.find(child) == nodeToIndex.end())

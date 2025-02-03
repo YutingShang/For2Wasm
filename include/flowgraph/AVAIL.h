@@ -28,6 +28,6 @@ class AVAIL : public BaseDataFlowAnalysis<std::set<std::string>> {
         std::set<std::string> meetOperation(const std::set<std::string>& current_avail_set, const std::set<std::string>& predecessor_avail_set) override;
 
         //transfer function for AVAIL
-        std::set<std::string> transferFunction(BaseNode* instruction, const std::set<std::string>& in_avail_set) override;
+        std::set<std::string> transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& in_avail_set) override;
 
 };

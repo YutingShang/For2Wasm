@@ -7,8 +7,8 @@ ReadNode::ReadNode(std::string var) {
     this->textVector = {"CALL", "READ", var};
 }
 
-BaseNode* ReadNode::cloneContent() const {
-    return new ReadNode(getVar());
+std::shared_ptr<BaseNode> ReadNode::cloneContent() const {
+    return std::make_shared<ReadNode>(getVar());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -22,8 +22,8 @@ void ReadNode::setVar(std::string var) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string ReadNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitReadNode(this);
+std::string ReadNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitReadNode(std::static_pointer_cast<ReadNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

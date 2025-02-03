@@ -10,7 +10,7 @@ public:
     // Constructor and destructor
     MovNode(std::string dest, std::string src);    //set the textVector to be the MOV + dest + src
     ~MovNode() override = default;
-    BaseNode* cloneContent() const override;
+    std::shared_ptr<BaseNode> cloneContent() const override;
 
     // Getters and setters
     std::string getDest() const;
@@ -20,7 +20,7 @@ public:
     void setSrc(std::string src);
 
     // Visitor pattern
-    std::string accept(IrBaseVisitor* visitor) override;
+    std::string accept(IrBaseVisitor& visitor) override;
 
     // Analysis methods
     std::set<std::string> getReferencedVariables() const override;

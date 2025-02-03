@@ -7,8 +7,8 @@ MovNode::MovNode(std::string dest, std::string src) {
     textVector = {"MOV", dest, src};
 }
 
-BaseNode* MovNode::cloneContent() const {
-    return new MovNode(getDest(), getSrc());
+std::shared_ptr<BaseNode> MovNode::cloneContent() const {
+    return std::make_shared<MovNode>(getDest(), getSrc());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -34,8 +34,8 @@ void MovNode::setSrc(std::string src) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string MovNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitMovNode(this);
+std::string MovNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitMovNode(std::static_pointer_cast<MovNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

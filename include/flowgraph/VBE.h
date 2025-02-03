@@ -22,7 +22,7 @@ class VBE : public BaseDataFlowAnalysis<std::set<std::string>> {
         
         std::set<std::string> meetOperation(const std::set<std::string>& current_vbe_set, const std::set<std::string>& successor_vbe_set) override;
 
-        std::set<std::string> transferFunction(BaseNode* instruction, const std::set<std::string>& out_vbe_set) override;
+        std::set<std::string> transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& out_vbe_set) override;
 
 
 

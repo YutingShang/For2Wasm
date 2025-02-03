@@ -41,51 +41,51 @@ std::vector<BasicBlock*> AnalysisTools::getBasicBlocks(BasicBlock* entryBasicBlo
     return basicBlocks;
 }
 
-std::set<std::string> AnalysisTools::getAllProgramExpressions(BaseNode* entryNode) {
+std::set<std::string> AnalysisTools::getAllProgramExpressions(std::shared_ptr<BaseNode> entryNode) {
     std::set<std::string> allExpressions;
 
     //IR tree traversal (not a graph)
-    std::queue<BaseNode*> toExploreQueue;
+    std::queue<std::shared_ptr<BaseNode>> toExploreQueue;
     toExploreQueue.push(entryNode);
     while (!toExploreQueue.empty()) {
-        BaseNode* current = toExploreQueue.front();
+        std::shared_ptr<BaseNode> current = toExploreQueue.front();
         toExploreQueue.pop();
         //get generated expressions, insert into allExpressions set
         const std::set<std::string>& generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(current);
         allExpressions.insert(generatedExpressions.begin(), generatedExpressions.end());   //copy all set of all generated expressions into allExpressions
         //add children to the queue
-        for (BaseNode* child : current->getChildren()) {
+        for (std::shared_ptr<BaseNode> child : current->getChildren()) {
             toExploreQueue.push(child);
         }
     }
     return allExpressions;
 }
 
-std::unordered_map<std::string, ExpressionNode*> AnalysisTools::getAllProgramExpressionsToCloneableNodesMap(BaseNode* entryNode) {
-    std::unordered_map<std::string, ExpressionNode*> allExpressionsToCloneableNodesMap;  
+std::unordered_map<std::string, std::shared_ptr<ExpressionNode>> AnalysisTools::getAllProgramExpressionsToCloneableNodesMap(std::shared_ptr<BaseNode> entryNode) {
+    std::unordered_map<std::string, std::shared_ptr<ExpressionNode>> allExpressionsToCloneableNodesMap;  
 
     //IR tree traversal (not a graph)
-    std::queue<BaseNode*> toExploreQueue;
+    std::queue<std::shared_ptr<BaseNode>> toExploreQueue;
     toExploreQueue.push(entryNode);
     while (!toExploreQueue.empty()) {
-        BaseNode* current = toExploreQueue.front();
+        std::shared_ptr<BaseNode> current = toExploreQueue.front();
         toExploreQueue.pop();
         //get generated expressions, insert into allExpressions set
         const std::set<std::string>& generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(current);
         for (const auto &expression : generatedExpressions) {
             if (allExpressionsToCloneableNodesMap.find(expression) == allExpressionsToCloneableNodesMap.end()) {   //if expression is not already in the map
-                allExpressionsToCloneableNodesMap[expression] = dynamic_cast<ExpressionNode*>(current->cloneContent());   //add the expression to the map, with the corresponding prototype node
+                allExpressionsToCloneableNodesMap[expression] = std::dynamic_pointer_cast<ExpressionNode>(current.get()->cloneContent());   //add the expression to the map, with the corresponding prototype node
             }
         }
         //add children to the queue
-        for (BaseNode* child : current->getChildren()) {
+        for (std::shared_ptr<BaseNode> child : current->getChildren()) {
             toExploreQueue.push(child);
         }
     }
     return allExpressionsToCloneableNodesMap;
 }
 
-std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(BaseNode* node, std::set<std::string> &allExpressions) {
+std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(std::shared_ptr<BaseNode> node, std::set<std::string> &allExpressions) {
     std::set<std::string> killedExpressions;
 
     //get the defined variables of the node, e.g. {x}
@@ -150,40 +150,40 @@ std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(BaseNode* node, 
 //     return allDefinitionPoints;
 // }
 
-std::set<std::string> AnalysisTools::getDefinitionsAtNode(BaseNode* node) {
+std::set<std::string> AnalysisTools::getDefinitionsAtNode(std::shared_ptr<BaseNode> node) {
     std::set<std::string> definitions;
-    if (dynamic_cast<ExpressionNode*>(node)) {
+    if (std::dynamic_pointer_cast<ExpressionNode>(node)) {
         definitions = AnalysisTools::getGeneratedExpressionsAtNode(node);
-    } else if (dynamic_cast<MovNode*>(node)) {
-        MovNode* movNode = dynamic_cast<MovNode*>(node);
+    } else if (std::dynamic_pointer_cast<MovNode>(node)) {
+        std::shared_ptr<MovNode> movNode = std::dynamic_pointer_cast<MovNode>(node);
         definitions = {movNode->getSrc()};
     }
     return definitions;
 }
 
-std::set<std::pair<std::string, std::string>> AnalysisTools::getAllProgramCopyStatements(BaseNode* entryNode) {
+std::set<std::pair<std::string, std::string>> AnalysisTools::getAllProgramCopyStatements(std::shared_ptr<BaseNode> entryNode) {
     std::set<std::pair<std::string, std::string>> allCopyStatements;
     //traverse the IR tree, find all MovNodes and add their src and dst to the set
-    std::queue<BaseNode*> toExploreQueue;
+    std::queue<std::shared_ptr<BaseNode>> toExploreQueue;
     toExploreQueue.push(entryNode);
     while (!toExploreQueue.empty()) {
-        BaseNode* current = toExploreQueue.front();
+        std::shared_ptr<BaseNode> current = toExploreQueue.front();
         toExploreQueue.pop();
 
-        if (dynamic_cast<MovNode*>(current)) {
-            MovNode* movNode = dynamic_cast<MovNode*>(current);
+        if (std::dynamic_pointer_cast<MovNode>(current)) {
+            std::shared_ptr<MovNode> movNode = std::dynamic_pointer_cast<MovNode>(current);
             allCopyStatements.insert(std::make_pair(movNode->getDest(), movNode->getSrc()));
         }
 
         //add children of the IR node to the queue
-        for (BaseNode* child : current->getChildren()) {
+        for (std::shared_ptr<BaseNode> child : current->getChildren()) {
             toExploreQueue.push(child);
         }
     }
     return allCopyStatements;
 }
 
-std::set<std::pair<std::string, std::string>> AnalysisTools::getKilledCopyStatementsAtNode(BaseNode* node, std::set<std::pair<std::string, std::string>> &allCopyStatements) {
+std::set<std::pair<std::string, std::string>> AnalysisTools::getKilledCopyStatementsAtNode(std::shared_ptr<BaseNode> node, std::set<std::pair<std::string, std::string>> &allCopyStatements) {
     std::set<std::pair<std::string, std::string>> killedCopyStatements;
 
     //get the defined variables of the node, e.g. {x}
@@ -201,16 +201,16 @@ std::set<std::pair<std::string, std::string>> AnalysisTools::getKilledCopyStatem
     return killedCopyStatements;
 }
 
-std::set<std::pair<std::string, std::string>> AnalysisTools::getGeneratedCopyStatementsAtNode(BaseNode* node) {
+std::set<std::pair<std::string, std::string>> AnalysisTools::getGeneratedCopyStatementsAtNode(std::shared_ptr<BaseNode> node) {
     std::set<std::pair<std::string, std::string>> generatedCopyStatements;
-    if (dynamic_cast<MovNode*>(node)) {
-        MovNode* movNode = dynamic_cast<MovNode*>(node);
+    if (std::dynamic_pointer_cast<MovNode>(node)) {
+        std::shared_ptr<MovNode> movNode = std::dynamic_pointer_cast<MovNode>(node);
         generatedCopyStatements.insert(std::make_pair(movNode->getDest(), movNode->getSrc()));
     }
     return generatedCopyStatements;
 }
 
-std::set<std::string> AnalysisTools::getGeneratedExpressionsAtNode(BaseNode* node) {
+std::set<std::string> AnalysisTools::getGeneratedExpressionsAtNode(std::shared_ptr<BaseNode> node) {
     //e.g. if x = x+y, then we say x+y has NOT been generated by this node (even though it is used/referenced)
     //generated expressions = referenced expressions - killed expressions
 
@@ -245,16 +245,16 @@ std::set<std::string> AnalysisTools::getGeneratedExpressionsAtNode(BaseNode* nod
 }
 
 
-std::unordered_map<BaseNode*, std::set<std::string>> AnalysisTools::getAllNodesEarliestExpressions(BasicBlock* entryBasicBlock) {
-    std::unordered_map<BaseNode*, std::set<std::string>> allNodesEarliestExpressions;
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesEarliestExpressions(BasicBlock* entryBasicBlock) {
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions;
 
     //get the anticipated[B].in expressions of all nodes
     VBE vbe(entryBasicBlock);
-    std::unordered_map<BaseNode*, std::set<std::string>> allNodesAnticipatedExpressions = vbe.getNodeInDataFlowSets();
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesAnticipatedExpressions = vbe.getNodeInDataFlowSets();
 
     //get the available[B].in expressions of all nodes
     AVAIL_PRE avail_pre(entryBasicBlock);
-    std::unordered_map<BaseNode*, std::set<std::string>> allNodesAvailableExpressions = avail_pre.getNodeInDataFlowSets();
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesAvailableExpressions = avail_pre.getNodeInDataFlowSets();
 
     //For each node: earliest[B] = anticipated[B].in - available[B].in
     for (auto& [node, anticipatedExpressions] : allNodesAnticipatedExpressions) {
@@ -267,22 +267,26 @@ std::unordered_map<BaseNode*, std::set<std::string>> AnalysisTools::getAllNodesE
     return allNodesEarliestExpressions;
 }
 
-std::unordered_map<BaseNode*, std::set<std::string>> AnalysisTools::getAllNodesLatestExpressions(BasicBlock* entryBasicBlock, std::set<std::string> allExpressions, std::vector<BasicBlock*> basicBlocks) {
-    std::unordered_map<BaseNode*, std::set<std::string>> allNodesLatestExpressions;
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesLatestExpressions(BasicBlock* entryBasicBlock, std::set<std::string> allExpressions, std::vector<BasicBlock*> basicBlocks) {
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesLatestExpressions;
 
     //get the earliest expressions of all nodes
-    std::unordered_map<BaseNode*, std::set<std::string>> allNodesEarliestExpressions = getAllNodesEarliestExpressions(entryBasicBlock);
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions = getAllNodesEarliestExpressions(entryBasicBlock);
 
     //get the in-POST expressions of all nodes
     POST post(entryBasicBlock);
-    std::unordered_map<BaseNode*, std::set<std::string>> allNodesInPostExpressions = post.getNodeInDataFlowSets();
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesInPostExpressions = post.getNodeInDataFlowSets();
 
     //get node:basicBlock map for all nodes in order to getSuccessorNodes faster
-    std::unordered_map<BaseNode*, BasicBlock*> flowgraphNodeToBasicBlockMap = getFlowgraphNodeToBasicBlockMap(basicBlocks);
+    std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap = getFlowgraphNodeToBasicBlockMap(basicBlocks);
 
 
     //latest[B] = (earliest[B] ∪ in-POST[B]) ∩ (e_useB ∪ ¬(∩ successors S: (earliest[S] ∪ in-POST[S]))
     for (auto& [node, earliestExpressions] : allNodesEarliestExpressions) {     //FOR EACH NODE, find the latest expression set
+
+        if (node.expired()) {
+            throw std::runtime_error("Node has expired, cannot get latest expressions");
+        }
 
         //first get (earliest[B] ∪ in-POST[B])
         std::set<std::string> inPostExpressions = allNodesInPostExpressions[node];
@@ -290,16 +294,16 @@ std::unordered_map<BaseNode*, std::set<std::string>> AnalysisTools::getAllNodesL
         std::set_union(earliestExpressions.begin(), earliestExpressions.end(), inPostExpressions.begin(), inPostExpressions.end(), std::inserter(earliestOrInPostExpressions, earliestOrInPostExpressions.begin()));
 
         //get the used/referenced expressions at the node
-        std::set<std::string> usedExpressions = node->getReferencedExpressions();
+        std::set<std::string> usedExpressions = node.lock()->getReferencedExpressions();
 
         //get the successors of the node
         BasicBlock* currentBasicBlock = flowgraphNodeToBasicBlockMap[node];
-        std::vector<BaseNode*> successorNodes = getSuccessorNodes(node, currentBasicBlock);
+        std::vector<std::weak_ptr<BaseNode>> successorNodes = getSuccessorNodes(node.lock(), currentBasicBlock);
 
         //intersect over all successors
         std::set<std::string> intersectionOfSuccessorEarliestOrInPostExpressions = allExpressions;
         //for every successor node, find (earliest[S] ∪ in-POST[S])
-        for (BaseNode* successor : successorNodes) {
+        for (std::weak_ptr<BaseNode> successor : successorNodes) {
             std::set<std::string> successorEarliestExpressions = allNodesEarliestExpressions[successor];
             std::set<std::string> successorInPostExpressions = allNodesInPostExpressions[successor];
             std::set<std::string> earliestOrInPostExpressions;     //for this successor node, find the union of earliest and postponable expressions
@@ -328,11 +332,11 @@ std::unordered_map<BaseNode*, std::set<std::string>> AnalysisTools::getAllNodesL
 }
 
 
-std::unordered_map<BaseNode*, BasicBlock*> AnalysisTools::getFlowgraphNodeToBasicBlockMap(std::vector<BasicBlock*> basicBlocks) {
-    std::unordered_map<BaseNode*, BasicBlock*> flowgraphNodeToBasicBlockMap;
+std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getFlowgraphNodeToBasicBlockMap(std::vector<BasicBlock*> basicBlocks) {
+    std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap;
 
     for (BasicBlock* basicBlock : basicBlocks) {
-        for (BaseNode* node : basicBlock->get_instructions_copy()) {
+        for (std::weak_ptr<BaseNode> node : basicBlock->get_instructions_copy()) {
             flowgraphNodeToBasicBlockMap[node] = basicBlock;
         }
     }
@@ -340,15 +344,15 @@ std::unordered_map<BaseNode*, BasicBlock*> AnalysisTools::getFlowgraphNodeToBasi
 }
 
 
-std::vector<BaseNode*> AnalysisTools::getSuccessorNodes(BaseNode* node, BasicBlock* currentBasicBlock) {
-    std::vector<BaseNode*> successorNodes;
+std::vector<std::weak_ptr<BaseNode>> AnalysisTools::getSuccessorNodes(std::shared_ptr<BaseNode> node, BasicBlock* currentBasicBlock) {
+    std::vector<std::weak_ptr<BaseNode>> successorNodes;
 
-    std::list<BaseNode*> instructions = currentBasicBlock->get_instructions_copy();
+    std::list<std::weak_ptr<BaseNode>> instructions = currentBasicBlock->get_instructions_copy();
 
     //if its not the last node of the basic block, then the instruction after the current node in the instructions list is the successor
     //otherwise, get the successor basic blocks of the current basic block, and take the first instruction of each successor basic block
-    if (node != instructions.back()) {
-        std::list<BaseNode*>::const_iterator currentNodeIterator = std::find(instructions.begin(), instructions.end(), node);
+    if (node != instructions.back().lock()) {
+        std::list<std::weak_ptr<BaseNode>>::const_iterator currentNodeIterator = std::find_if(instructions.begin(), instructions.end(), [node](const std::weak_ptr<BaseNode>& listElt){return listElt.lock() == node;});
         if (currentNodeIterator != instructions.end()) {
             auto nextIterator = std::next(currentNodeIterator);
             if (nextIterator != instructions.end()) {
@@ -371,17 +375,17 @@ std::vector<BaseNode*> AnalysisTools::getSuccessorNodes(BaseNode* node, BasicBlo
 /////////////////////////////////////////////////////////
 
 
-InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createLoopBodyStartInsertionStrategy(LoopNode* loopNodeToInsertAfter) {
+InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createLoopBodyStartInsertionStrategy(std::shared_ptr<LoopNode> loopNodeToInsertAfter) {
 
     class LoopBodyStartInserter : public InsertableBasicBlock::NodeInsertionStrategy {
-        LoopNode* loopNodeToInsertAfter;
+        std::shared_ptr<LoopNode> loopNodeToInsertAfter;
 
         public:
             //explicit constructor
-            explicit LoopBodyStartInserter(LoopNode* loopNodeToInsertAfter)
+            explicit LoopBodyStartInserter(std::shared_ptr<LoopNode> loopNodeToInsertAfter)
                 : loopNodeToInsertAfter(loopNodeToInsertAfter) {}
 
-            void firstInsertionStrategy(SimpleNode* nodeToInsert) override {
+            void firstInsertionStrategy(std::shared_ptr<SimpleNode> nodeToInsert) override {
                 // Insert after the loopNodeToInsertAfter
                 loopNodeToInsertAfter->insertSandwichBodyChild(nodeToInsert);
             }
@@ -391,16 +395,16 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createLoopBodyStartI
 }
 
 
-InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createAfterSimpleNodeInsertionStrategy(SimpleNode* simpleNodeToInsertAfter) {
+InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createAfterSimpleNodeInsertionStrategy(std::shared_ptr<SimpleNode> simpleNodeToInsertAfter) {
     
     class AfterSimpleNodeInserter : public InsertableBasicBlock::NodeInsertionStrategy {
-        SimpleNode* simpleNodeToInsertAfter;
+        std::shared_ptr<SimpleNode> simpleNodeToInsertAfter;
 
         public:
-            explicit AfterSimpleNodeInserter(SimpleNode* simpleNodeToInsertAfter)
+            explicit AfterSimpleNodeInserter(std::shared_ptr<SimpleNode> simpleNodeToInsertAfter)
                 : simpleNodeToInsertAfter(simpleNodeToInsertAfter) {}
 
-            void firstInsertionStrategy(SimpleNode* nodeToInsert) override {
+            void firstInsertionStrategy(std::shared_ptr<SimpleNode> nodeToInsert) override {
                 simpleNodeToInsertAfter->insertSandwichChild(nodeToInsert);
             }
     };
@@ -408,26 +412,26 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createAfterSimpleNod
     return new AfterSimpleNodeInserter(simpleNodeToInsertAfter);
 }
 
-InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createNewElseBlockInsertionStrategy(IfNode* ifNodeToInsertAfter) {
+InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createNewElseBlockInsertionStrategy(std::shared_ptr<IfNode> ifNodeToInsertAfter) {
     
     class NewElseBlockInserter : public InsertableBasicBlock::NodeInsertionStrategy {
-        IfNode* ifNodeToInsertAfter;
+        std::shared_ptr<IfNode> ifNodeToInsertAfter;
 
         public:
-            explicit NewElseBlockInserter(IfNode* ifNodeToInsertAfter)
+            explicit NewElseBlockInserter(std::shared_ptr<IfNode> ifNodeToInsertAfter)
                 : ifNodeToInsertAfter(ifNodeToInsertAfter) {}
 
-            void firstInsertionStrategy(SimpleNode* nodeToInsert) override {
+            void firstInsertionStrategy(std::shared_ptr<SimpleNode> nodeToInsert) override {
                 //now that we know we want to insert this nodeToInsert
                 
                 ///FIRST: convert the ifNode to an ifElseNode
                 ///ISSUE: need to change the instructions list pointer - maybe just convert the node implicity??
                 // std::unique_ptr<IfElseNode> ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
-                IfElseNode* ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
+                std::shared_ptr<IfElseNode> ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
 
                 ///SECOND: add the nodeToInsert to the ifElseNode BEFORE the ENDELSE node of the else block
-                BaseNode* endElseNode = ifElseNode->getChildren()[2];
-                assert(dynamic_cast<EndBlockNode*>(endElseNode));     //check it should be an EndBlockNode for ENDELSE
+                std::shared_ptr<BaseNode> endElseNode = ifElseNode->getElseNode();
+                assert(std::dynamic_pointer_cast<EndBlockNode>(endElseNode));     //check it should be an EndBlockNode for ENDELSE
                 endElseNode->insertSandwichParent(nodeToInsert);
 
             }

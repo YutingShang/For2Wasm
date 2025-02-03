@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <map>
 
 // Base template for all data flow analyses
 template<typename Domain> //Domain is the type of the data flow set, e.g. set of expressions or variables
@@ -14,8 +15,8 @@ class BaseDataFlowAnalysis {
     
         ///TODO: maybe change implementation to flowgraph nodes instead of basic blocks??
         // //returns the dataflow sets for each instruction node in the program
-        std::unordered_map<BaseNode*, Domain> getNodeInDataFlowSets();
-        std::unordered_map<BaseNode*, Domain> getNodeOutDataFlowSets();
+        std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> getNodeInDataFlowSets();
+        std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> getNodeOutDataFlowSets();
 
         //returns the basic blocks used for the dataflow analysis
         std::vector<BasicBlock*> getBasicBlocksUsed();
@@ -35,8 +36,8 @@ class BaseDataFlowAnalysis {
         BasicBlock* entryBasicBlock;
         std::vector<BasicBlock*> basicBlocks;
         std::vector<Domain> blockDataFlowSets;    //stores the data flow sets computed for each basic block. Allows easy computation of the meet operation (e.g. outset for FORWARD, inset for BACKWARD)
-        std::unordered_map<BaseNode*, Domain> nodeInDataFlowSets;    //stores the in-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes
-        std::unordered_map<BaseNode*, Domain> nodeOutDataFlowSets;    //stores the out-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes 
+        std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> nodeInDataFlowSets;    //stores the in-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes
+        std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> nodeOutDataFlowSets;    //stores the out-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes 
         Domain initialSet;    //the initial set of the dataflow set
        
 
@@ -58,7 +59,7 @@ class BaseDataFlowAnalysis {
 
         //returns a new set of the dataflow set after processing the current instruction node
         //if the basicBlock is required in the transfer function, pass it in as a parameter. Otherwise analysis can ignore it
-        virtual Domain transferFunction(BaseNode* instructionNode, const Domain& inputSet) = 0; 
+        virtual Domain transferFunction(std::shared_ptr<BaseNode> instructionNode, const Domain& inputSet) = 0; 
 
         //returns the meet of two dataflow sets, i.e. implement the intersection or union over the Domain type
         virtual Domain meetOperation(const Domain& set1, const Domain& set2) = 0;
@@ -110,13 +111,13 @@ std::vector<BasicBlock *> BaseDataFlowAnalysis<Domain>::getBasicBlocksUsed()
 }
 
 template <typename Domain>
-std::unordered_map<BaseNode *, Domain> BaseDataFlowAnalysis<Domain>::getNodeInDataFlowSets()
+std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> BaseDataFlowAnalysis<Domain>::getNodeInDataFlowSets()
 {
     return nodeInDataFlowSets;
 }
 
 template <typename Domain>
-std::unordered_map<BaseNode *, Domain> BaseDataFlowAnalysis<Domain>::getNodeOutDataFlowSets()
+std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> BaseDataFlowAnalysis<Domain>::getNodeOutDataFlowSets()
 {
     return nodeOutDataFlowSets;
 }
@@ -174,9 +175,12 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
         //now we have the in-dataflow set of the basic block
         //store it in the nodeDataFlowSets map for the instruction before we process that instruction with the transfer function
 
-        const std::list<BaseNode*>& instructions = basicBlock->get_instructions_reference();
+        const std::list<std::weak_ptr<BaseNode>>& instructions = basicBlock->get_instructions_reference();
         for (auto it = instructions.begin(); it != instructions.end(); ++it) {
-            BaseNode* instruction = *it;
+            if (it->expired()) {
+                throw std::runtime_error("Instruction node has expired, cannot perform forward dataflow analysis");
+            }
+            std::shared_ptr<BaseNode> instruction = it->lock();
 
             //store the IN-dataflow set for the instruction in the nodeDataFlowSets map
             nodeInDataFlowSets[instruction] = dataflowSet;
@@ -208,9 +212,12 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
         //now we have the out-dataflow set of the basic block
         //store it in the nodeDataFlowSets map for the instruction before we process that instruction with the transfer function
 
-        const std::list<BaseNode*>& instructions = basicBlock->get_instructions_reference();
+        const std::list<std::weak_ptr<BaseNode>>& instructions = basicBlock->get_instructions_reference();
         for (auto it = instructions.rbegin(); it != instructions.rend(); ++it) {   //iterate backwards
-            BaseNode* instruction = *it;
+            if (it->expired()) {
+                throw std::runtime_error("Instruction node has expired, cannot perform backward dataflow analysis");
+            }
+            std::shared_ptr<BaseNode> instruction = it->lock();
 
             //store the OUT-dataflow set for the instruction in the nodeDataFlowSets map
             nodeOutDataFlowSets[instruction] = dataflowSet;

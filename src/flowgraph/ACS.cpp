@@ -2,7 +2,7 @@
 #include <iostream>
 
 ACS::ACS(BasicBlock* entryBasicBlock): BaseDataFlowAnalysis<std::set<std::pair<std::string, std::string>>>(entryBasicBlock, AnalysisDirection::FORWARD) {
-    BaseNode* rootNode = entryBasicBlock->get_instructions_copy().front();
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allCopyStatements = AnalysisTools::getAllProgramCopyStatements(rootNode);
 
     //set the initial set to the universe of all copy statements
@@ -34,7 +34,7 @@ std::set<std::pair<std::string, std::string>> ACS::meetOperation(const std::set<
 }
 
 //transfer function for ACS - returns the set of variables that are available at the after processing the current instruction (going forwards)
-std::set<std::pair<std::string, std::string>> ACS::transferFunction(BaseNode* instruction, const std::set<std::pair<std::string, std::string>>& in_availCopies_set) {
+std::set<std::pair<std::string, std::string>> ACS::transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::pair<std::string, std::string>>& in_availCopies_set) {
     std::set<std::pair<std::string, std::string>> out_availCopies_set = in_availCopies_set;
 
     //get the generated and killed expressions from the instruction

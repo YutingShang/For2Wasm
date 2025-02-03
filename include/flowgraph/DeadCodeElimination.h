@@ -3,6 +3,7 @@
 #include "BasicBlock.h"
 #include <set>
 #include <queue>
+#include <map>
 
 //static class for dead code elimination, doesn't need to keep track of state
 
@@ -23,6 +24,6 @@ class DeadCodeElimination {
 
         //finds and removes dead code in the flowgraph after the LVA converges
         //returns true if the basic block has been modified, false otherwise
-        static bool basicBlockRemoveDeadCode(BasicBlock* basicBlock, std::vector<BasicBlock*> &basicBlocks, std::unordered_map<BaseNode*, std::set<std::string>> &nodeLiveSets);
+        static bool basicBlockRemoveDeadCode(BasicBlock* basicBlock, std::vector<BasicBlock*> &basicBlocks, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> &nodeLiveSets);
 
 };

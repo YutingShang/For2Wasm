@@ -25,36 +25,35 @@ class TestNode;
 class IrBaseVisitor {
     public:
         virtual ~IrBaseVisitor() = default;
+        virtual std::string visitArithOpNode(const std::shared_ptr<ArithOpNode>& node) = 0;
 
-        virtual std::string visitArithOpNode(ArithOpNode* node) = 0;
+        virtual std::string visitLogicBinOpNode(const std::shared_ptr<LogicBinOpNode>& node) = 0;
 
-        virtual std::string visitLogicBinOpNode(LogicBinOpNode* node) = 0;
+        virtual std::string visitRelOpNode(const std::shared_ptr<RelOpNode>& node) = 0;
 
-        virtual std::string visitRelOpNode(RelOpNode* node) = 0;
+        virtual std::string visitMovNode(const std::shared_ptr<MovNode>& node) = 0;
 
-        virtual std::string visitMovNode(MovNode* node) = 0;
+        virtual std::string visitEndBlockNode(const std::shared_ptr<EndBlockNode>& node) = 0;
 
-        virtual std::string visitEndBlockNode(EndBlockNode* node) = 0;
+        virtual std::string visitExitNode(const std::shared_ptr<ExitNode>& node) = 0;
 
-        virtual std::string visitExitNode(ExitNode* node) = 0;
+        virtual std::string visitLoopNode(const std::shared_ptr<LoopNode>& node) = 0;
 
-        virtual std::string visitLoopNode(LoopNode* node) = 0;
+        virtual std::string visitLoopCondNode(const std::shared_ptr<LoopCondNode>& node) = 0;
 
-        virtual std::string visitLoopCondNode(LoopCondNode* node) = 0;
+        virtual std::string visitIfNode(const std::shared_ptr<IfNode>& node) = 0;
 
-        virtual std::string visitIfNode(IfNode* node) = 0;
+        virtual std::string visitIfElseNode(const std::shared_ptr<IfElseNode>& node) = 0;
 
-        virtual std::string visitIfElseNode(IfElseNode* node) = 0;
+        virtual std::string visitDeclareNode(const std::shared_ptr<DeclareNode>& node) = 0;
 
-        virtual std::string visitDeclareNode(DeclareNode* node) = 0;
+        virtual std::string visitLogicNotNode(const std::shared_ptr<LogicNotNode>& node) = 0;
 
-        virtual std::string visitLogicNotNode(LogicNotNode* node) = 0;
+        virtual std::string visitPrintNode(const std::shared_ptr<PrintNode>& node) = 0;
 
-        virtual std::string visitPrintNode(PrintNode* node) = 0;
+        virtual std::string visitReadNode(const std::shared_ptr<ReadNode>& node) = 0;
 
-        virtual std::string visitReadNode(ReadNode* node) = 0;
+        virtual std::string visitTestNode(const std::shared_ptr<TestNode>& node) = 0;
 
-        virtual std::string visitTestNode(TestNode* node) = 0;
-
-        virtual std::string visitEntryNode(EntryNode* node) = 0;
+        virtual std::string visitEntryNode(const std::shared_ptr<EntryNode>& node) = 0;
 };

@@ -18,8 +18,8 @@ bool ArithOpNode::isValidArithOp(const std::string& op) const {
     return op == "ADD" || op == "SUB" || op == "MUL" || op == "DIV";
 }
 
-BaseNode* ArithOpNode::cloneContent() const {
-    return new ArithOpNode(getOp(), getDest(), getSrc1(), getSrc2());
+std::shared_ptr<BaseNode> ArithOpNode::cloneContent() const {
+    return std::make_shared<ArithOpNode>(getOp(), getDest(), getSrc1(), getSrc2());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
@@ -67,8 +67,8 @@ void ArithOpNode::setSrc2(std::string src2) {
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string ArithOpNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitArithOpNode(this);
+std::string ArithOpNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitArithOpNode(std::static_pointer_cast<ArithOpNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////

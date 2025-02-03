@@ -4,8 +4,8 @@ LoopNode::LoopNode(std::string labelNumber): labelNumber(labelNumber) {
     this->textVector = {"LOOP", "body" + labelNumber, "endloop" + labelNumber};
 }
 
-BaseNode* LoopNode::cloneContent() const {
-    return new LoopNode(getLabelNumber());
+std::shared_ptr<BaseNode> LoopNode::cloneContent() const {
+    return std::make_shared<LoopNode>(getLabelNumber());
 }
 
 std::string LoopNode::stringifyIRTree() const {
@@ -29,10 +29,18 @@ std::string LoopNode::getLabelNumber() const {
     return this->labelNumber;
 }
 
+std::shared_ptr<BaseNode> LoopNode::getBodyNode() const {
+    return this->children[0];
+}
+
+std::shared_ptr<BaseNode> LoopNode::getEndLoopNode() const {
+    return this->children[1];
+}
+
 /////////////////////////VISITOR PATTERN/////////////////////////
 
-std::string LoopNode::accept(IrBaseVisitor* visitor) {
-    return visitor->visitLoopNode(this);
+std::string LoopNode::accept(IrBaseVisitor& visitor) {
+    return visitor.visitLoopNode(std::static_pointer_cast<LoopNode>(shared_from_this()));
 }
 
 /////////////////////////ANALYSIS METHODS/////////////////////////
@@ -51,8 +59,8 @@ std::set<std::string> LoopNode::getReferencedExpressions() const {
 
 /////////////////////////TREE MANIPULATION/////////////////////////
 
-void LoopNode::addChild(BaseNode* child) {
-    child->setParent(this);
+void LoopNode::addChild(std::shared_ptr<BaseNode> child) {
+    child->setParent(shared_from_this());
 
     if (this->children.size() < 2) {
         this->children.push_back(child);
@@ -61,8 +69,8 @@ void LoopNode::addChild(BaseNode* child) {
     }
 }
 
-void LoopNode::addChildAtIndex(BaseNode* child, int index) {
-    child->setParent(this);
+void LoopNode::addChildAtIndex(std::shared_ptr<BaseNode> child, int index) {
+    child->setParent(shared_from_this());
     if (this->children.size() < 2 && index < 2) {
         this->children.insert(this->children.begin() + index, child);
     } else {
@@ -70,44 +78,42 @@ void LoopNode::addChildAtIndex(BaseNode* child, int index) {
     }
 }
 
-BaseNode* LoopNode::removeCurrentNodeFromIRTree() {
+std::shared_ptr<BaseNode> LoopNode::removeCurrentNodeFromIRTree() {
 
     //first assert that the loop body is empty, if not throw error
-    if (dynamic_cast<EndBlockNode*>(this->children[0]) == nullptr || (dynamic_cast<EndBlockNode*>(this->children[0]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[0])->getText()!="ENDBODY")) {
+    std::shared_ptr<EndBlockNode> bodyNode = std::dynamic_pointer_cast<EndBlockNode>(this->getBodyNode());
+    if (bodyNode == nullptr || (bodyNode != nullptr && bodyNode->getText()!="ENDBODY")) {
         throw std::runtime_error("LoopNode cannot be removed from IR tree, BODY of loop statement is not empty");
     }
 
     //get the position of the LOOP node in the parent node
     int indexInParent = this->getPositionInParent();
 
-    BaseNode* parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
-    this->parent->removeChild(this);          //remove child to make space for the new nodes
+    std::shared_ptr<BaseNode> parent = this->getParent();     //keep a copy of the parent node, removeChild will set the parent to nullptr
+    parent->removeChild(*this);          //remove child to make space for the new nodes
 
     //get what is after the ENDLOOP and attach it to the parent node
-    assert(dynamic_cast<EndBlockNode*>(this->children[1]) != nullptr && dynamic_cast<EndBlockNode*>(this->children[1])->getText()=="ENDLOOP");
-    EndBlockNode* endLoopNode = dynamic_cast<EndBlockNode*>(this->children[1]);
+    std::shared_ptr<EndBlockNode> endLoopNode = std::dynamic_pointer_cast<EndBlockNode>(this->getEndLoopNode());
+    assert(endLoopNode != nullptr && endLoopNode->getText()=="ENDLOOP");
 
-    BaseNode* child = nullptr;
+    std::shared_ptr<BaseNode> child = nullptr;
     if (endLoopNode->getChildren().size() == 1) {        //get the single child of the ENDLOOP node
-        child = endLoopNode->getChildren()[0];
-        endLoopNode->removeChild(child);   //detach the child from the ENDLOOP node, so it doesn't get deleted
+        child = endLoopNode->getSingleChild();
+        endLoopNode->removeChild(*child);   //detach the child from the ENDLOOP node, so it doesn't get deleted
         parent->addChildAtIndex(child, indexInParent);
     } 
-    //otherwise no children to attach to the parent node, just delete the current node
-
-    // delete the current node from memory
-    // delete this;
+    //otherwise no children to attach to the parent node, just delete the current node (or handled by shared_ptr)
 
     //return the child node that has replaced the current node
     return child;
 }
 
-void LoopNode::insertSandwichBodyChild(SimpleNode* newNode) {
+void LoopNode::insertSandwichBodyChild(std::shared_ptr<SimpleNode> newNode) {
     //remove the current body child, and attach it to the newNode
     assert(this->children.size() == 2);
 
-    BaseNode* currentBodyStartNode = this->children[0];
-    this->removeChild(currentBodyStartNode);
+    std::shared_ptr<BaseNode> currentBodyStartNode = this->getBodyNode();
+    this->removeChild(*currentBodyStartNode);
     newNode->addChild(currentBodyStartNode);
 
     //attach the newNode to the LoopNode

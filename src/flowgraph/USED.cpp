@@ -2,7 +2,7 @@
 
 USED::USED(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis(entryBasicBlock, AnalysisDirection::BACKWARD) {
     //get the 'latest expressions' for all nodes
-    BaseNode* rootNode = entryBasicBlock->get_instructions_copy().front();
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     std::set<std::string> allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
     allNodesLatestExpressions = AnalysisTools::getAllNodesLatestExpressions(entryBasicBlock, allExpressions, basicBlocks);
 
@@ -37,7 +37,7 @@ std::set<std::string> USED::meetOperation(const std::set<std::string>& current_u
     return result;
 }
 
-std::set<std::string> USED::transferFunction(BaseNode* instruction, const std::set<std::string>& out_used_set) {
+std::set<std::string> USED::transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& out_used_set) {
     std::set<std::string> in_used_set = out_used_set;
 
     //get the generated and killed expressions from the instruction
@@ -55,6 +55,6 @@ std::set<std::string> USED::transferFunction(BaseNode* instruction, const std::s
     return in_used_set;
 }
 
-std::unordered_map<BaseNode*, std::set<std::string>> USED::getNodesLatestExpressionsSets() {
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> USED::getNodesLatestExpressionsSets() {
     return allNodesLatestExpressions;
 }

@@ -136,7 +136,7 @@ int main(int argc, const char **argv)
   /// NOTE: this is an upgraded TranslatorVisitor, instead of printing out the IR
   /// it stores the IR in a tree structure then you can print it out in different formats or convert to WASM
 
-  EntryNode *entryNode = new EntryNode(); // will be used to store the IR tree
+  std::shared_ptr<EntryNode> entryNode = std::make_shared<EntryNode>(); // will be used to store the IR tree
   Fortran90ParserIRTreeVisitor irTreeVisitor(parser, entryNode);
   astTree->accept(&irTreeVisitor);
 
@@ -146,8 +146,7 @@ int main(int argc, const char **argv)
 
   BasicBlock *startBasicBlock = new BasicBlock();
   IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
-  entryNode->accept(&flowgraphVisitor);
-
+  entryNode->accept(flowgraphVisitor);
   /////////////////2ND, 3RD, 4TH ... FLAG///////////////////////////////////////////////////
 
   // .main <input file> <flag1 for output> <flag2 for optimisation> <flag3 for optimisation> ...
@@ -206,7 +205,7 @@ int main(int argc, const char **argv)
       // startBasicBlock->delete_entire_flowgraph();
       BasicBlock* newStartBasicBlock = new BasicBlock();
       IrFlowgraphVisitor flowgraphVisitor(newStartBasicBlock);
-      entryNode->accept(&flowgraphVisitor);
+      entryNode->accept(flowgraphVisitor);
 
       std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newStartBasicBlock);
       std::cout << dotFlowgraph << std::endl;
@@ -214,30 +213,33 @@ int main(int argc, const char **argv)
         ///////just print out all the analysis
       VBE vbe(startBasicBlock);
       // vbe.printBlockDataFlowSets();
-      std::unordered_map<BaseNode*, std::set<std::string>> vbeSets = vbe.getNodeInDataFlowSets();
+      std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> vbeSets = vbe.getNodeInDataFlowSets();
 
       AVAIL_PRE avail_pre(startBasicBlock);
       // avail_pre.printBlockDataFlowSets();
-      std::unordered_map<BaseNode*, std::set<std::string>> availSets = avail_pre.getNodeInDataFlowSets();
+      std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> availSets = avail_pre.getNodeInDataFlowSets();
 
       POST post(startBasicBlock);
       // post.printBlockDataFlowSets();
-      std::unordered_map<BaseNode*, std::set<std::string>> postSets = post.getNodeInDataFlowSets();
+      std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> postSets = post.getNodeInDataFlowSets();
 
       USED used(startBasicBlock);
       // used.printBlockDataFlowSets();
-      std::unordered_map<BaseNode*, std::set<std::string>> usedSets = used.getNodeOutDataFlowSets();
+      std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> usedSets = used.getNodeOutDataFlowSets();
 
 
-      std::unordered_map<BaseNode*, std::set<std::string>> latestExpressions = used.getNodesLatestExpressionsSets();
+      std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> latestExpressions = used.getNodesLatestExpressionsSets();
 
-      // std::unordered_map<BaseNode*, std::set<std::string>> earliestExpressions = post.getNodesEarliestExpressionsSets();
-      std::unordered_map<BaseNode*, std::set<std::string>> earliestExpressions = AnalysisTools::getAllNodesEarliestExpressions(startBasicBlock);
+      // std::map<BaseNode*, std::set<std::string>> earliestExpressions = post.getNodesEarliestExpressionsSets();
+      std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> earliestExpressions = AnalysisTools::getAllNodesEarliestExpressions(startBasicBlock);
 
       std::vector<BasicBlock*> basicBlocks = AnalysisTools::getBasicBlocks(startBasicBlock);
       for (auto basicBlock : basicBlocks) {
         for (auto node : basicBlock->get_instructions_copy()) {
-          std::cout << "Node: " << node->getText() << std::endl;
+          if (node.expired()) {
+            throw std::runtime_error("Node expired");
+          }
+          std::cout << "Node: " << node.lock()->getText() << std::endl;
           std::cout <<"Anticipated (in) expressions: " << std::endl;
           for (auto expression : vbeSets[node]) {
             std::cout << expression << std::endl;

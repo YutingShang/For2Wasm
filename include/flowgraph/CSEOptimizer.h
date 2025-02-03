@@ -3,6 +3,7 @@
 #include "BasicBlock.h"
 #include "AnalysisTools.h"
 #include "AVAIL.h"
+#include <map>
 
 //not a static class, unlike DeadCodeElimination
 //needs to keep the temporary variable count as state for a particular program
@@ -19,6 +20,7 @@ class CSEOptimizer {
         bool commonSubexpressionEliminationOnce();
 
         //runs CSE iteratively until no more common subexpressions are found
+        ///TODO: maybe remove this, since its the same as commonSubexpressionEliminationOnce(). Assert that the result is false
         bool iterateCommonSubexpressionElimination();
 
         //runs CSE + Copy Propagation repeatedly until no more common subexpressions are found
@@ -32,7 +34,7 @@ class CSEOptimizer {
         //member variables
         BasicBlock* entryBasicBlock;
         std::vector<BasicBlock*> basicBlocks;            //vector of all basic blocks in the program
-        std::unordered_map<BaseNode*, std::set<std::string>> nodeAvailSets;      //vector of available expressions for each instruction node
+        std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeAvailSets;      //vector of available expressions for each instruction node
 
         //the next temporary variable count, initialised to 0
         //these are _s program temporary variables which are added to the resulting program(not to be confused with _t temp variables for internal use)
@@ -48,7 +50,7 @@ class CSEOptimizer {
         //and replace it with a the temporary variable
         //beginBackwardsFromThisNode is the node to start searching backwards from (since for the current basic block, we start searching from the current instruction, not from the end of the basic block)
             //if it is nullptr, then default to starting from the end of the basic block
-        bool basicBlockBackwardsFindAndReplaceExpression(BasicBlock* basicBlock, std::string &expressionToFind, std::string &tempVar, BaseNode* beginBackwardsFromThisNode = nullptr);
+        bool basicBlockBackwardsFindAndReplaceExpression(BasicBlock* basicBlock, std::string &expressionToFind, std::string &tempVar, std::shared_ptr<BaseNode> beginBackwardsFromThisNode = nullptr);
 
         //returns a new temporary variable name _s
         //also adds a declaration statement to the start of the program 

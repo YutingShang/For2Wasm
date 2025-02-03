@@ -22,6 +22,6 @@ class LVA : public BaseDataFlowAnalysis<std::set<std::string>> {
         std::set<std::string> meetOperation(const std::set<std::string>& current_live_set, const std::set<std::string>& successor_live_set) override;
 
         //transfer function for LVA
-        std::set<std::string> transferFunction(BaseNode* instruction, const std::set<std::string>& out_live_set) override;
+        std::set<std::string> transferFunction(std::shared_ptr<BaseNode> instruction, const std::set<std::string>& out_live_set) override;
 
 };
