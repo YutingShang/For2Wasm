@@ -6,6 +6,9 @@
 #include <map>
 #include "ExpressionNode.h"
 #include "InsertableBasicBlock.h"  // full definition
+#include <vector>
+#include <memory>
+#include "BaseNode.h"
 
 
 
@@ -19,7 +22,7 @@ class AnalysisTools {
 
         //returns a vector of all the basic blocks in the flowgraph
         //uses BFS to get the basic blocks roughly in flowgraph order, starting from the entry basic block
-        static std::vector<BasicBlock*> getBasicBlocks(BasicBlock* entryBasicBlock);
+        static std::vector<std::shared_ptr<BasicBlock>> getBasicBlocks(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         //returns the universe of all expressions in the program
         static std::set<std::string> getAllProgramExpressions(std::shared_ptr<BaseNode> entryNode);
@@ -55,33 +58,33 @@ class AnalysisTools {
         // calculate the earliest expressions for all nodes in the flowgraph using VBE and AVAIL
         ///NOTE: could overload this with different signatures for if you have already calculated the VBE and AVAIL results
         //using weak pointer since some nodes could be removed from the flowgraph as we are later using the map
-        static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesEarliestExpressions(BasicBlock* entryBasicBlock);
+        static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesEarliestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         // returns the set of all latest expressions in a flowgraph
         // Need allExpressions of the program to get the complementation
         // Need to pass in the basic blocks of the flowgraph in order to find successors of each node
-        static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesLatestExpressions(BasicBlock* entryBasicBlock, std::set<std::string> allExpressions, std::vector<BasicBlock*> basicBlocks);
+        static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks);
 
         // returns a map of all flowgraph nodes to their corresponding basic blocks
         // in order for fast lookup of the basic block of a node
-        static std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<BaseNode>>> getFlowgraphNodeToBasicBlockMap(std::vector<BasicBlock*> basicBlocks);
+        static std::map<std::weak_ptr<BaseNode>, std::shared_ptr<BasicBlock>, std::owner_less<std::weak_ptr<BaseNode>>> getFlowgraphNodeToBasicBlockMap(std::vector<std::shared_ptr<BasicBlock>> basicBlocks);
 
         // returns the set of all successor nodes of a node (either just 1 if SimpleNode, or get from successor basic blocks otherwise)
-        static std::vector<std::weak_ptr<BaseNode>> getSuccessorNodes(std::shared_ptr<BaseNode> node, BasicBlock* currentBasicBlock);
+        static std::vector<std::weak_ptr<BaseNode>> getSuccessorNodes(std::shared_ptr<BaseNode> node, std::shared_ptr<BasicBlock> currentBasicBlock);
 
 
         //FACTORY METHODS to create insertion strategy for new basic blocks 
 
         //for inserting a new instruction node to the start of the LoopNode body (i.e. the first instruction on the left branch of the LoopNode)
-        static InsertableBasicBlock::NodeInsertionStrategy* createLoopBodyStartInsertionStrategy(std::shared_ptr<LoopNode> loopNodeToInsertAfter);
+        static std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> createLoopBodyStartInsertionStrategy(std::shared_ptr<LoopNode> loopNodeToInsertAfter);
 
         //inserts a new instruction after a SimpleNode
         //think I can use the insertSandwichChild method in SimpleNode to do this
-        static InsertableBasicBlock::NodeInsertionStrategy* createAfterSimpleNodeInsertionStrategy(std::shared_ptr<SimpleNode> simpleNodeToInsertAfter);
+        static std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> createAfterSimpleNodeInsertionStrategy(std::shared_ptr<SimpleNode> simpleNodeToInsertAfter);
 
         //first converts the IfNode to a new IfElseNode
         //transforming the THEN block of the IfNode into the THEN branch of the IfElseNode
         //then inserts a new instruction in the ELSE block of the IfElseNode
-        static InsertableBasicBlock::NodeInsertionStrategy* createNewElseBlockInsertionStrategy(std::shared_ptr<IfNode> ifNodeToInsertAfter);
+        static std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> createNewElseBlockInsertionStrategy(std::shared_ptr<IfNode> ifNodeToInsertAfter);
 
 };

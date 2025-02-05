@@ -1,27 +1,33 @@
 #pragma once
 
+#include <string>
+#include <memory>
 #include "BasicBlock.h"
 #include "AnalysisTools.h"
 #include "AVAIL.h"
 #include "ExpressionNode.h"
 #include <map>
+#include "BaseNode.h"
+#include "InsertableBasicBlock.h"
 
 class PREOptimizer {
 
     public:
 
-        PREOptimizer(BasicBlock* entryBasicBlock, int nextProgramTempVariableCount);
+        PREOptimizer(std::shared_ptr<BasicBlock> entryBasicBlock, int nextProgramTempVariableCount);
 
-        void iteratePartialRedundancyElimination();
+        //returns true if any changes were made
+        bool iteratePartialRedundancyElimination();
 
-        bool partialRedundancyEliminationOnce();
-
-        int getNextProgramTempVariableCount();
+        int getNextProgramTempVariableCount() const;
 
     private:
 
-        BasicBlock* entryBasicBlock;
-        std::vector<BasicBlock*> basicBlocks;
+        //returns true if any changes were made
+        bool partialRedundancyEliminationOnce();
+
+        std::shared_ptr<BasicBlock> entryBasicBlock;
+        std::vector<std::shared_ptr<BasicBlock>> basicBlocks;
         std::set<std::string> allExpressions;    //need for complementation for the second check
         std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeLatestExpressionsSets;
         std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeOutUsedSets;
@@ -48,7 +54,7 @@ class PREOptimizer {
         void addNewBasicBlocksToMultiplePredecessorNodes();   
 
         //for each instruction in basic block, does 2 checks and adds/modifies instructions
-        bool basicBlockRemovePartialRedundancy(BasicBlock* basicBlock);
+        bool basicBlockRemovePartialRedundancy(const std::shared_ptr<BasicBlock>& basicBlock);
 
         // also adds a declaration statement to the start of the program
         // and adds it to the expressionToTempVarMap so it can be used in other nodes

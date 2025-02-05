@@ -19,7 +19,7 @@ class BaseDataFlowAnalysis {
         std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> getNodeOutDataFlowSets();
 
         //returns the basic blocks used for the dataflow analysis
-        std::vector<BasicBlock*> getBasicBlocksUsed();
+        std::vector<std::shared_ptr<BasicBlock>> getBasicBlocksUsed();
 
         //print the dataflow sets for each basic block
         virtual void printBlockDataFlowSets() = 0;
@@ -33,8 +33,8 @@ class BaseDataFlowAnalysis {
 
         //member variables
         AnalysisDirection analysisDirection;  //could these be private to the base class?
-        BasicBlock* entryBasicBlock;
-        std::vector<BasicBlock*> basicBlocks;
+        std::shared_ptr<BasicBlock> entryBasicBlock;
+        std::vector<std::shared_ptr<BasicBlock>> basicBlocks;
         std::vector<Domain> blockDataFlowSets;    //stores the data flow sets computed for each basic block. Allows easy computation of the meet operation (e.g. outset for FORWARD, inset for BACKWARD)
         std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> nodeInDataFlowSets;    //stores the in-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes
         std::map<std::weak_ptr<BaseNode>, Domain, std::owner_less<std::weak_ptr<BaseNode>>> nodeOutDataFlowSets;    //stores the out-set data flow sets computed for each instruction node. Allows easy usage in optimisation passes 
@@ -46,7 +46,7 @@ class BaseDataFlowAnalysis {
         ////////////////////////////////////////////////////////////////
 
         //base class constructor and setInitialSet() method, to be called in the concrete class constructor
-        BaseDataFlowAnalysis(BasicBlock* entryBasicBlock, AnalysisDirection analysisDirection);
+        BaseDataFlowAnalysis(const std::shared_ptr<BasicBlock>& entryBasicBlock, AnalysisDirection analysisDirection);
         void setInitialSet(Domain initialSet);
 
         //computes the dataflow sets for program flowgraph
@@ -70,7 +70,7 @@ class BaseDataFlowAnalysis {
     private:
 
         //computes the dataflow sets for each basic block
-        Domain basicBlockComputeDataFlowSet(BasicBlock* basicBlock);
+        Domain basicBlockComputeDataFlowSet(const std::shared_ptr<BasicBlock>& basicBlock);
 
         // //returns the dataflow sets for each basic block
         // std::vector<Domain> getBlockDataFlowSets();
@@ -85,7 +85,7 @@ class BaseDataFlowAnalysis {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename Domain>
-BaseDataFlowAnalysis<Domain>::BaseDataFlowAnalysis(BasicBlock *entryBasicBlock, AnalysisDirection analysisDirection) : entryBasicBlock(entryBasicBlock), analysisDirection(analysisDirection)
+BaseDataFlowAnalysis<Domain>::BaseDataFlowAnalysis(const std::shared_ptr<BasicBlock>& entryBasicBlock, AnalysisDirection analysisDirection) : entryBasicBlock(entryBasicBlock), analysisDirection(analysisDirection)
 {
     // set the basic blocks used for the analysis
     this->basicBlocks = AnalysisTools::getBasicBlocks(entryBasicBlock);
@@ -105,7 +105,7 @@ void BaseDataFlowAnalysis<Domain>::setInitialSet(Domain initialSet){
 }
 
 template <typename Domain>
-std::vector<BasicBlock *> BaseDataFlowAnalysis<Domain>::getBasicBlocksUsed()
+std::vector<std::shared_ptr<BasicBlock>> BaseDataFlowAnalysis<Domain>::getBasicBlocksUsed()
 {
     return basicBlocks;
 }
@@ -147,31 +147,35 @@ void BaseDataFlowAnalysis<Domain>::computeDataFlowSets()
             { // check if the reaches set has changed, if so, update the reaches set and set changed to true
                 blockDataFlowSets[i] = new_dataflow_set;
                 changed = true;
-            }
-        }
+}
     }
+}
 }
 
 template <typename Domain>
-Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *basicBlock)
+Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(const std::shared_ptr<BasicBlock>& basicBlock)
 {
 
     Domain dataflowSet = initialSet;    //create the dataflow set for traversing through this basic block
 
     if (analysisDirection == AnalysisDirection::FORWARD)
     {
-        std::vector<BasicBlock *> predecessors = basicBlock->get_predecessors();
-        if (predecessors.empty()) {
+        std::vector<std::weak_ptr<BasicBlock>> predecessors = basicBlock->get_predecessors();
+            if (predecessors.empty()) {
             dataflowSet = {};      //boundary, where the OUT[entry] is the empty set for forward analysis
         }else {
-            for (BasicBlock* predecessor : predecessors) {
+            for (const std::weak_ptr<BasicBlock>& predecessor_weak_ptr : predecessors) {
+                if (predecessor_weak_ptr.expired()) {
+                    throw std::runtime_error("Predecessor basic block has expired (should not happen), cannot perform forward dataflow analysis");
+                }
+                std::shared_ptr<BasicBlock> predecessor = predecessor_weak_ptr.lock();
                 //get the dataflow set for the predecessor
                 int predecessorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), predecessor) - basicBlocks.begin();
                 Domain predecessorDataflowSet = blockDataFlowSets[predecessorIndex];
                 //meet the dataflow set with the predecessor dataflow set
                 dataflowSet = meetOperation(dataflowSet, predecessorDataflowSet);
-            }
-        }
+                    }
+                }
         //now we have the in-dataflow set of the basic block
         //store it in the nodeDataFlowSets map for the instruction before we process that instruction with the transfer function
 
@@ -190,24 +194,24 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
 
             //store the OUT-dataflow set for the instruction in the nodeDataFlowSets map
             nodeOutDataFlowSets[instruction] = dataflowSet;
-        }
+    }
 
         //OUT-dataflow set of the basic block is now stored in the dataflowSet variable
-    }
+}
     else if (analysisDirection == AnalysisDirection::BACKWARD)
     {
-        std::vector<BasicBlock*> successors = basicBlock->get_successors();
-        if (successors.empty()) {
+        std::vector<std::shared_ptr<BasicBlock>> successors = basicBlock->get_successors();
+            if (successors.empty()) {
             dataflowSet = {};      //boundary, where the IN[exit] is the empty set for backward analysis
         }else {
-            for (BasicBlock* successor : successors) {
+            for (const std::shared_ptr<BasicBlock>& successor : successors) {
                 //get the dataflow set for the successor
                 int successorIndex = std::find(basicBlocks.begin(), basicBlocks.end(), successor) - basicBlocks.begin();
                 Domain successorDataflowSet = blockDataFlowSets[successorIndex];
                 //meet the dataflow set with the successor dataflow set
                 dataflowSet = meetOperation(dataflowSet, successorDataflowSet);
+                }
             }
-        }
 
         //now we have the out-dataflow set of the basic block
         //store it in the nodeDataFlowSets map for the instruction before we process that instruction with the transfer function
@@ -216,7 +220,7 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(BasicBlock *ba
         for (auto it = instructions.rbegin(); it != instructions.rend(); ++it) {   //iterate backwards
             if (it->expired()) {
                 throw std::runtime_error("Instruction node has expired, cannot perform backward dataflow analysis");
-            }
+        }
             std::shared_ptr<BaseNode> instruction = it->lock();
 
             //store the OUT-dataflow set for the instruction in the nodeDataFlowSets map

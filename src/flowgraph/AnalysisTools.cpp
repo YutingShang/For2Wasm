@@ -15,22 +15,22 @@
 #include "IfNode.h"
 #include "IfElseNode.h"
 
-std::vector<BasicBlock*> AnalysisTools::getBasicBlocks(BasicBlock* entryBasicBlock) {
-    std::vector<BasicBlock*> basicBlocks;
+std::vector<std::shared_ptr<BasicBlock>> AnalysisTools::getBasicBlocks(std::shared_ptr<BasicBlock> entryBasicBlock) {
+    std::vector<std::shared_ptr<BasicBlock>> basicBlocks;
 
     // get all the basic blocks in the flowgraph by BFS, and output into the basicBlocks vector
-    std::queue<BasicBlock*> toExploreQueue;
+    std::queue<std::shared_ptr<BasicBlock>> toExploreQueue;
     toExploreQueue.push(entryBasicBlock);
-    std::set<BasicBlock*> seen;
+    std::set<std::shared_ptr<BasicBlock>> seen;
     seen.insert(entryBasicBlock);
 
     while (!toExploreQueue.empty()) {
-        BasicBlock* current = toExploreQueue.front();
+        std::shared_ptr<BasicBlock> current = toExploreQueue.front();
         basicBlocks.push_back(current); // visit the current basic block
         toExploreQueue.pop();
 
         // add all the successors to the queue if they are not already seen
-        for (BasicBlock* successor : current->get_successors()) {
+        for (std::shared_ptr<BasicBlock> successor : current->get_successors()) {
             if (seen.find(successor) == seen.end()) { // check 'seen' set
                 toExploreQueue.push(successor);
                 seen.insert(successor);
@@ -245,7 +245,7 @@ std::set<std::string> AnalysisTools::getGeneratedExpressionsAtNode(std::shared_p
 }
 
 
-std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesEarliestExpressions(BasicBlock* entryBasicBlock) {
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesEarliestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock) {
     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions;
 
     //get the anticipated[B].in expressions of all nodes
@@ -267,7 +267,7 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
     return allNodesEarliestExpressions;
 }
 
-std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesLatestExpressions(BasicBlock* entryBasicBlock, std::set<std::string> allExpressions, std::vector<BasicBlock*> basicBlocks) {
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks) {
     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesLatestExpressions;
 
     //get the earliest expressions of all nodes
@@ -278,7 +278,7 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesInPostExpressions = post.getNodeInDataFlowSets();
 
     //get node:basicBlock map for all nodes in order to getSuccessorNodes faster
-    std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap = getFlowgraphNodeToBasicBlockMap(basicBlocks);
+    std::map<std::weak_ptr<BaseNode>, std::shared_ptr<BasicBlock>, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap = getFlowgraphNodeToBasicBlockMap(basicBlocks);
 
 
     //latest[B] = (earliest[B] ∪ in-POST[B]) ∩ (e_useB ∪ ¬(∩ successors S: (earliest[S] ∪ in-POST[S]))
@@ -286,7 +286,7 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
 
         if (node.expired()) {
             throw std::runtime_error("Node has expired, cannot get latest expressions");
-        }
+}
 
         //first get (earliest[B] ∪ in-POST[B])
         std::set<std::string> inPostExpressions = allNodesInPostExpressions[node];
@@ -297,7 +297,7 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
         std::set<std::string> usedExpressions = node.lock()->getReferencedExpressions();
 
         //get the successors of the node
-        BasicBlock* currentBasicBlock = flowgraphNodeToBasicBlockMap[node];
+        std::shared_ptr<BasicBlock> currentBasicBlock = flowgraphNodeToBasicBlockMap[node];
         std::vector<std::weak_ptr<BaseNode>> successorNodes = getSuccessorNodes(node.lock(), currentBasicBlock);
 
         //intersect over all successors
@@ -308,13 +308,13 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
             std::set<std::string> successorInPostExpressions = allNodesInPostExpressions[successor];
             std::set<std::string> earliestOrInPostExpressions;     //for this successor node, find the union of earliest and postponable expressions
             std::set_union(successorEarliestExpressions.begin(), successorEarliestExpressions.end(), successorInPostExpressions.begin(), successorInPostExpressions.end(), std::inserter(earliestOrInPostExpressions, earliestOrInPostExpressions.begin()));
-            
+
             //intersect the next successor with the current intersection
             std::set<std::string> tempIntersection;
             std::set_intersection(intersectionOfSuccessorEarliestOrInPostExpressions.begin(), intersectionOfSuccessorEarliestOrInPostExpressions.end(), earliestOrInPostExpressions.begin(), earliestOrInPostExpressions.end(), std::inserter(tempIntersection, tempIntersection.begin()));
             intersectionOfSuccessorEarliestOrInPostExpressions = tempIntersection;
 
-        }
+            }
 
         //get the complementation of the intersection of all successors
         std::set<std::string> complementationOfIntersectionOfSuccessors;
@@ -332,10 +332,10 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
 }
 
 
-std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getFlowgraphNodeToBasicBlockMap(std::vector<BasicBlock*> basicBlocks) {
-    std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap;
+std::map<std::weak_ptr<BaseNode>, std::shared_ptr<BasicBlock>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getFlowgraphNodeToBasicBlockMap(std::vector<std::shared_ptr<BasicBlock>> basicBlocks) {
+    std::map<std::weak_ptr<BaseNode>, std::shared_ptr<BasicBlock>, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap;
 
-    for (BasicBlock* basicBlock : basicBlocks) {
+    for (std::shared_ptr<BasicBlock> basicBlock : basicBlocks) {
         for (std::weak_ptr<BaseNode> node : basicBlock->get_instructions_copy()) {
             flowgraphNodeToBasicBlockMap[node] = basicBlock;
         }
@@ -344,7 +344,7 @@ std::map<std::weak_ptr<BaseNode>, BasicBlock*, std::owner_less<std::weak_ptr<Bas
 }
 
 
-std::vector<std::weak_ptr<BaseNode>> AnalysisTools::getSuccessorNodes(std::shared_ptr<BaseNode> node, BasicBlock* currentBasicBlock) {
+std::vector<std::weak_ptr<BaseNode>> AnalysisTools::getSuccessorNodes(std::shared_ptr<BaseNode> node, std::shared_ptr<BasicBlock> currentBasicBlock) {
     std::vector<std::weak_ptr<BaseNode>> successorNodes;
 
     std::list<std::weak_ptr<BaseNode>> instructions = currentBasicBlock->get_instructions_copy();
@@ -357,13 +357,13 @@ std::vector<std::weak_ptr<BaseNode>> AnalysisTools::getSuccessorNodes(std::share
             auto nextIterator = std::next(currentNodeIterator);
             if (nextIterator != instructions.end()) {
                 successorNodes.push_back(*nextIterator);
-            }
         }
+    }
     } else {
         //get the successor basic blocks of the current basic block
-        std::vector<BasicBlock*> successorBasicBlocks = currentBasicBlock->get_successors();
+        std::vector<std::shared_ptr<BasicBlock>> successorBasicBlocks = currentBasicBlock->get_successors();
         //get the first instruction of each successor basic block
-        for (BasicBlock* successorBasicBlock : successorBasicBlocks) {
+        for (std::shared_ptr<BasicBlock> successorBasicBlock : successorBasicBlocks) {
             successorNodes.push_back(successorBasicBlock->get_instructions_copy().front());
         }
     }
@@ -375,7 +375,7 @@ std::vector<std::weak_ptr<BaseNode>> AnalysisTools::getSuccessorNodes(std::share
 /////////////////////////////////////////////////////////
 
 
-InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createLoopBodyStartInsertionStrategy(std::shared_ptr<LoopNode> loopNodeToInsertAfter) {
+std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> AnalysisTools::createLoopBodyStartInsertionStrategy(std::shared_ptr<LoopNode> loopNodeToInsertAfter) {
 
     class LoopBodyStartInserter : public InsertableBasicBlock::NodeInsertionStrategy {
         std::shared_ptr<LoopNode> loopNodeToInsertAfter;
@@ -391,11 +391,11 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createLoopBodyStartI
             }
     };
 
-    return new LoopBodyStartInserter(loopNodeToInsertAfter);
+    return std::make_unique<LoopBodyStartInserter>(loopNodeToInsertAfter);
 }
 
 
-InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createAfterSimpleNodeInsertionStrategy(std::shared_ptr<SimpleNode> simpleNodeToInsertAfter) {
+std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> AnalysisTools::createAfterSimpleNodeInsertionStrategy(std::shared_ptr<SimpleNode> simpleNodeToInsertAfter) {
     
     class AfterSimpleNodeInserter : public InsertableBasicBlock::NodeInsertionStrategy {
         std::shared_ptr<SimpleNode> simpleNodeToInsertAfter;
@@ -409,10 +409,10 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createAfterSimpleNod
             }
     };
 
-    return new AfterSimpleNodeInserter(simpleNodeToInsertAfter);
+    return std::make_unique<AfterSimpleNodeInserter>(simpleNodeToInsertAfter);
 }
 
-InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createNewElseBlockInsertionStrategy(std::shared_ptr<IfNode> ifNodeToInsertAfter) {
+std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> AnalysisTools::createNewElseBlockInsertionStrategy(std::shared_ptr<IfNode> ifNodeToInsertAfter) {
     
     class NewElseBlockInserter : public InsertableBasicBlock::NodeInsertionStrategy {
         std::shared_ptr<IfNode> ifNodeToInsertAfter;
@@ -437,5 +437,5 @@ InsertableBasicBlock::NodeInsertionStrategy* AnalysisTools::createNewElseBlockIn
             }
     };
 
-    return new NewElseBlockInserter(ifNodeToInsertAfter);
+    return std::make_unique<NewElseBlockInserter>(ifNodeToInsertAfter);
 }

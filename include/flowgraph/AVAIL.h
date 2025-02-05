@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+#include <memory>
 #include "BaseDataFlowAnalysis.h"
 
 //instance class for available expression analysis (need to keep track of basic blocks state for a flowgraph)
@@ -12,7 +14,7 @@ class AVAIL : public BaseDataFlowAnalysis<std::set<std::string>> {
 
         //constructor for AVAIL - initialises the base class with the entry basic block, FORWARD analysis direction, and the allExpressions set
         //will call the computeDataFlowSets() method in the base class to compute the dataflow sets for each basic block and instruction node
-        AVAIL(BasicBlock* entryBasicBlock);
+        AVAIL(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         void printBlockDataFlowSets() override;
 

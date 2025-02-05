@@ -4,6 +4,9 @@
 #include <stack>
 #include <regex>
 #include "antlr4-runtime.h"
+#include <string>
+#include <memory>
+#include "EntryNode.h"
 
 //uses graphviz to create dot files
 
@@ -17,7 +20,7 @@ public:
 
     static std::string parseTreeToDot(antlr4::tree::ParseTree *root, const std::vector<std::string> &ruleNames);
 
-    static std::string flowgraphToDot(BasicBlock* root);
+    static std::string flowgraphToDot(std::shared_ptr<BasicBlock> root);
 
     
 

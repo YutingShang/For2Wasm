@@ -4,11 +4,12 @@
 #include <list>
 #include <string>
 #include <iterator>
+#include <memory>
 #include "BaseNode.h"
 #include "SimpleNode.h"
 class InsertableBasicBlock;
 
-class BasicBlock {
+class BasicBlock : public std::enable_shared_from_this<BasicBlock> {
 
     public:
 
@@ -22,15 +23,15 @@ class BasicBlock {
         //adds a successor to the basic block (and the corresponding predecessor to the successor), either 
         //1. always add the successor  (e.g. to connect the exit node to the endloop basic block) (checkIfCurrentIsExit = false)
         //2. only add the successor if the current basic block does not contain an exit node (DEFAULT, set checkIfCurrentIsExit to true)
-        void add_successor(BasicBlock* successor, bool checkIfCurrentIsExit = true);
+        void add_successor(const std::shared_ptr<BasicBlock>& successor, bool checkIfCurrentIsExit = true);
 
         //removes a successor from the basic block, and the corresponding predecessor from the successor
-        void remove_successor(BasicBlock* successor);
+        void remove_successor(const std::shared_ptr<BasicBlock>& successor);
 
         std::string getText();
 
-        std::vector<BasicBlock*> get_successors();
-        std::vector<BasicBlock*> get_predecessors();
+        std::vector<std::shared_ptr<BasicBlock>> get_successors();
+        std::vector<std::weak_ptr<BasicBlock>> get_predecessors();
 
         ///WARNING: returns reference for modification of the instructions list
         std::list<std::weak_ptr<BaseNode>>& get_instructions_reference();
@@ -54,7 +55,7 @@ class BasicBlock {
         void insert_parent_instruction_node(std::list<std::weak_ptr<BaseNode>>::iterator it, std::shared_ptr<SimpleNode> newNode);
 
         //insert a sandwich Basic block between this basic block and its specific predecessor
-        void insert_sandwich_predecessor_basic_block(BasicBlock* currentPredecessor, InsertableBasicBlock* newBasicBlock);
+        void insert_sandwich_predecessor_basic_block(const std::shared_ptr<BasicBlock>& currentPredecessor, std::shared_ptr<InsertableBasicBlock>& newBasicBlock);
 
         void setContainsExitNode(bool containsExitNode);
     protected:
@@ -62,8 +63,8 @@ class BasicBlock {
         //NOTE: using a (doubly linked) list instead of a vector to allow for easy removal of instructions
         std::list<std::weak_ptr<BaseNode>> instructions;
 
-        std::vector<BasicBlock*> successors;
-        std::vector<BasicBlock*> predecessors;      //needed for forward dataflow analysis
+        std::vector<std::shared_ptr<BasicBlock>> successors;
+        std::vector<std::weak_ptr<BasicBlock>> predecessors;      //needed for forward dataflow analysis
 
         bool currentBlockContainsExitNode = false;   //set to true if the current basic block contains an exit node
 };

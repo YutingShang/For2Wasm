@@ -23,6 +23,11 @@ class InsertableBasicBlock : public BasicBlock {
         class NodeInsertionStrategy {   //inner class
 
             public:
+
+                //constructor and destructor
+                NodeInsertionStrategy() = default;
+                virtual ~NodeInsertionStrategy() = default;
+
                 //either uses the first insertion strategy or the default subsequent insertion strategy
                 virtual void insertNodeIntoIRTree(std::shared_ptr<SimpleNode> node){
                     if (isFirstInsertion){
@@ -55,7 +60,10 @@ class InsertableBasicBlock : public BasicBlock {
         };
 
         //constructor to take in the strategy
-        InsertableBasicBlock(NodeInsertionStrategy* strategy);
+        InsertableBasicBlock(std::unique_ptr<NodeInsertionStrategy> strategy);
+
+        //virtual destructor
+        virtual ~InsertableBasicBlock() = default;
 
         //uses the strategy when needed to insert the node into the IR tree
         //And also adds the placeholder instruction node to the instructions list, BEFORE the current iterator (iterator still valid after)
@@ -72,7 +80,7 @@ class InsertableBasicBlock : public BasicBlock {
         // std::list<BaseNode*>::iterator removePlaceholderInstructionNode(std::list<BaseNode*>::iterator it);
 
     private:
-        NodeInsertionStrategy* insertionStrategy;
+        std::unique_ptr<NodeInsertionStrategy> insertionStrategy;    //overall insertion strategy, includes first and subsequent insertion strategies - but typically user only needs to override the first insertion strategy
 
         //the insertable basic block owns the placeholder node
         std::shared_ptr<PlaceholderNode> placeholderNode;

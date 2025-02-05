@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+#include <memory>
 #include "BaseDataFlowAnalysis.h"
 
 //used expressions analysis - backwards union, similar to LVA but for expressions instead of variables
@@ -9,7 +11,7 @@ class USED : public BaseDataFlowAnalysis<std::set<std::string>> {
 
     public:
 
-        USED(BasicBlock* entryBasicBlock);
+        USED(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         void printBlockDataFlowSets() override;
 

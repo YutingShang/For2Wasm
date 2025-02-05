@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-IrFlowgraphVisitor::IrFlowgraphVisitor(BasicBlock *startBasicBlock)
+IrFlowgraphVisitor::IrFlowgraphVisitor(std::shared_ptr<BasicBlock> startBasicBlock)
 {
 
     currentBasicBlock = startBasicBlock;
@@ -106,11 +106,11 @@ std::string IrFlowgraphVisitor::visitLoopNode(const std::shared_ptr<LoopNode> &n
     startNewBasicBlockSuccessor();
 
     // create a new basic block for the loop endloop (for the endloop instruction to jump to)
-    BasicBlock *loopEndloop = new BasicBlock();
+    std::shared_ptr<BasicBlock> loopEndloop = std::make_shared<BasicBlock>();
     exitStack.push(loopEndloop);
 
     // save the current loop body basic block
-    BasicBlock *loopBody = currentBasicBlock;
+    std::shared_ptr<BasicBlock> loopBody = currentBasicBlock;
 
     // process the body of the loop - should contain an EXIT instruction
     node->getChildren()[0]->accept(*this);
@@ -133,7 +133,7 @@ std::string IrFlowgraphVisitor::visitLoopCondNode(const std::shared_ptr<LoopCond
     node->getChildren()[0]->accept(*this);
     //create a new basic block for the termination condition of the loop
     startNewBasicBlockSuccessor();
-    BasicBlock *terminationConditionBasicBlock = currentBasicBlock;     //save the basic block for later
+    std::shared_ptr<BasicBlock> terminationConditionBasicBlock = currentBasicBlock;     //save the basic block for later
     node->getChildren()[1]->accept(*this);
 
     //create a new basic block for the loop body+step code, process the two children
@@ -156,7 +156,7 @@ std::string IrFlowgraphVisitor::visitLoopCondNode(const std::shared_ptr<LoopCond
 std::string IrFlowgraphVisitor::visitExitNode(const std::shared_ptr<ExitNode> &node)
 {
     // set the successor of the current basic block to the endloop basic block
-    BasicBlock *loopEndloop = exitStack.top();
+    std::shared_ptr<BasicBlock> loopEndloop = exitStack.top();
     currentBasicBlock->setContainsExitNode(true);
     currentBasicBlock->add_successor(loopEndloop, false);  //FALSE - do not check if it is an exit node, always connect the exit node to the endloop basic block
 
@@ -177,7 +177,7 @@ std::string IrFlowgraphVisitor::visitIfNode(const std::shared_ptr<IfNode> &node)
 
     // create a new basic block for the ENDIF instruction to be filled in later
     // this is a direct successor of the TEST block, since there is no ELSE block
-    BasicBlock *endIfBasicBlock = new BasicBlock();
+    std::shared_ptr<BasicBlock> endIfBasicBlock = std::make_shared<BasicBlock>();
     currentBasicBlock->add_successor(endIfBasicBlock);
 
     // then create a new basic block for the THEN control flow, which sets a new current basic block
@@ -203,13 +203,13 @@ std::string IrFlowgraphVisitor::visitIfElseNode(const std::shared_ptr<IfElseNode
     currentBasicBlock->add_instruction(node);
 
     // create a new basic block for the ENDIF instruction to be filled in later
-    BasicBlock *endIfBasicBlock = new BasicBlock();
+    std::shared_ptr<BasicBlock> endIfBasicBlock = std::make_shared<BasicBlock>();
 
     // process the condition until TEST- keep adding this to the current basic block
     node->getChildren()[0]->accept(*this);
 
     // then create a new basic block for the THEN control flow
-    BasicBlock *savedCurrentBasicBlock = currentBasicBlock;
+    std::shared_ptr<BasicBlock> savedCurrentBasicBlock = currentBasicBlock;
     startNewBasicBlockSuccessor();
 
     // process the THEN control flow
@@ -239,7 +239,7 @@ void IrFlowgraphVisitor::startNewBasicBlockSuccessor()
 {
 
     // create a new basic block and add it as a successor to the current basic block
-    BasicBlock *newBasicBlock = new BasicBlock();
+    std::shared_ptr<BasicBlock> newBasicBlock = std::make_shared<BasicBlock>();
     currentBasicBlock->add_successor(newBasicBlock);
     currentBasicBlock = newBasicBlock;
 }

@@ -65,7 +65,7 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
         astTree->accept(&irVisitor);
 
         //flowgraph
-        BasicBlock *startBasicBlock = new BasicBlock();
+        std::shared_ptr<BasicBlock> startBasicBlock = std::make_shared<BasicBlock>();
         IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
         entryNode->accept(flowgraphVisitor);
 

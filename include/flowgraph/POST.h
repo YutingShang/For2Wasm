@@ -8,7 +8,7 @@ class POST : public BaseDataFlowAnalysis<std::set<std::string>> {
 
     public:
 
-        POST(BasicBlock* entryBasicBlock);
+        POST(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         void printBlockDataFlowSets() override;
 

@@ -13,7 +13,7 @@ class ACS : public BaseDataFlowAnalysis<std::set<std::pair<std::string, std::str
 
     public:
 
-        ACS(BasicBlock* entryBasicBlock);
+        ACS(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         void printBlockDataFlowSets() override;
 

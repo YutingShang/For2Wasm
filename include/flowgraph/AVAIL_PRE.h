@@ -13,7 +13,7 @@ class AVAIL_PRE : public BaseDataFlowAnalysis<std::set<std::string>> {
 
         //constructor for AVAIL_PRE - initialises the base class with the entry basic block, FORWARD analysis direction, and the allExpressions set
         //will call the computeDataFlowSets() method in the base class to compute the dataflow sets for each basic block and instruction node
-        AVAIL_PRE(BasicBlock* entryBasicBlock);
+        AVAIL_PRE(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         void printBlockDataFlowSets() override;
 

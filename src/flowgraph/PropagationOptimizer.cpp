@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-PropagationOptimizer::PropagationOptimizer(BasicBlock *entryBasicBlock) : entryBasicBlock(entryBasicBlock) {}
+PropagationOptimizer::PropagationOptimizer(std::shared_ptr<BasicBlock> entryBasicBlock) : entryBasicBlock(entryBasicBlock) {}
 
 bool PropagationOptimizer::runCopyPropagation()
 {
@@ -26,7 +26,7 @@ bool PropagationOptimizer::runPropagation(PropagationType propagationType) {
 
     // Transformation: Copy Propagation
     bool modified = false;
-    for (BasicBlock *basicBlock : basicBlocks)
+    for (std::shared_ptr<BasicBlock> basicBlock : basicBlocks)
     {
         //if one of the basic blocks is modified, then set modified to true
         modified |= basicBlockPropagation(basicBlock, propagationType);
@@ -34,7 +34,7 @@ bool PropagationOptimizer::runPropagation(PropagationType propagationType) {
     return modified;
 }
 
-bool PropagationOptimizer::basicBlockPropagation(BasicBlock *basicBlock, PropagationType propagationType)
+bool PropagationOptimizer::basicBlockPropagation(std::shared_ptr<BasicBlock> basicBlock, PropagationType propagationType)
 {
     bool modified = false;
 
@@ -162,19 +162,19 @@ std::string PropagationOptimizer::getFinalReplacementVariable(std::string var, s
     return lastNonTempVar;
 }
 
-void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromBasicBlock, std::shared_ptr<BaseNode> startSearchFromInstructionNode, std::string tempVar) {
+void PropagationOptimizer::removeMovTempInstruction(std::shared_ptr<BasicBlock> startSearchFromBasicBlock, std::shared_ptr<BaseNode> startSearchFromInstructionNode, std::string tempVar) {
     ///On a backwards control flow, find the (MOV _t0 a) instruction, and remove it
     // do a DFS backwards from the current basic block as the start node
 
-    std::stack<BasicBlock *> toExploreStack;
+    std::stack<std::shared_ptr<BasicBlock>> toExploreStack;
     toExploreStack.push(startSearchFromBasicBlock);
-    std::set<BasicBlock *> seen;
+    std::set<std::shared_ptr<BasicBlock>> seen;
     seen.insert(startSearchFromBasicBlock);
 
     //should only be one temp variable MOV instruction, so we stop immediately if found
     bool expressionFound = false;
     while (!toExploreStack.empty() && !expressionFound) {
-        BasicBlock *current = toExploreStack.top();
+        std::shared_ptr<BasicBlock> current = toExploreStack.top();
         toExploreStack.pop();
         //go inside each basic block
         
@@ -186,12 +186,16 @@ void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromB
         }
         
         if (!expressionFound){    //then we add the predecessors to the stack 
-            std::vector<BasicBlock*> predecessors = current->get_predecessors();
+            std::vector<std::weak_ptr<BasicBlock>> predecessors = current->get_predecessors();
             //check that there should be at least one predecessor, otherwise we have hit the entry instruction node on a backwards path
             if (predecessors.empty()) {
                 throw std::runtime_error("ERROR while handling propagation: expression for MOV " + tempVar + " not found on a backwards path");
             }
-            for (BasicBlock* predecessor : predecessors) {
+            for (std::weak_ptr<BasicBlock> predecessor_weak_ptr : predecessors) {
+                std::shared_ptr<BasicBlock> predecessor = predecessor_weak_ptr.lock();
+                if (predecessor_weak_ptr.expired()) {
+                    throw std::runtime_error("ERROR while handling propagation: predecessor is expired (should not happen)");
+                }
                 if (seen.find(predecessor) == seen.end()) {     //if it is not already seen
                     toExploreStack.push(predecessor);
                     seen.insert(predecessor);
@@ -201,7 +205,7 @@ void PropagationOptimizer::removeMovTempInstruction(BasicBlock *startSearchFromB
     }
 }
 
-bool PropagationOptimizer::basicBlockRemoveMovTempInstruction(BasicBlock *basicBlock, std::string tempVar, std::shared_ptr<BaseNode> beginBackwardsFromThisNode) {
+bool PropagationOptimizer::basicBlockRemoveMovTempInstruction(std::shared_ptr<BasicBlock> basicBlock, std::string tempVar, std::shared_ptr<BaseNode> beginBackwardsFromThisNode) {
     bool found = false;
     
     std::list<std::weak_ptr<BaseNode>> &instructions = basicBlock->get_instructions_reference();

@@ -10,7 +10,7 @@ class IrFlowgraphVisitor : public IrBaseVisitor {
 
     public:
 
-        IrFlowgraphVisitor(BasicBlock* startBasicBlock);
+        IrFlowgraphVisitor(std::shared_ptr<BasicBlock> startBasicBlock);
 
         ~IrFlowgraphVisitor() = default;
 
@@ -51,13 +51,13 @@ class IrFlowgraphVisitor : public IrBaseVisitor {
     private:
         std::string visitSimpleNode(const std::shared_ptr<SimpleNode>& node);
 
-        BasicBlock* currentBasicBlock;
+        std::shared_ptr<BasicBlock> currentBasicBlock;
 
         // Creates a new basic block as the successor of the current basic block and updates the current basic block
         void startNewBasicBlockSuccessor();
 
         //stack ENDLOOP basic blocks, i.e. the endloopLabel of the loop
-        std::stack<BasicBlock*> exitStack;  
+        std::stack<std::shared_ptr<BasicBlock>> exitStack;  
 
 
 };

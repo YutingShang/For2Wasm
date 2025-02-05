@@ -1,6 +1,6 @@
 #include "VBE.h"
 
-VBE::VBE(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis(entryBasicBlock, AnalysisDirection::BACKWARD) {
+VBE::VBE(std::shared_ptr<BasicBlock> entryBasicBlock) : BaseDataFlowAnalysis(entryBasicBlock, AnalysisDirection::BACKWARD) {
     std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
 

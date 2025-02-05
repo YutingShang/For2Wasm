@@ -11,6 +11,7 @@
 //
 
 #include <iostream>
+#include <memory>
 
 #include "antlr4-runtime.h"
 #include "Fortran90LexerBase.h"
@@ -144,7 +145,7 @@ int main(int argc, const char **argv)
   
   ///NOTE: may not be used by every flag
 
-  BasicBlock *startBasicBlock = new BasicBlock();
+  auto startBasicBlock = std::make_shared<BasicBlock>();
   IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
   entryNode->accept(flowgraphVisitor);
   /////////////////2ND, 3RD, 4TH ... FLAG///////////////////////////////////////////////////
@@ -203,7 +204,7 @@ int main(int argc, const char **argv)
     }else if (flag1 == "-flowgraph") {
       //redraw the flowgraph
       // startBasicBlock->delete_entire_flowgraph();
-      BasicBlock* newStartBasicBlock = new BasicBlock();
+      auto newStartBasicBlock = std::make_shared<BasicBlock>();
       IrFlowgraphVisitor flowgraphVisitor(newStartBasicBlock);
       entryNode->accept(flowgraphVisitor);
 
@@ -233,13 +234,14 @@ int main(int argc, const char **argv)
       // std::map<BaseNode*, std::set<std::string>> earliestExpressions = post.getNodesEarliestExpressionsSets();
       std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> earliestExpressions = AnalysisTools::getAllNodesEarliestExpressions(startBasicBlock);
 
-      std::vector<BasicBlock*> basicBlocks = AnalysisTools::getBasicBlocks(startBasicBlock);
-      for (auto basicBlock : basicBlocks) {
-        for (auto node : basicBlock->get_instructions_copy()) {
+      std::vector<std::shared_ptr<BasicBlock>> basicBlocks = AnalysisTools::getBasicBlocks(startBasicBlock);
+      for (const auto& basicBlock : basicBlocks) {
+        for (const auto& node : basicBlock->get_instructions_reference()) {
           if (node.expired()) {
             throw std::runtime_error("Node expired");
           }
-          std::cout << "Node: " << node.lock()->getText() << std::endl;
+          auto nodeShared = node.lock();
+          std::cout << "Node: " << nodeShared->getText() << std::endl;
           std::cout <<"Anticipated (in) expressions: " << std::endl;
           for (auto expression : vbeSets[node]) {
             std::cout << expression << std::endl;

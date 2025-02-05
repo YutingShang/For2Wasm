@@ -14,7 +14,7 @@
 #include "MovNode.h"
 
 
-PREOptimizer::PREOptimizer(BasicBlock* entryBasicBlock, int nextProgramTempVariableCount) : entryBasicBlock(entryBasicBlock), nextProgramTempVariableCount(nextProgramTempVariableCount) {
+PREOptimizer::PREOptimizer(std::shared_ptr<BasicBlock> entryBasicBlock, int nextProgramTempVariableCount) : entryBasicBlock(entryBasicBlock), nextProgramTempVariableCount(nextProgramTempVariableCount) {
     std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     this->allExpressionsToCloneableNodesMap = AnalysisTools::getAllProgramExpressionsToCloneableNodesMap(rootNode);
     //get all expressions in the program, just take the keys from the map instead of traversing the IR tree again
@@ -23,24 +23,25 @@ PREOptimizer::PREOptimizer(BasicBlock* entryBasicBlock, int nextProgramTempVaria
     }
 }
 
-void PREOptimizer::iteratePartialRedundancyElimination()
+bool PREOptimizer::iteratePartialRedundancyElimination()
 {
     bool modified = true;
     // while (modified) {
     ///ONCE:
         modified = partialRedundancyEliminationOnce();
     // }
+    return modified;
 }
 
 bool PREOptimizer::partialRedundancyEliminationOnce()
 {
-   
+
     basicBlocks = AnalysisTools::getBasicBlocks(entryBasicBlock);
 
-  
+
     //first add new basic blocks to the flowgraph to basic blocks that have more than one predecessor
     addNewBasicBlocksToMultiplePredecessorNodes();
-
+    
     // std::cout <<"done with addNewBasicBlocksToMultiplePredecessorNodes" <<std::endl;
 
     ///WARNING: might need to redraw the flowgraph???? since some instruction blocks not updated properly... like IfNode to IfElseNode conversion!!! Or fix later
@@ -52,22 +53,22 @@ bool PREOptimizer::partialRedundancyEliminationOnce()
     USED used(entryBasicBlock);
     this->nodeLatestExpressionsSets = used.getNodesLatestExpressionsSets();
     this->nodeOutUsedSets = used.getNodeOutDataFlowSets();
-  
+                    
 
     //transformation
     bool modified = false;
-    for (BasicBlock *basicBlock : basicBlocks)
+    for (std::shared_ptr<BasicBlock> basicBlock : basicBlocks)
     {
         modified |= basicBlockRemovePartialRedundancy(basicBlock);
-    }
+                    }
 
     //redraw the flowgraph to remove unnecessary basic blocks divisions
     ///HOWEVER: would need to change signature to return this new entryBasicBlock to the main function
-
+                    
     // std::cout <<"done with PRE" <<std::endl;
     return modified;    //whether any partial redundancy was removed
-}
-
+    }
+    
 
 
 void PREOptimizer::addNewBasicBlocksToMultiplePredecessorNodes()
@@ -77,66 +78,74 @@ void PREOptimizer::addNewBasicBlocksToMultiplePredecessorNodes()
     //add the new basic block to the flowgraph AND ir tree
     //at the end refetch the basic blocks vector
 
-    std::vector<BasicBlock*> originalBasicBlocks = basicBlocks;   //make a copy since we add new basic blocks to the flowgraph in the loop
+    std::vector<std::shared_ptr<BasicBlock>> originalBasicBlocks = basicBlocks;   //make a copy since we add new basic blocks to the flowgraph in the loop
 
-    for (BasicBlock* basicBlock : originalBasicBlocks)
+    for (std::shared_ptr<BasicBlock> basicBlock : originalBasicBlocks)
     {
-        std::vector<BasicBlock*> predecessors = basicBlock->get_predecessors();
+        std::vector<std::weak_ptr<BasicBlock>> predecessors = basicBlock->get_predecessors();
         if (predecessors.size() > 1)
         {
            
             //go through all the predecessors of the basic block
             //if the predecessor does not end with and EndBlockNode (which means we can directly insert BEFORE that instruction)
             //insert a new basic block between the predecessor and the basic block
-            for (BasicBlock* predecessor : predecessors)
+            for (std::weak_ptr<BasicBlock> predecessor_weak_ptr : predecessors)
             {
-                //if it is an EndBlockNode, the insertion is more simple, so no need to create a new basic block
-                std::shared_ptr<BaseNode> lastInstruction = predecessor->get_instructions_copy().back().lock();
-                if (std::dynamic_pointer_cast<EndBlockNode>(lastInstruction) == nullptr)
-                {   
-                    //otherwise, check what the last instruction is
-                    /// ONE: it is a TestNode. This means we need to convert IfNode --> IfElseNode
-                    /// TWO: it is a LoopNode. This means we need to insert a new instruction at the start of the LoopNode body
-                    /// THREE: it is a SimpleNode (not TestNode). This means we need to insert a new instruction after the SimpleNode
-                    InsertableBasicBlock::NodeInsertionStrategy* insertionStrategy;
-                    if (std::dynamic_pointer_cast<TestNode>(lastInstruction) != nullptr)
-                    {
-                        //go backwards from the test node to find the if node
-                        std::shared_ptr<IfNode> ifNode;
-                        for (std::shared_ptr<BaseNode> node = lastInstruction; node != nullptr; node = node->getParent()) {
-                            if (std::dynamic_pointer_cast<IfNode>(node) != nullptr) {
-                                ifNode = std::dynamic_pointer_cast<IfNode>(node);
-                                break;
-                            }
-                        }
-                        insertionStrategy = AnalysisTools::createNewElseBlockInsertionStrategy(ifNode);
-                    }
-                    else if (std::dynamic_pointer_cast<LoopNode>(lastInstruction) != nullptr)
-                    {
-                        insertionStrategy = AnalysisTools::createLoopBodyStartInsertionStrategy(std::dynamic_pointer_cast<LoopNode>(lastInstruction));
-                    }
-                    else
-                    {
-                        insertionStrategy = AnalysisTools::createAfterSimpleNodeInsertionStrategy(std::dynamic_pointer_cast<SimpleNode>(lastInstruction));
-                    }
-                  
-
-                    //create a new basic block with the insertion strategy
-                    InsertableBasicBlock* newBasicBlock = new InsertableBasicBlock(insertionStrategy);
-
-                    //insert the new basic block between the predecessor and the basic block
-                    //can call the insertion strategy when a non-PlaceholderNode needs to be inserted to the IR tree
-                    basicBlock->insert_sandwich_predecessor_basic_block(predecessor, newBasicBlock);
-
-                    //add the new basic block to the basic blocks vector for PREOptimizer
-                    basicBlocks.push_back(newBasicBlock);
+                std::shared_ptr<BasicBlock> predecessor = predecessor_weak_ptr.lock();
+                if (predecessor == nullptr) {
+                    throw std::runtime_error("ERROR while handling PRE: predecessor is nullptr");
                 }
+                {
+                    //if it is an EndBlockNode, the insertion is more simple, so no need to create a new basic block
+                    std::shared_ptr<BaseNode> lastInstruction = predecessor->get_instructions_copy().back().lock();
+                    if (std::dynamic_pointer_cast<EndBlockNode>(lastInstruction) == nullptr)
+                    {   
+                        //otherwise, check what the last instruction is
+                        /// ONE: it is a TestNode. This means we need to convert IfNode --> IfElseNode
+                        /// TWO: it is a LoopNode. This means we need to insert a new instruction at the start of the LoopNode body
+                        /// THREE: it is a SimpleNode (not TestNode). This means we need to insert a new instruction after the SimpleNode
+                        std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> insertionStrategy;
+                        if (std::dynamic_pointer_cast<TestNode>(lastInstruction) != nullptr)
+                        {
+                            //go backwards from the test node to find the if node
+                            std::shared_ptr<IfNode> ifNode;
+                            for (std::shared_ptr<BaseNode> node = lastInstruction; node != nullptr; node = node->getParent()) {
+                                if (std::dynamic_pointer_cast<IfNode>(node) != nullptr) {
+                                    ifNode = std::dynamic_pointer_cast<IfNode>(node);
+                                    break;
+                                }
+                            }
+                            insertionStrategy = std::move(AnalysisTools::createNewElseBlockInsertionStrategy(ifNode));
+                        }
+                        else if (std::dynamic_pointer_cast<LoopNode>(lastInstruction) != nullptr)
+                        {
+                            insertionStrategy = std::move(AnalysisTools::createLoopBodyStartInsertionStrategy(std::dynamic_pointer_cast<LoopNode>(lastInstruction)));
+                        }
+                        else
+                        {
+                            insertionStrategy = std::move(AnalysisTools::createAfterSimpleNodeInsertionStrategy(std::dynamic_pointer_cast<SimpleNode>(lastInstruction)));
+                        }
+                      
+
+                        //create a new basic block with the insertion strategy
+                        std::shared_ptr<InsertableBasicBlock> newBasicBlock = std::make_shared<InsertableBasicBlock>(std::move(insertionStrategy));
+
+                        //insert the new basic block between the predecessor and the basic block
+                        //can call the insertion strategy when a non-PlaceholderNode needs to be inserted to the IR tree
+                        basicBlock->insert_sandwich_predecessor_basic_block(predecessor, newBasicBlock);
+
+                        //add the new basic block to the basic blocks vector for PREOptimizer
+                        basicBlocks.push_back(newBasicBlock);
+                    }
             }
         }
     }
 }
+}
 
-bool PREOptimizer::basicBlockRemovePartialRedundancy(BasicBlock* basicBlock) {
+
+
+bool PREOptimizer::basicBlockRemovePartialRedundancy(const std::shared_ptr<BasicBlock>& basicBlock) {
 
     bool modified = false;
 
@@ -163,7 +172,7 @@ bool PREOptimizer::basicBlockRemovePartialRedundancy(BasicBlock* basicBlock) {
             //If it is a placeholder node, then we need to use the insertion strategy
             //Otherwise, we can just insert the node above the current instruction
             if (std::dynamic_pointer_cast<PlaceholderNode>(instruction) != nullptr) {
-                InsertableBasicBlock* insertableBasicBlock = dynamic_cast<InsertableBasicBlock*>(basicBlock);
+                std::shared_ptr<InsertableBasicBlock> insertableBasicBlock = std::dynamic_pointer_cast<InsertableBasicBlock>(basicBlock);
                 // std::cout <<"Node: " << instruction->getText() << std::endl;
                 // std::cout <<"using insertion strategy for instruction: " <<instruction->getText() <<std::endl;
                 insertableBasicBlock->executeNodeIRInsertion(it, newExpressionNode);
@@ -303,6 +312,6 @@ bool PREOptimizer::isExpressionReplacedByTemp(std::shared_ptr<BaseNode> instruct
     return unionSet.find(expression) != unionSet.end();
 }
 
-int PREOptimizer::getNextProgramTempVariableCount() {
+int PREOptimizer::getNextProgramTempVariableCount() const{
     return nextProgramTempVariableCount;
 }

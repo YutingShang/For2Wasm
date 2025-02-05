@@ -1,7 +1,7 @@
 #include "ACS.h"
 #include <iostream>
 
-ACS::ACS(BasicBlock* entryBasicBlock): BaseDataFlowAnalysis<std::set<std::pair<std::string, std::string>>>(entryBasicBlock, AnalysisDirection::FORWARD) {
+ACS::ACS(std::shared_ptr<BasicBlock> entryBasicBlock): BaseDataFlowAnalysis<std::set<std::pair<std::string, std::string>>>(entryBasicBlock, AnalysisDirection::FORWARD) {
     std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allCopyStatements = AnalysisTools::getAllProgramCopyStatements(rootNode);
 

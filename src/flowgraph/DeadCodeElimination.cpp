@@ -1,7 +1,7 @@
 #include "DeadCodeElimination.h"
 #include "LVA.h"
 
-void DeadCodeElimination::iterateDeadCodeElimination(BasicBlock *entryBasicBlock)
+void DeadCodeElimination::iterateDeadCodeElimination(std::shared_ptr<BasicBlock> entryBasicBlock)
 {
     bool runDCE = true;
     while (runDCE)
@@ -10,16 +10,16 @@ void DeadCodeElimination::iterateDeadCodeElimination(BasicBlock *entryBasicBlock
     }
 }
 
-bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
+bool DeadCodeElimination::deadCodeEliminationOnce(std::shared_ptr<BasicBlock> entryBasicBlock)
 {
     // Analysis: LVA
     LVA lva(entryBasicBlock);
-    std::vector<BasicBlock *> basicBlocks = lva.getBasicBlocksUsed();
+    std::vector<std::shared_ptr<BasicBlock>> basicBlocks = lva.getBasicBlocksUsed();
     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeLiveSets = lva.getNodeOutDataFlowSets();
 
     // Transformation: Remove dead code
     bool removed = false;
-    for (BasicBlock *basicBlock : basicBlocks)
+    for (std::shared_ptr<BasicBlock> basicBlock : basicBlocks)
     {
         // the live sets have already converged now, so we just pass through the iteration one more time
         // compute the live set for each instruction and check if any instructions are dead code
@@ -32,7 +32,7 @@ bool DeadCodeElimination::deadCodeEliminationOnce(BasicBlock *entryBasicBlock)
 }
 
 
-bool DeadCodeElimination::basicBlockRemoveDeadCode(BasicBlock *basicBlock, std::vector<BasicBlock *> &basicBlocks, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> &nodeLiveSets)
+bool DeadCodeElimination::basicBlockRemoveDeadCode(std::shared_ptr<BasicBlock> basicBlock, std::vector<std::shared_ptr<BasicBlock>> &basicBlocks, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> &nodeLiveSets)
 {
     bool modified = false;
     // iterate through the instructions in the basic block, starting from the bottom

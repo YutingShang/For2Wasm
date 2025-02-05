@@ -1,7 +1,7 @@
 #include "AVAIL_PRE.h"
 #include "VBE.h"
 
-AVAIL_PRE::AVAIL_PRE(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::FORWARD) {
+AVAIL_PRE::AVAIL_PRE(std::shared_ptr<BasicBlock> entryBasicBlock) : BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::FORWARD) {
     std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
 

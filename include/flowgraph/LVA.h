@@ -12,7 +12,7 @@ class LVA : public BaseDataFlowAnalysis<std::set<std::string>> {
 
         //constructor for LVA - initialises the base class with the entry basic block, BACKWARD analysis direction, and an empty set
         //will call the computeDataFlowSets() method in the base class to compute the dataflow sets for each basic block and instruction node
-        LVA(BasicBlock* entryBasicBlock);
+        LVA(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         void printBlockDataFlowSets() override;
 

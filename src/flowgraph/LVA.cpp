@@ -2,7 +2,7 @@
 
 
 //constructor for LVA - initialises the base class with the entry basic block, BACKWARD analysis direction, and an empty set
-LVA::LVA(BasicBlock* entryBasicBlock) : 
+LVA::LVA(std::shared_ptr<BasicBlock> entryBasicBlock) : 
     BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::BACKWARD) {
 
     //set the initial set to an empty set

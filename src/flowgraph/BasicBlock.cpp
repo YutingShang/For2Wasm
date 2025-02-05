@@ -10,17 +10,17 @@ BasicBlock::BasicBlock() {}
 
 void BasicBlock::delete_entire_flowgraph() {
     
-    std::stack<BasicBlock*> toExploreStack;
-    toExploreStack.push(this);
-    std::set<BasicBlock*> seenBlocks;
-    seenBlocks.insert(this);
+    std::stack<std::shared_ptr<BasicBlock>> toExploreStack;
+    toExploreStack.push(shared_from_this());
+    std::set<std::shared_ptr<BasicBlock>> seenBlocks;
+    seenBlocks.insert(shared_from_this());
 
     //get a list of all the basic blocks using DFS
     while (!toExploreStack.empty()) {
-        BasicBlock *current = toExploreStack.top();
+        std::shared_ptr<BasicBlock> current = toExploreStack.top();
         toExploreStack.pop();
 
-        for (BasicBlock* successor : current->successors) {
+        for (const std::shared_ptr<BasicBlock>& successor : current->successors) {
             if(seenBlocks.find(successor) == seenBlocks.end()) {
                 toExploreStack.push(successor);
                 seenBlocks.insert(successor);
@@ -28,9 +28,10 @@ void BasicBlock::delete_entire_flowgraph() {
         }
     }
 
-    //delete all the basic blocks
-    for (BasicBlock* bb: seenBlocks) {
-        delete bb;
+    // Clear all connections between blocks
+    for (const std::shared_ptr<BasicBlock>& bb: seenBlocks) {
+        bb->successors.clear();
+        bb->predecessors.clear();
     }
 }
 
@@ -46,19 +47,29 @@ std::string BasicBlock::getText() {
     return basicBlock;
 }
 
-void BasicBlock::add_successor(BasicBlock* successor, bool checkIfCurrentIsExit) {
+void BasicBlock::add_successor(const std::shared_ptr<BasicBlock>& successor, bool checkIfCurrentIsExit) {
     if (checkIfCurrentIsExit && currentBlockContainsExitNode) {   //if the current basic block contains an exit node AND we are told to check, don't add the successor
         return;
     }
     //otherwise, add the successor and the corresponding predecessor
     successors.push_back(successor);
-    successor->predecessors.push_back(this);
+    successor->predecessors.push_back(shared_from_this());
 }
 
-void BasicBlock::remove_successor(BasicBlock* successor) {
+void BasicBlock::remove_successor(const std::shared_ptr<BasicBlock>& successor) {
     //remove shifts the element to remove to the end of the vector, and erase actually removes the element from the end of the vector
     successors.erase(std::remove(successors.begin(), successors.end(), successor), successors.end());
-    successor->predecessors.erase(std::remove(successor->predecessors.begin(), successor->predecessors.end(), this), successor->predecessors.end());
+    
+    // Remove this block from successor's predecessors
+    auto& pred = successor->predecessors;
+    pred.erase(
+        std::remove_if(pred.begin(), pred.end(),
+            [this](const std::weak_ptr<BasicBlock>& predBlock) {
+                return predBlock.lock().get() == this;
+            }
+        ),
+        pred.end()
+    );
 }
 
 void BasicBlock::setContainsExitNode(bool containsExitNode) {
@@ -66,11 +77,11 @@ void BasicBlock::setContainsExitNode(bool containsExitNode) {
 }
 
 
-std::vector<BasicBlock*> BasicBlock::get_successors() {
+std::vector<std::shared_ptr<BasicBlock>> BasicBlock::get_successors() {
     return successors;
 }
 
-std::vector<BasicBlock*> BasicBlock::get_predecessors() {
+std::vector<std::weak_ptr<BasicBlock>> BasicBlock::get_predecessors() {
     return predecessors;
 }
 
@@ -152,17 +163,16 @@ void BasicBlock::insert_parent_instruction_node(std::list<std::weak_ptr<BaseNode
     instructions.insert(it, newNode);   //iterator will still point to the same instruction
 }
 
-void BasicBlock::insert_sandwich_predecessor_basic_block(BasicBlock* currentPredecessor, InsertableBasicBlock* newBasicBlock) {
+void BasicBlock::insert_sandwich_predecessor_basic_block(const std::shared_ptr<BasicBlock>& currentPredecessor, std::shared_ptr<InsertableBasicBlock>& newBasicBlock) {
     //insert the new basic block as a predecessor of this basic block
     //between the current predecessor and this basic block
 
     //first remove all connections between the current predecessor and this basic block
-    currentPredecessor->remove_successor(this);
+    currentPredecessor->remove_successor(shared_from_this());
 
     //connect the new basic block in between
-    currentPredecessor->add_successor(newBasicBlock, false);     //always connects the new basic block to the current predecessor
-    newBasicBlock->add_successor(this, false);     //always connects the new basic block to this basic block
-
+    currentPredecessor->add_successor(std::shared_ptr<BasicBlock>(newBasicBlock), false);     //always connects the new basic block to the current predecessor
+    newBasicBlock->add_successor(shared_from_this(), false);     //always connects the new basic block to this basic block
 }
 
 

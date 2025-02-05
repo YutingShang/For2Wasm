@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+#include <memory>
 #include "BaseDataFlowAnalysis.h"
 
 //Very busy expressions (or Anticipated expressions) analysis
@@ -9,7 +11,7 @@ class VBE : public BaseDataFlowAnalysis<std::set<std::string>> {
 
     public:
 
-        VBE(BasicBlock* entryBasicBlock);
+        VBE(std::shared_ptr<BasicBlock> entryBasicBlock);
 
         void printBlockDataFlowSets() override;
 

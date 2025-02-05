@@ -1,6 +1,6 @@
 #include "USED.h"
 
-USED::USED(BasicBlock* entryBasicBlock) : BaseDataFlowAnalysis(entryBasicBlock, AnalysisDirection::BACKWARD) {
+USED::USED(std::shared_ptr<BasicBlock> entryBasicBlock) : BaseDataFlowAnalysis(entryBasicBlock, AnalysisDirection::BACKWARD) {
     //get the 'latest expressions' for all nodes
     std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
     std::set<std::string> allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
@@ -43,15 +43,15 @@ std::set<std::string> USED::transferFunction(std::shared_ptr<BaseNode> instructi
     //get the generated and killed expressions from the instruction
     std::set<std::string> usedExpressions = instruction->getReferencedExpressions();
     std::set<std::string> latestExpressions = allNodesLatestExpressions[instruction];
-
+    
     //add the used expressions to the in-set
     in_used_set.insert(usedExpressions.begin(), usedExpressions.end());
-
+            
     //remove the latest expressions from the in-set
     for (std::string expr : latestExpressions) {
         in_used_set.erase(expr);
     }
-
+    
     return in_used_set;
 }
 

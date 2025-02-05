@@ -80,7 +80,7 @@ std::string DotTreeTools::parseTreeToDot(antlr4::tree::ParseTree *root, const st
       nodeText = std::regex_replace(nodeText, std::regex("\""), "\\\"");
 
       dot << "node" << nodeToIndex[node] << " [label=\"" << nodeText << "\"];\n";
-    }
+        }
 
     // add children nodes to stack
     for (auto child : node->children)
@@ -93,37 +93,37 @@ std::string DotTreeTools::parseTreeToDot(antlr4::tree::ParseTree *root, const st
         std::string childText = antlrcpp::escapeWhitespace(antlr4::tree::Trees::getNodeText(child, ruleNames), false);
         childText = std::regex_replace(childText, std::regex("\""), "\\\"");
         dot << "node" << nodeToIndex[child] << " [label=\"" << childText << "\"];\n";
-      }
+            }
 
       // add edge to dot file
       dot << "node" << nodeToIndex[node] << " -> node" << nodeToIndex[child] << ";\n";
 
       // add child to stack
       stack.push(child);
+        }
     }
-  }
 
   dot << "}\n";
   return dot.str();
 }
 
 ///NOTE: this is a graph, not a tree, so need to maintain list of seen basic blocks
-std::string DotTreeTools::flowgraphToDot(BasicBlock* root) {
+std::string DotTreeTools::flowgraphToDot(std::shared_ptr<BasicBlock> root) {
 
    std::stringstream dot;
     dot << "digraph Tree {\n";
 
     int nodeCount = 0;
-    std::unordered_map<BasicBlock *, int> nodeToIndex; // map to store node and its index - used in dot file
+    std::unordered_map<std::shared_ptr<BasicBlock>, int> nodeToIndex; // map to store node and its index - used in dot file
 
-    std::stack<BasicBlock *> stack;
+    std::stack<std::shared_ptr<BasicBlock>> stack;
     stack.push(root);
 
-    std::vector<BasicBlock*> seenBasicBlocks;
-   
+    std::vector<std::shared_ptr<BasicBlock>> seenBasicBlocks;
+
     while (!stack.empty())
     {
-        BasicBlock *currentNode = stack.top();
+        std::shared_ptr<BasicBlock> currentNode = stack.top();
         stack.pop();
 
         if (nodeToIndex.find(currentNode) == nodeToIndex.end())
@@ -133,10 +133,10 @@ std::string DotTreeTools::flowgraphToDot(BasicBlock* root) {
             // get text representation of node
             std::string nodeText = currentNode->getText();
             dot << "node" << nodeToIndex[currentNode] << " [label=\"" << nodeText << "\"];\n";
-        }
+            }
 
         // add children to stack
-        for (BasicBlock *child : currentNode->get_successors())
+        for (std::shared_ptr<BasicBlock> child : currentNode->get_successors())
         {
            
             // create child node if not in map
@@ -145,7 +145,7 @@ std::string DotTreeTools::flowgraphToDot(BasicBlock* root) {
                 nodeToIndex[child] = nodeCount++;
                 std::string childText = child->getText();
                 dot << "node" << nodeToIndex[child] << " [label=\"" << childText << "\"];\n";
-            }
+        }
 
             // add edge to dot file - even if the child has already been seen, this edge is still needed
             dot << "node" << nodeToIndex[currentNode] << " -> node" << nodeToIndex[child] << ";\n";
@@ -154,7 +154,7 @@ std::string DotTreeTools::flowgraphToDot(BasicBlock* root) {
             if (std::find(seenBasicBlocks.begin(), seenBasicBlocks.end(), child) == seenBasicBlocks.end()) {
                 stack.push(child);
                 seenBasicBlocks.push_back(child);     //now you have seen this basic block
-            }
+    }
              
 
         }

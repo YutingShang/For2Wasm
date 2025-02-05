@@ -2,7 +2,7 @@
 #include "PlaceholderNode.h"
 // #include "BasicBlock.h"
 
-InsertableBasicBlock::InsertableBasicBlock(NodeInsertionStrategy* strategy) : insertionStrategy(strategy) {
+InsertableBasicBlock::InsertableBasicBlock(std::unique_ptr<NodeInsertionStrategy> strategy) : insertionStrategy(std::move(strategy)) {
     //add placeholder instruction node to the instructions list
     addPlaceholderInstructionNode();
 }
