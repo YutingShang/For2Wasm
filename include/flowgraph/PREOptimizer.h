@@ -14,19 +14,21 @@ class PREOptimizer {
 
     public:
 
-        PREOptimizer(std::shared_ptr<BasicBlock> entryBasicBlock, int nextProgramTempVariableCount);
+        PREOptimizer(std::shared_ptr<EntryNode> entryNode, int nextProgramTempVariableCount);
 
+        //runs PRE (once - same effect as running iteratively) until no more partial redundancies are found
         //returns true if any changes were made
-        bool iteratePartialRedundancyElimination();
+        bool runPartialRedundancyElimination();
+
+        //runs PRE + CP repeatedly until no more partial redundancies are found
+        bool iteratePRE_CopyPropagation();
 
         int getNextProgramTempVariableCount() const;
 
     private:
 
-        //returns true if any changes were made
-        bool partialRedundancyEliminationOnce();
-
-        std::shared_ptr<BasicBlock> entryBasicBlock;
+        std::shared_ptr<EntryNode> entryNode;
+        std::shared_ptr<BasicBlock> startBasicBlock = nullptr;
         std::vector<std::shared_ptr<BasicBlock>> basicBlocks;
         std::set<std::string> allExpressions;    //need for complementation for the second check
         std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeLatestExpressionsSets;
@@ -34,11 +36,6 @@ class PREOptimizer {
         int nextProgramTempVariableCount;
 
         //each expression has a new temporary variable _s associated with it
-        //store the mapping so we can process the flowgraph ONCE, and process all expressions at each node
-        ///QUESTION: how to handle between iterations?
-        ///QUESTION: maybe I need to map the actual node??? Or like create a new node for the temp assignment, or change the node
-        ///LIKE I could keep track of the original node, then maybe copy it over yeah... Add a copy constructor to each node 
-
         //for expressions that need to be PRE optimized, it stores
         //expression: temp var       (e.g. x+y: _s1)  
         std::unordered_map<std::string, std::string> expressionToTempVarMap;
@@ -73,10 +70,6 @@ class PREOptimizer {
         ///CHECKS: does the check for (¬latest[B] ∪ out-used[B])
         //you should pass in an expression already in e_useB, to check if it should be replaced by a temp variable in the expressionToTempVarMap
         bool isExpressionReplacedByTemp(std::shared_ptr<BaseNode> instruction, std::string &expression);
-
-      
-
-
 
 
 };

@@ -66,18 +66,12 @@ class InsertableBasicBlock : public BasicBlock {
         virtual ~InsertableBasicBlock() = default;
 
         //uses the strategy when needed to insert the node into the IR tree
-        //And also adds the placeholder instruction node to the instructions list, BEFORE the current iterator (iterator still valid after)
         //does not delete the placeholder instruction node after insertion
-        void executeNodeIRInsertion(std::list<std::weak_ptr<BaseNode>>::iterator it, std::shared_ptr<SimpleNode> nodeToInsert);
+        void executeNodeIRInsertion(std::shared_ptr<SimpleNode> nodeToInsert);
 
         //to the instructions list, add the placeholder instruction node
         //call in constructor
         void addPlaceholderInstructionNode();
-
-        //remove the placeholder instruction node after insertion
-        //pass in iterator to the placeholder instruction node
-        //returns iterator to the next instruction node (probably the end of the basic block instructions list)
-        // std::list<BaseNode*>::iterator removePlaceholderInstructionNode(std::list<BaseNode*>::iterator it);
 
     private:
         std::unique_ptr<NodeInsertionStrategy> insertionStrategy;    //overall insertion strategy, includes first and subsequent insertion strategies - but typically user only needs to override the first insertion strategy

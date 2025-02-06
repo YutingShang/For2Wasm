@@ -179,7 +179,7 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(const std::sha
         //now we have the in-dataflow set of the basic block
         //store it in the nodeDataFlowSets map for the instruction before we process that instruction with the transfer function
 
-        const std::list<std::weak_ptr<BaseNode>>& instructions = basicBlock->get_instructions_reference();
+        std::list<std::weak_ptr<BaseNode>> instructions = basicBlock->get_instructions_copy();
         for (auto it = instructions.begin(); it != instructions.end(); ++it) {
             if (it->expired()) {
                 throw std::runtime_error("Instruction node has expired, cannot perform forward dataflow analysis");
@@ -216,7 +216,7 @@ Domain BaseDataFlowAnalysis<Domain>::basicBlockComputeDataFlowSet(const std::sha
         //now we have the out-dataflow set of the basic block
         //store it in the nodeDataFlowSets map for the instruction before we process that instruction with the transfer function
 
-        const std::list<std::weak_ptr<BaseNode>>& instructions = basicBlock->get_instructions_reference();
+        std::list<std::weak_ptr<BaseNode>> instructions = basicBlock->get_instructions_copy();
         for (auto it = instructions.rbegin(); it != instructions.rend(); ++it) {   //iterate backwards
             if (it->expired()) {
                 throw std::runtime_error("Instruction node has expired, cannot perform backward dataflow analysis");

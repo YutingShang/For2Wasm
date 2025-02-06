@@ -116,7 +116,7 @@ void LoopNode::insertSandwichBodyChild(std::shared_ptr<SimpleNode> newNode) {
     this->removeChild(*currentBodyStartNode);
     newNode->addChild(currentBodyStartNode);
 
-    //attach the newNode to the LoopNode
-    this->addChild(newNode);
+    //attach the newNode to the LoopNode as the body child
+    this->addChildAtIndex(newNode, 0);
 
 }

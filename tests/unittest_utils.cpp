@@ -12,6 +12,7 @@
 #include "CSEOptimizer.h"
 #include "IrWasmVisitor.h"
 #include "EntryNode.h"
+#include "PREOptimizer.h"
 
 using namespace antlr4;
 
@@ -64,33 +65,46 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
         Fortran90ParserIRTreeVisitor irVisitor(parser, entryNode);
         astTree->accept(&irVisitor);
 
-        //flowgraph
-        std::shared_ptr<BasicBlock> startBasicBlock = std::make_shared<BasicBlock>();
-        IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
-        entryNode->accept(flowgraphVisitor);
+        //flowgraph is drawn in each optimisation pass
 
         //optimisations
         int nextProgramTempVariableCount = 0;
         if (optimisationFlags.size() > 0){
             for (OptimisationFlag optimisationFlag : optimisationFlags){
                 if (optimisationFlag == DCE){
-                    DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
-                }else if (optimisationFlag == Simplify){
+                    DeadCodeElimination deadCodeElimination(entryNode);
+                    deadCodeElimination.iterateDeadCodeElimination();
+                }
+                else if (optimisationFlag == Simplify){
                     SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
-                }else if (optimisationFlag == CSE){
-                    CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
-                    cseOptimizer.iterateCommonSubexpressionElimination();
+                }
+                else if (optimisationFlag == CSE){
+                    CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
+                    cseOptimizer.runCommonSubexpressionElimination();
                     nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
-                }else if (optimisationFlag == CP){
-                    PropagationOptimizer PropagationOptimizer(startBasicBlock);
+                }
+                else if (optimisationFlag == CP){
+                    PropagationOptimizer PropagationOptimizer(entryNode);
                     PropagationOptimizer.runCopyPropagation();
-                }else if (optimisationFlag == Const){
-                    PropagationOptimizer PropagationOptimizer(startBasicBlock);
+                }
+                else if (optimisationFlag == Const){
+                    PropagationOptimizer PropagationOptimizer(entryNode);
                     PropagationOptimizer.runConstantPropagation();
-                }else if (optimisationFlag == IterCSE_CP){
-                    CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
+                }
+                else if (optimisationFlag == IterCSE_CP){
+                    CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
                     cseOptimizer.iterateCSE_CopyPropagation();
                     nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
+                }
+                else if (optimisationFlag == PRE){
+                    PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+                    preOptimizer.runPartialRedundancyElimination();
+                    nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+                }
+                else if (optimisationFlag == IterPRE_CP){
+                    PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+                    preOptimizer.iteratePRE_CopyPropagation();
+                    nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
                 }
             }
         }

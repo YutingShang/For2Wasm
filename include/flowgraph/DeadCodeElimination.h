@@ -5,25 +5,29 @@
 #include <queue>
 #include <map>
 
-//static class for dead code elimination, doesn't need to keep track of state
+//class for dead code elimination, keeps track of the entry node, redraws the flowgraph after each iteration
 
 class DeadCodeElimination {
 
     public:
 
-        DeadCodeElimination() = delete;
+        DeadCodeElimination(std::shared_ptr<EntryNode> entryNode);
 
-        static void iterateDeadCodeElimination(std::shared_ptr<BasicBlock> entryBasicBlock);
+        //runs DCE iteratively until no more dead code is found
+        void iterateDeadCodeElimination();
 
         //runs LVA then checks for dead code - ONCE
         //returns true if code was deleted, false otherwise
-        static bool deadCodeEliminationOnce(std::shared_ptr<BasicBlock> entryBasicBlock);
+        bool deadCodeEliminationOnce();
 
 
     private:
 
-        //finds and removes dead code in the flowgraph after the LVA converges
-        //returns true if the basic block has been modified, false otherwise
-        static bool basicBlockRemoveDeadCode(std::shared_ptr<BasicBlock> basicBlock, std::vector<std::shared_ptr<BasicBlock>> &basicBlocks, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> &nodeLiveSets);
+        //finds and removes dead code in a flowgraph node 
+        //returns true if the node has been removed, false otherwise
+        bool removeDeadCodeForNode(std::shared_ptr<BaseNode> instruction);
 
+        std::shared_ptr<EntryNode> entryNode;
+        std::shared_ptr<BasicBlock> startBasicBlock = nullptr;
+        std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeLiveSets;     //stores the live sets for each node in the flowgraph
 };

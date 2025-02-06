@@ -1,5 +1,4 @@
 #include "BasicBlock.h"
-#include <iterator>
 #include <iostream>
 #include <stack>
 #include <set>
@@ -8,36 +7,7 @@
 
 BasicBlock::BasicBlock() {}
 
-void BasicBlock::delete_entire_flowgraph() {
-    
-    std::stack<std::shared_ptr<BasicBlock>> toExploreStack;
-    toExploreStack.push(shared_from_this());
-    std::set<std::shared_ptr<BasicBlock>> seenBlocks;
-    seenBlocks.insert(shared_from_this());
-
-    //get a list of all the basic blocks using DFS
-    while (!toExploreStack.empty()) {
-        std::shared_ptr<BasicBlock> current = toExploreStack.top();
-        toExploreStack.pop();
-
-        for (const std::shared_ptr<BasicBlock>& successor : current->successors) {
-            if(seenBlocks.find(successor) == seenBlocks.end()) {
-                toExploreStack.push(successor);
-                seenBlocks.insert(successor);
-            }
-        }
-    }
-
-    // Clear all connections between blocks
-    for (const std::shared_ptr<BasicBlock>& bb: seenBlocks) {
-        bb->successors.clear();
-        bb->predecessors.clear();
-    }
-}
-
-void BasicBlock::add_instruction(const std::shared_ptr<BaseNode>& instruction) {
-    instructions.push_back(instruction);
-}
+//getters
 
 std::string BasicBlock::getText() {
     std::string basicBlock = "";
@@ -45,6 +15,31 @@ std::string BasicBlock::getText() {
         basicBlock += instruction.lock()->getText() + "\n";
     }
     return basicBlock;
+}
+
+std::vector<std::shared_ptr<BasicBlock>> BasicBlock::get_successors() {
+    return successors;
+}
+
+std::vector<std::weak_ptr<BasicBlock>> BasicBlock::get_predecessors() {
+    return predecessors;
+}
+
+
+const std::list<std::weak_ptr<BaseNode>> BasicBlock::get_instructions_copy() {
+    return instructions;
+}
+
+//setters
+
+void BasicBlock::setContainsExitNode(bool containsExitNode) {
+    currentBlockContainsExitNode = containsExitNode;
+}
+
+//flowgraph manipulation methods
+
+void BasicBlock::add_instruction(const std::shared_ptr<BaseNode>& instruction) {
+    instructions.push_back(instruction);
 }
 
 void BasicBlock::add_successor(const std::shared_ptr<BasicBlock>& successor, bool checkIfCurrentIsExit) {
@@ -70,97 +65,6 @@ void BasicBlock::remove_successor(const std::shared_ptr<BasicBlock>& successor) 
         ),
         pred.end()
     );
-}
-
-void BasicBlock::setContainsExitNode(bool containsExitNode) {
-    currentBlockContainsExitNode = containsExitNode;
-}
-
-
-std::vector<std::shared_ptr<BasicBlock>> BasicBlock::get_successors() {
-    return successors;
-}
-
-std::vector<std::weak_ptr<BasicBlock>> BasicBlock::get_predecessors() {
-    return predecessors;
-}
-
-std::list<std::weak_ptr<BaseNode>>& BasicBlock::get_instructions_reference() {
-    return instructions;
-}
-
-const std::list<std::weak_ptr<BaseNode>> BasicBlock::get_instructions_copy() {
-    return instructions;
-}
-
-
-
-std::list<std::weak_ptr<BaseNode>>::iterator BasicBlock::remove_instruction_node(std::list<std::weak_ptr<BaseNode>>::iterator it) {
-    //get what instruction is being removed
-    std::shared_ptr<BaseNode> instruction = it->lock();
-
-    //remove the instruction from the basic block
-    it = instructions.erase(it);
-
-    //edit the ir tree to remove the instruction node 
-    //bypass the current node, add its children to the parent node
-    instruction->removeCurrentNodeFromIRTree();
-
-    // return the iterator to the next instruction
-    return it;
-}
-
-
-std::list<std::weak_ptr<BaseNode>>::iterator BasicBlock::replace_instruction_node(std::list<std::weak_ptr<BaseNode>>::iterator it, std::shared_ptr<SimpleNode> newNode) {
-    //get what instruction is being replaced
-    std::shared_ptr<BaseNode> instruction = it->lock();
-
-    // handle the instructions list of the basic block
-    ///NOTE: this is completely separate from the IR Tree
-    it = instructions.erase(it);       //iterator now points to the next instruction node
-    instructions.insert(it, newNode);   //inserts newNode before the next element, iterator still points this next element
-
-    //replace the instruction with the new node, in the IR Tree
-    std::shared_ptr<SimpleNode> simpleNode = std::dynamic_pointer_cast<SimpleNode>(instruction);
-    if (simpleNode == nullptr) {
-        throw std::runtime_error("ERROR when replacing instruction node: Instruction is not a SimpleNode subclass");
-    }
-   
-    simpleNode->replaceCurrentNodeInIRTree(newNode);
-
-    //return the iterator to the next instruction (after the newNode)
-    return it;
-}
-
-std::list<std::weak_ptr<BaseNode>>::iterator BasicBlock::insert_sandwich_instruction_node(std::list<std::weak_ptr<BaseNode>>::iterator it, std::shared_ptr<SimpleNode> newNode, bool instructionsListReversed) {
-
-    //get what instruction is being replaced
-    std::shared_ptr<BaseNode> instruction = it->lock();
-
-    //replace the instruction with the new node, in the IR Tree
-    std::shared_ptr<SimpleNode> simpleNode = std::dynamic_pointer_cast<SimpleNode>(instruction);
-    if (simpleNode == nullptr) {
-        throw std::runtime_error("ERROR when inserting sandwich instruction node: Instruction is not a SimpleNode subclass");
-    }
-    simpleNode->insertSandwichChild(newNode);
-
-    // handle the instructions list of the basic block
-    ///NOTE: this is completely separate from the IR Tree
-    if (instructionsListReversed) {
-        //it;  don't change the iterator, to insert the newNode 'before' the current instruction (when in reverse), appearing right after the current instruction in the actual basic block
-    } else {
-        ++it;     //increment iterator to point to the next instruction node, to insert the newNode before it, to appear right after the current instruction in the actual basic block
-    }
-    instructions.insert(it, newNode);   //iterator will point to the next instruction after the newNode
-
-    //return the iterator to the next instruction (after the newNode)
-    return it;
-}
-
-void BasicBlock::insert_parent_instruction_node(std::list<std::weak_ptr<BaseNode>>::iterator it, std::shared_ptr<SimpleNode> newNode) {
-    std::shared_ptr<BaseNode> instruction = it->lock();
-    instruction->insertSandwichParent(newNode);
-    instructions.insert(it, newNode);   //iterator will still point to the same instruction
 }
 
 void BasicBlock::insert_sandwich_predecessor_basic_block(const std::shared_ptr<BasicBlock>& currentPredecessor, std::shared_ptr<InsertableBasicBlock>& newBasicBlock) {

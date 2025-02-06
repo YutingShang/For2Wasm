@@ -14,6 +14,8 @@
 #include "LoopNode.h"
 #include "IfNode.h"
 #include "IfElseNode.h"
+#include "IrFlowgraphVisitor.h"
+#include "EntryNode.h"
 
 std::vector<std::shared_ptr<BasicBlock>> AnalysisTools::getBasicBlocks(std::shared_ptr<BasicBlock> entryBasicBlock) {
     std::vector<std::shared_ptr<BasicBlock>> basicBlocks;
@@ -40,6 +42,22 @@ std::vector<std::shared_ptr<BasicBlock>> AnalysisTools::getBasicBlocks(std::shar
 
     return basicBlocks;
 }
+
+std::vector<std::shared_ptr<BaseNode>> AnalysisTools::getIRNodesInFlowgraphOrder(const std::vector<std::shared_ptr<BasicBlock>>& basicBlocks) {
+    //get the IR nodes in flowgraph (basic blocks) order
+    std::vector<std::shared_ptr<BaseNode>> irNodes;
+    for (std::shared_ptr<BasicBlock> basicBlock : basicBlocks) {
+        for (std::weak_ptr<BaseNode> node : basicBlock->get_instructions_copy()) {
+            if (node.expired()) {
+                throw std::runtime_error("Flowgraph has expired, cannot get IR nodes in flowgraph order");
+            }
+            irNodes.push_back(node.lock());
+        }
+    }
+    return irNodes;
+}
+
+
 
 std::set<std::string> AnalysisTools::getAllProgramExpressions(std::shared_ptr<BaseNode> entryNode) {
     std::set<std::string> allExpressions;
@@ -370,29 +388,18 @@ std::vector<std::weak_ptr<BaseNode>> AnalysisTools::getSuccessorNodes(std::share
     return successorNodes;
 }
 
+std::shared_ptr<BasicBlock> AnalysisTools::drawFlowgraph(const std::shared_ptr<EntryNode>& entryNode) {
+    //draw the flowgraph to synchronize with the updated IR tree, and returns the new entry basic block
+    std::shared_ptr<BasicBlock> startBasicBlock = std::make_shared<BasicBlock>();
+    IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
+    entryNode->accept(flowgraphVisitor);
+    return startBasicBlock;
+}
+
 /////////////////////////////////////////////////////////
 /////////////////////FACTORY METHODS/////////////////////
 /////////////////////////////////////////////////////////
 
-
-std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> AnalysisTools::createLoopBodyStartInsertionStrategy(std::shared_ptr<LoopNode> loopNodeToInsertAfter) {
-
-    class LoopBodyStartInserter : public InsertableBasicBlock::NodeInsertionStrategy {
-        std::shared_ptr<LoopNode> loopNodeToInsertAfter;
-
-        public:
-            //explicit constructor
-            explicit LoopBodyStartInserter(std::shared_ptr<LoopNode> loopNodeToInsertAfter)
-                : loopNodeToInsertAfter(loopNodeToInsertAfter) {}
-
-            void firstInsertionStrategy(std::shared_ptr<SimpleNode> nodeToInsert) override {
-                // Insert after the loopNodeToInsertAfter
-                loopNodeToInsertAfter->insertSandwichBodyChild(nodeToInsert);
-            }
-    };
-
-    return std::make_unique<LoopBodyStartInserter>(loopNodeToInsertAfter);
-}
 
 
 std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> AnalysisTools::createAfterSimpleNodeInsertionStrategy(std::shared_ptr<SimpleNode> simpleNodeToInsertAfter) {
@@ -425,8 +432,6 @@ std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> AnalysisTools::crea
                 //now that we know we want to insert this nodeToInsert
                 
                 ///FIRST: convert the ifNode to an ifElseNode
-                ///ISSUE: need to change the instructions list pointer - maybe just convert the node implicity??
-                // std::unique_ptr<IfElseNode> ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
                 std::shared_ptr<IfElseNode> ifElseNode = ifNodeToInsertAfter->convertToIfElseNode();
 
                 ///SECOND: add the nodeToInsert to the ifElseNode BEFORE the ENDELSE node of the else block

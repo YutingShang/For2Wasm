@@ -16,14 +16,10 @@ class CSEOptimizer {
         //constructor - will set the member variables
         // should initialise the nextProgramTempVariableCount to 0 if its the first time CSE is run
         // the next time, feed the previous nextProgramTempVariableCount into the constructor
-        CSEOptimizer(std::shared_ptr<BasicBlock> entryBasicBlock, int nextProgramTempVariableCount);
+        CSEOptimizer(std::shared_ptr<EntryNode> entryNode, int nextProgramTempVariableCount);
 
-        //runs CSE once, returns true if code was deleted, false otherwise
-        bool commonSubexpressionEliminationOnce();
-
-        //runs CSE iteratively until no more common subexpressions are found
-        ///TODO: maybe remove this, since its the same as commonSubexpressionEliminationOnce(). Assert that the result is false
-        bool iterateCommonSubexpressionElimination();
+        //runs CSE (once - same effect as running iteratively) until no more common subexpressions are found
+        bool runCommonSubexpressionElimination();
 
         //runs CSE + Copy Propagation repeatedly until no more common subexpressions are found
         bool iterateCSE_CopyPropagation();
@@ -34,7 +30,8 @@ class CSEOptimizer {
     private:
         
         //member variables
-        std::shared_ptr<BasicBlock> entryBasicBlock;
+        std::shared_ptr<EntryNode> entryNode;
+        std::shared_ptr<BasicBlock> startBasicBlock;            //start of the flowgraph - may be redrawn
         std::vector<std::shared_ptr<BasicBlock>> basicBlocks;            //vector of all basic blocks in the program
         std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeAvailSets;      //vector of available expressions for each instruction node
 
@@ -42,10 +39,9 @@ class CSEOptimizer {
         //these are _s program temporary variables which are added to the resulting program(not to be confused with _t temp variables for internal use)
         int nextProgramTempVariableCount;
 
-
-        //finds and removes common subexpressions in the flowgraph (and the IR tree) after the CSE converges
-        //returns true if the basic block has been modified, false otherwise
-        bool basicBlockRemoveCommonSubexpressions(std::shared_ptr<BasicBlock> basicBlock);
+        //checks the current node to see if it contains any common expressions to be removed
+        //returns true if the node has been modified, false otherwise
+        bool removeCommonSubexpressionsForNode(std::shared_ptr<BaseNode> node);
 
         //helper function in CSE when going backwards on each control path
         //in each basic block, find the first occurrence of the expression

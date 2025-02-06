@@ -143,11 +143,8 @@ int main(int argc, const char **argv)
 
   /////////////////FLOWGRAPH VISITOR///////////////////////////////////////////////////
   
-  ///NOTE: may not be used by every flag
+  //flowgraph is drawn in each optimisation pass
 
-  auto startBasicBlock = std::make_shared<BasicBlock>();
-  IrFlowgraphVisitor flowgraphVisitor(startBasicBlock);
-  entryNode->accept(flowgraphVisitor);
   /////////////////2ND, 3RD, 4TH ... FLAG///////////////////////////////////////////////////
 
   // .main <input file> <flag1 for output> <flag2 for optimisation> <flag3 for optimisation> ...
@@ -161,25 +158,37 @@ int main(int argc, const char **argv)
     //these will edit the IR tree directly - still referenced by entryNode
     if (optFlag == "-simplify") {
       SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
-    }else if (optFlag == "-DCE" ) {
-      DeadCodeElimination::iterateDeadCodeElimination(startBasicBlock);
-    }else if (optFlag == "-CSE") {
-      CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
-      cseOptimizer.iterateCommonSubexpressionElimination();
+    }
+    else if (optFlag == "-DCE" ) {
+      DeadCodeElimination deadCodeElimination(entryNode);
+      deadCodeElimination.iterateDeadCodeElimination();
+    }
+    else if (optFlag == "-CSE") {
+      CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
+      cseOptimizer.runCommonSubexpressionElimination();
       nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
-    }else if (optFlag == "-CP") {
-      PropagationOptimizer PropagationOptimizer(startBasicBlock);
+    }
+    else if (optFlag == "-CP") {
+      PropagationOptimizer PropagationOptimizer(entryNode);
       PropagationOptimizer.runCopyPropagation();
-    }else if (optFlag == "-const") {
-      PropagationOptimizer PropagationOptimizer(startBasicBlock);
+    }
+    else if (optFlag == "-const") {
+      PropagationOptimizer PropagationOptimizer(entryNode);
       PropagationOptimizer.runConstantPropagation();
-    }else if (optFlag == "-iterCSE-CP") {
-      CSEOptimizer cseOptimizer(startBasicBlock, nextProgramTempVariableCount);
+    }
+    else if (optFlag == "-iterCSE-CP") {
+      CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
       cseOptimizer.iterateCSE_CopyPropagation();
       nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
-    }else if (optFlag == "-PRE") {
-      PREOptimizer preOptimizer(startBasicBlock, nextProgramTempVariableCount);
-      preOptimizer.iteratePartialRedundancyElimination();
+    }
+    else if (optFlag == "-PRE") {
+      PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+      preOptimizer.runPartialRedundancyElimination();
+      nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+    }
+    else if (optFlag == "-iterPRE-CP") {
+      PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+      preOptimizer.iteratePRE_CopyPropagation();
       nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
     }
   }
@@ -203,40 +212,26 @@ int main(int argc, const char **argv)
       std::cout << wasm << std::endl;
     }else if (flag1 == "-flowgraph") {
       //redraw the flowgraph
-      // startBasicBlock->delete_entire_flowgraph();
-      auto newStartBasicBlock = std::make_shared<BasicBlock>();
-      IrFlowgraphVisitor flowgraphVisitor(newStartBasicBlock);
-      entryNode->accept(flowgraphVisitor);
-
-      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(newStartBasicBlock);
+      auto startBasicBlock = AnalysisTools::drawFlowgraph(entryNode);
+      std::string dotFlowgraph = DotTreeTools::flowgraphToDot(startBasicBlock);
       std::cout << dotFlowgraph << std::endl;
     }else if (flag1 == "-analysis") {
         ///////just print out all the analysis
+      auto startBasicBlock = AnalysisTools::drawFlowgraph(entryNode);
       VBE vbe(startBasicBlock);
-      // vbe.printBlockDataFlowSets();
       std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> vbeSets = vbe.getNodeInDataFlowSets();
-
       AVAIL_PRE avail_pre(startBasicBlock);
-      // avail_pre.printBlockDataFlowSets();
       std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> availSets = avail_pre.getNodeInDataFlowSets();
-
       POST post(startBasicBlock);
-      // post.printBlockDataFlowSets();
       std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> postSets = post.getNodeInDataFlowSets();
-
       USED used(startBasicBlock);
-      // used.printBlockDataFlowSets();
       std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> usedSets = used.getNodeOutDataFlowSets();
-
-
       std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> latestExpressions = used.getNodesLatestExpressionsSets();
-
-      // std::map<BaseNode*, std::set<std::string>> earliestExpressions = post.getNodesEarliestExpressionsSets();
       std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> earliestExpressions = AnalysisTools::getAllNodesEarliestExpressions(startBasicBlock);
 
       std::vector<std::shared_ptr<BasicBlock>> basicBlocks = AnalysisTools::getBasicBlocks(startBasicBlock);
       for (const auto& basicBlock : basicBlocks) {
-        for (const auto& node : basicBlock->get_instructions_reference()) {
+        for (const auto& node : basicBlock->get_instructions_copy()) {
           if (node.expired()) {
             throw std::runtime_error("Node expired");
           }

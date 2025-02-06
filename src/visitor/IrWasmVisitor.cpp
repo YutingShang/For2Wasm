@@ -273,10 +273,11 @@ std::string IrWasmVisitor::visitReadNode(const std::shared_ptr<ReadNode>& node) 
 
 std::string IrWasmVisitor::visitTestNode(const std::shared_ptr<TestNode>& node) {
     if (node->getChildren().size() == 1) {
-        return node->getChildren()[0]->accept(*this);
+        return node->getChildren()[0]->accept(*this);      //although TEST probably shouldn't have a child
     }
-    // just skip this node - TEST probably shouldn't have a child
-    return "";
+    
+    //the TEST variable could be a program variable or temp variable - return appropriate one
+    return convertSrcToWASM(node->getVar(), stringMapIndicies);
 }
 
 std::string IrWasmVisitor::visitEntryNode(const std::shared_ptr<EntryNode>& node) {

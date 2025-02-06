@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-PropagationOptimizer::PropagationOptimizer(std::shared_ptr<BasicBlock> entryBasicBlock) : entryBasicBlock(entryBasicBlock) {}
+PropagationOptimizer::PropagationOptimizer(std::shared_ptr<EntryNode> entryNode) : entryNode(entryNode) {}
 
 bool PropagationOptimizer::runCopyPropagation()
 {
@@ -18,9 +18,13 @@ bool PropagationOptimizer::runConstantPropagation() {
 }
 
 bool PropagationOptimizer::runPropagation(PropagationType propagationType) {
+
+    //redraw flowgraph to synchronize with the updated IR tree
+    startBasicBlock = AnalysisTools::drawFlowgraph(entryNode);
+
     // get the available copy statements for each basic block
     // Analysis: Available Copy Statements (ACS)
-    ACS acs(entryBasicBlock);
+    ACS acs(startBasicBlock);
     basicBlocks = acs.getBasicBlocksUsed();
     nodeAvailCopies = acs.getNodeInDataFlowSets();
 
@@ -52,7 +56,7 @@ bool PropagationOptimizer::basicBlockPropagation(std::shared_ptr<BasicBlock> bas
 
     // now for each instruction, check its in-availCopies set as specified in the pseudo code above
 
-    std::list<std::weak_ptr<BaseNode>> &instructions = basicBlock->get_instructions_reference();
+    std::list<std::weak_ptr<BaseNode>> instructions = basicBlock->get_instructions_copy();
     for (auto it = instructions.begin(); it != instructions.end();)
     {
         std::shared_ptr<BaseNode> instruction = it->lock();
@@ -208,7 +212,7 @@ void PropagationOptimizer::removeMovTempInstruction(std::shared_ptr<BasicBlock> 
 bool PropagationOptimizer::basicBlockRemoveMovTempInstruction(std::shared_ptr<BasicBlock> basicBlock, std::string tempVar, std::shared_ptr<BaseNode> beginBackwardsFromThisNode) {
     bool found = false;
     
-    std::list<std::weak_ptr<BaseNode>> &instructions = basicBlock->get_instructions_reference();
+    std::list<std::weak_ptr<BaseNode>> instructions = basicBlock->get_instructions_copy();
     instructions.reverse();
     
     std::list<std::weak_ptr<BaseNode>>::iterator it2;
@@ -226,14 +230,12 @@ bool PropagationOptimizer::basicBlockRemoveMovTempInstruction(std::shared_ptr<Ba
         if (std::dynamic_pointer_cast<MovNode>(instruction) != nullptr) {
             std::shared_ptr<MovNode> movNode = std::dynamic_pointer_cast<MovNode>(instruction);
             if (movNode->getDest() == tempVar) {
-                basicBlock->remove_instruction_node(it);
+                instruction->removeCurrentNodeFromIRTree();
                 found = true;
                 break;
             }
         }
     }
-    //reverse back to original order
-    instructions.reverse();
 
     return found;
 }

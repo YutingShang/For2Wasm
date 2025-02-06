@@ -14,6 +14,8 @@ enum OptimisationFlag {
     CP,
     Const,
     IterCSE_CP,
+    PRE,
+    IterPRE_CP,
 };
 
 enum OutputFlag {

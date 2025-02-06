@@ -1,4 +1,4 @@
-program simple
+program partialredundant1
     implicit none
     integer :: a, b, c, d, e, i
 
@@ -23,4 +23,4 @@ program simple
     print *, a, b, c, d, e
 
    
-end program simple
+end program partialredundant1

@@ -24,6 +24,9 @@ class AnalysisTools {
         //uses BFS to get the basic blocks roughly in flowgraph order, starting from the entry basic block
         static std::vector<std::shared_ptr<BasicBlock>> getBasicBlocks(std::shared_ptr<BasicBlock> entryBasicBlock);
 
+        //returns a vector of all the IR nodes in the flowgraph in the order they appear
+        static std::vector<std::shared_ptr<BaseNode>> getIRNodesInFlowgraphOrder(const std::vector<std::shared_ptr<BasicBlock>>& basicBlocks);
+
         //returns the universe of all expressions in the program
         static std::set<std::string> getAllProgramExpressions(std::shared_ptr<BaseNode> entryNode);
 
@@ -69,14 +72,13 @@ class AnalysisTools {
         // in order for fast lookup of the basic block of a node
         static std::map<std::weak_ptr<BaseNode>, std::shared_ptr<BasicBlock>, std::owner_less<std::weak_ptr<BaseNode>>> getFlowgraphNodeToBasicBlockMap(std::vector<std::shared_ptr<BasicBlock>> basicBlocks);
 
-        // returns the set of all successor nodes of a node (either just 1 if SimpleNode, or get from successor basic blocks otherwise)
+        // returns the set of all successor nodes of a node in the flowgraph (either just 1 if SimpleNode, or get from successor basic blocks otherwise)
         static std::vector<std::weak_ptr<BaseNode>> getSuccessorNodes(std::shared_ptr<BaseNode> node, std::shared_ptr<BasicBlock> currentBasicBlock);
 
+        //draws/redraws the flowgraph to synchronize with the updated IR tree, and returns the new entry basic block
+        static std::shared_ptr<BasicBlock> drawFlowgraph(const std::shared_ptr<EntryNode>& entryNode);
 
-        //FACTORY METHODS to create insertion strategy for new basic blocks 
-
-        //for inserting a new instruction node to the start of the LoopNode body (i.e. the first instruction on the left branch of the LoopNode)
-        static std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> createLoopBodyStartInsertionStrategy(std::shared_ptr<LoopNode> loopNodeToInsertAfter);
+        ////////////////////FACTORY METHODS to create insertion strategy for new basic blocks//////////////////
 
         //inserts a new instruction after a SimpleNode
         //think I can use the insertSandwichChild method in SimpleNode to do this
