@@ -158,6 +158,7 @@ int main(int argc, const char **argv)
     //these will edit the IR tree directly - still referenced by entryNode
     if (optFlag == "-simplify") {
       SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
+      SimplificationOptimisations::removeUnusedDeclareStatements(entryNode);
     }
     else if (optFlag == "-DCE" ) {
       DeadCodeElimination deadCodeElimination(entryNode);

@@ -1,5 +1,7 @@
 #include "SimplificationOptimisations.h"
 #include <iostream>
+#include "DeclareNode.h"
+
 void SimplificationOptimisations::removeAllEmptyControlFlowConstructs(std::shared_ptr<BaseNode> root) {
 
     bool runRemoveEmptyStatements = true;
@@ -79,3 +81,40 @@ bool SimplificationOptimisations::removeEmptyStatements(std::shared_ptr<BaseNode
     return atLeastOneNodeDeleted;
 }
 
+void SimplificationOptimisations::removeUnusedDeclareStatements(std::shared_ptr<BaseNode> root) {
+    //get all referenced variables in the program
+    //then go through each node, if it is a declare statement and the variable is not referenced, remove it
+
+    std::set<std::string> referencedVariables;
+    std::set<std::shared_ptr<DeclareNode>> declareNodesInProgram;
+
+    //visit the tree and get all referenced variables
+    std::stack<std::shared_ptr<BaseNode>> nodesToVisit;
+    nodesToVisit.push(root);
+
+    while (!nodesToVisit.empty()) {
+        std::shared_ptr<BaseNode> currentNode = nodesToVisit.top();
+        nodesToVisit.pop();
+        //add the node's referenced variables to the set
+        std::set<std::string> currentNodeReferencedVariables = currentNode->getReferencedVariables();
+        referencedVariables.insert(currentNodeReferencedVariables.begin(), currentNodeReferencedVariables.end());
+
+        //add the node's children to the stack
+        for (std::shared_ptr<BaseNode> child : currentNode->getChildren()) {
+            nodesToVisit.push(child);
+        }
+
+        //if it is a declare statement, add the node to the set of declare nodes 
+        if (std::dynamic_pointer_cast<DeclareNode>(currentNode) != nullptr) {
+            declareNodesInProgram.insert(std::dynamic_pointer_cast<DeclareNode>(currentNode));
+        }
+    }
+
+    //go through each declare node in the program, if it is not referenced, remove it
+    for (std::shared_ptr<DeclareNode> declareNode : declareNodesInProgram) {
+        if (referencedVariables.find(declareNode->getVar()) == referencedVariables.end()) {
+            //declare node is not referenced, so remove it
+            declareNode->removeCurrentNodeFromIRTree();
+        }
+    }
+}

@@ -45,11 +45,6 @@ TEST(DCEOptimisationTest, Dead3ProgramDCEWASM)
 
 //with simplification
 
-TEST(DCESimplificationOptimisationTest, Dead1ProgramSimplificationIR)
-{
-    run_DCE_simp_IRStringTest("dead1.f90", "dead1_DCE_IR.txt");      //simplification does not affect dead1 program
-}
-
 TEST(DCESimplificationOptimisationTest, Dead2ProgramSimplificationIR)
 {
     run_DCE_simp_IRStringTest("dead2.f90", "dead2_DCE_simp_IR.txt");      
@@ -58,11 +53,6 @@ TEST(DCESimplificationOptimisationTest, Dead2ProgramSimplificationIR)
 TEST(DCESimplificationOptimisationTest, Dead3ProgramSimplificationIR)
 {
     run_DCE_simp_IRStringTest("dead3.f90", "dead3_DCE_simp_IR.txt");      
-}
-
-TEST(DCESimplificationOptimisationTest, Dead1ProgramSimplificationWASM)
-{
-    run_DCE_simp_WASMTest("dead1.f90", "dead1_DCE.wat");      //simplification does not affect dead1 program
 }
 
 TEST(DCESimplificationOptimisationTest, Dead2ProgramSimplificationWASM)

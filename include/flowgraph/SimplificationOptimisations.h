@@ -18,6 +18,10 @@ class SimplificationOptimisations {
         //repeatedly removes empty control flow constructs until no more can be removed
         static void removeAllEmptyControlFlowConstructs(std::shared_ptr<BaseNode> root);
 
+        //removes declare statements which are unused in the program
+        static void removeUnusedDeclareStatements(std::shared_ptr<BaseNode> root);
+
+    private:
         //only does one pass through the IR tree
         static bool removeEmptyStatements(std::shared_ptr<BaseNode> root);
 

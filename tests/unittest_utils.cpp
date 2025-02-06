@@ -77,6 +77,7 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
                 }
                 else if (optimisationFlag == Simplify){
                     SimplificationOptimisations::removeAllEmptyControlFlowConstructs(entryNode);
+                    SimplificationOptimisations::removeUnusedDeclareStatements(entryNode);
                 }
                 else if (optimisationFlag == CSE){
                     CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);

@@ -24,14 +24,16 @@ if [[ "$FLAG1" == "-help" || "$EXAMPLE_FORTRAN_FILE" == "-help" ]]; then
     echo "Flag 2 & \nFlag 3: optimisation (default is no optimisation)\n"
     echo "  -DCE \t \t dead code elimination\n"
     echo "  -CSE \t \t common subexpression elimination\n"
-    echo "  -simplify \t remove all empty control flow constructs\n"
+    echo "  -simplify \t remove all empty control flow constructs and unused declare statements\n"
     echo "  -const \t constant propagation\n"
     echo "  -CP \t copy propagation\n"
     echo "  -iterCSE-CP \t fix point iteration of CSE and copy propagation\n"
+    echo "  -PRE \t partial redundancy elimination\n"
+    echo "  -iterPRE-CP \t fix point iteration of PRE and copy propagation\n"
     echo "------------------------------------------------------------------------------\n"
     exit 0
 else 
-    make install #generates the main program
+    make #generates the main program
 fi
 
 

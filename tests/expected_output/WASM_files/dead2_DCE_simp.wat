@@ -4,10 +4,8 @@
 (import "js" "mem" (memory 1))
 (data (i32.const 0) "The answer to the universe is:")
 (func (export "main")
-(local $a i32)
 (local $b i32)
 (local $i i32)
-(local $j i32)
 (block $endloop0
 i32.const 1
 local.set $i
