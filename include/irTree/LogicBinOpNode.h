@@ -8,6 +8,7 @@ public:
     //Constructor and destructor
     LogicBinOpNode(std::string op, std::string dest, std::string src1, std::string src2);
     ~LogicBinOpNode() override = default;
+    std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Getters and setters
@@ -31,5 +32,9 @@ public:
     void replaceReferencedVariable(std::string oldVar, std::string newVar) override;
 
 private:
-    bool isValidLogicBinOp(const std::string& op) const;
+    std::string op;
+    std::string dest;
+    std::string src1;
+    std::string src2;
+    
 };

@@ -1,10 +1,14 @@
 #include "ReadNode.h"
 
 ReadNode::ReadNode(std::string var) {
-    if (!isVariable(var)) {
-        throw std::runtime_error("ReadNode variable must be a valid variable");
+    if (!IRSemantics::isVariable(var)) {
+        throw std::runtime_error("ReadNode variable must be a valid variable: " + var);
     }
-    this->textVector = {"CALL", "READ", var};
+    this->var = var;
+}
+
+std::string ReadNode::getText() const {
+    return "CALL READ " + var;
 }
 
 std::shared_ptr<BaseNode> ReadNode::cloneContent() const {
@@ -13,11 +17,14 @@ std::shared_ptr<BaseNode> ReadNode::cloneContent() const {
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 std::string ReadNode::getVar() const {
-    return textVector[2];
+    return var;
 }
 
 void ReadNode::setVar(std::string var) {
-    textVector[2] = var;
+    if (!IRSemantics::isVariable(var)) {
+        throw std::runtime_error("ReadNode variable must be a valid variable: " + var);
+    }
+    this->var = var;
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////

@@ -46,32 +46,66 @@ class IrWasmVisitor : public IrBaseVisitor {
 
         std::string visitEntryNode(const std::shared_ptr<EntryNode>& node) override;
 
+        std::string visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) override;
+
         std::string getMemoryImportCode();
 
         std::string getEntireProgramCode(const std::shared_ptr<BaseNode>& startNode);
 
     private:
-        bool isPosInteger(const std::string &s);
-        bool isTempVariable(const std::string &s);
-        bool isStringConst(const std::string &s);
+        // src can be integer/float constant, or any variable - if temp variable, then just don't print it
+        // expectedWasmDatatype (for the operation) might be different from the actual datatype of the operand - e.g. may need to convert or truncate
+        std::string convertNumberSrcToWASM(const std::string &operand, std::string expectedWasmDatatype);
 
-        // src can be string constant, integer, program variables including _s, or internal _t temp variables
-        std::string convertSrcToWASM(const std::string &operand, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies);
+        //for string constants, converts $str1 to the array offset and length to be fetched from the wasm memory
+        std::string convertStringSrcToWASM(const std::string &str, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies);
 
         // dest can be program variables including _s, or internal _t temp variables
         std::string convertDestToWASM(const std::string &dest);
 
+        //converts IR datatype to wasm datatype
+        std::string convertDatatypeToWASM(const std::string &datatype);
+
+        //very simple helper functions for differentiating i32/i64 , f32/f64
+        bool isWASMIntDatatype(const std::string& type);     //i32 or i64
+        bool isWASMFloatDatatype(const std::string& type);   //f32 or f64
+
+        //finds the largest datatype between two types - e.g. if trying to operate on i32 and f32, then returns f32
+        std::string findLargestDatatype(const std::string& type1, const std::string& type2);
+
+        //get the wasm number datatype of a variable or constant
+        //typically used for finding the datatype of a nodeSrc. Can then use findLargestDatatype 
+        std::string getWASMNumberDatatype(const std::string& item);    //e.g. input x or _t0 or 3.14, returns i32 or f32 etc.
+
         ///NOTE: stringMapIndicies is from <str_var> -> array<start_offset, length>
         // e.g. where str_var = $str1, start_offset = 50, length = 4
         std::unordered_map<std::string, std::array<unsigned long, 2>> stringMapIndicies;
+
+        //maps all variables (including internal temp variables) to their WASM datatype (i32, i64, f32, f64)
+        //initially add PROGRAM VARIABLES to the map when visiting DECLARE statements
+        //then add INTERNAL TEMP VARIABLES to the map when visiting other statements and creating those temporary variables
+        std::unordered_map<std::string, std::string> variableDatatypeMap;
        
         //stack contains the endloop labels of the loops
         std::stack<std::string> exitStack;
 
-        bool importPrint = false;
+        bool importPrint_i32 = false;
+        bool importPrint_i64 = false;
+        bool importPrint_f32 = false;
+        bool importPrint_f64 = false;
         bool importPrintString = false;
         bool importRead = false;
         std::string memoryImportCode = "";
 
+        //return wasm code to save a temporary variable into the tempSwap wasm local variable - so we need to fetch it when we want to use this temp variable
+        //currently supports binary operations (could expand for 3, 4, etc. operands)
+        std::string checkAndSaveTempVarToLocal(std::string src1, std::string src2);    
+
+        bool needToRestoreSwappedTemporary = false;    //set to true when we have stored a temporary variable into the tempSwap wasm local variable
+
+        bool addTempSwapDeclaration_i32 = false;  //hopefully just one variable of each type needs to be added to the top declaration section if required
+        bool addTempSwapDeclaration_i64 = false;
+        bool addTempSwapDeclaration_f32 = false;
+        bool addTempSwapDeclaration_f64 = false;
 
 };

@@ -10,8 +10,9 @@
 class PlaceholderNode : public BaseNode {
 public:
     //Constructor and destructor
-    PlaceholderNode();
+    PlaceholderNode() = default;
     ~PlaceholderNode() override = default;
+    std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Visitor pattern - override to throw error - placeholder node should not be in IR tree

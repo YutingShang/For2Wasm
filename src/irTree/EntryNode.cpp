@@ -1,6 +1,8 @@
 #include "EntryNode.h"
 
-EntryNode::EntryNode() : SimpleNode("ENTRY") {}
+std::string EntryNode::getText() const {
+    return "ENTRY";
+}
 
 std::shared_ptr<BaseNode> EntryNode::cloneContent() const {
     return std::make_shared<EntryNode>();

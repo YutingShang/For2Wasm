@@ -1,9 +1,5 @@
 #include "SimpleNode.h"
 
-SimpleNode::SimpleNode() : BaseNode() {}
-
-SimpleNode::SimpleNode(std::string text) : BaseNode(text) {}
-
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::shared_ptr<BaseNode> SimpleNode::getSingleChild() const {

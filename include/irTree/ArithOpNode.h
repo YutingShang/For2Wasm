@@ -10,6 +10,7 @@ public:
     // Constructor and destructor
     ArithOpNode(std::string op, std::string dest, std::string src1, std::string src2);
     ~ArithOpNode() override = default;
+    std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     // Getters and setters for each component
@@ -33,6 +34,8 @@ public:
     void replaceReferencedVariable(std::string oldVar, std::string newVar) override;
 
 private:
-    // Helper methods for validation
-    bool isValidArithOp(const std::string& op) const;
+    std::string op;
+    std::string dest;
+    std::string src1;
+    std::string src2;
 };

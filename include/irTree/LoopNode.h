@@ -11,6 +11,7 @@ class LoopNode : public BaseNode {
         //Constructor and destructor
         LoopNode(std::string labelNumber);
         ~LoopNode() override = default;
+        std::string getText() const override;
         std::shared_ptr<BaseNode> cloneContent() const override;
         std::string stringifyIRTree() const override;
 
@@ -39,4 +40,6 @@ class LoopNode : public BaseNode {
 
     private:
         std::string labelNumber;
+        std::string bodyLabel;
+        std::string endLoopLabel;
 };

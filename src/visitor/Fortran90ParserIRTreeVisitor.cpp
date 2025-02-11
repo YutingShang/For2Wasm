@@ -21,7 +21,7 @@
 #include "DeclareNode.h"
 #include "PrintNode.h"
 #include "ReadNode.h"
-
+#include "IRSemantics.h"
 std::any Fortran90ParserIRTreeVisitor::visitChildren(antlr4::tree::ParseTree *node)
 {
 
@@ -221,33 +221,25 @@ std::any Fortran90ParserIRTreeVisitor::visitPrimary(Fortran90Parser::PrimaryCont
 std::any Fortran90ParserIRTreeVisitor::visitPrintStmt(Fortran90Parser::PrintStmtContext *ctx)
 {
     // get outputItemList which is the children at the 3rd index
-    // then see if it has multiple children or just one
-    // also see if you are printing out variable or a string
+    // outputItemList will either be <outputItemList1> or <expression>
 
-    // if its a terminal, print the terminal, otherwise recurse to outputItemList1
-
-    if (ctx->children[3]->children.size() == 0)
-    { // no children, so must be terminal to print directly - no outputItemList1
-        std::string outputItem = ctx->children[3]->getText();
-
-        // check if the outputItem is a string or a variable/number etc and print accordingly
-        std::shared_ptr<PrintNode> printNode = std::make_shared<PrintNode>(getItemToPrint(outputItem));
-        previousParentNode.lock()->addChild(printNode);
-        previousParentNode = printNode;
-    }
-    else
+    if (dynamic_cast<Fortran90Parser::OutputItemList1Context*>(ctx->children[3]) != nullptr)
     { // explore the outputItemList1 node
 
-        // get the list of stuff to print
-        std::vector<std::string> outputList = std::any_cast<std::vector<std::string>>(ctx->children[3]->accept(this));
+        isOutputItemListForPrintStmt = true;
+        // visit the outputItemList1 node, which will handle the printing of each expression/variable as they are visited
+        // returns nothing so no need to store result with any_cast
+        ctx->children[3]->accept(this);
 
-        // print out each item in the list
-        for (std::string item : outputList)
-        {
-            std::shared_ptr<PrintNode> printNode = std::make_shared<PrintNode>(item);      //already called getItemToPrint when retrieving the outputList
-            previousParentNode.lock()->addChild(printNode);
-            previousParentNode = printNode;
-        }
+        isOutputItemListForPrintStmt = false;    //guard flag in case the outputItemList1 is used for something else other than printing
+    }
+    else{
+        //else the outputItemList is an expression/terminal, instead of outputItemList1
+
+        std::string resultToPrint = std::any_cast<std::string>(ctx->children[3]->accept(this));
+        std::shared_ptr<PrintNode> printNode = std::make_shared<PrintNode>(getItemToPrint(resultToPrint));
+        previousParentNode.lock()->addChild(printNode);
+        previousParentNode = printNode;
     }
 
     return nullptr;
@@ -263,27 +255,39 @@ std::any Fortran90ParserIRTreeVisitor::visitOutputItemList1(Fortran90Parser::Out
 
     // this visit method will return a list of stuff to print out
     // either the stringIndex or the variable name etc.
-    // actual printing will be done in the printStmt visit method
+    // DOES the actual printing after each expression/recursive outputItemList1 - only if we are within a PrintStmt
+        //if you want to use outputItemList1 for something other than printing, then you do something else (e.g. return a vector of visit results) when the isOutputItemListForPrintStmt flag is false
 
-    std::vector<std::string> outputList;
-
-    if (ctx->children[0]->children.size() == 0)
-    { // no children, so must be terminal to print directly - no outputItemList1
-
-        std::string outputItem = ctx->children[0]->getText();
-        // getItemToPrint checks if string or variable/number etc.
-        outputList.push_back(getItemToPrint(outputItem));
+    if (dynamic_cast<Fortran90Parser::OutputItemList1Context*>(ctx->children[0]) != nullptr)
+    {  // explore the outputItemList1 node
+        //case of <outputItemList1> <expression>, process the outputItemList1
+        ctx->children[0]->accept(this);
     }
-    else
-    { // explore the outputItemList1 node
-        outputList = std::any_cast<std::vector<std::string>>(ctx->children[0]->accept(this));
+    else{
+        // so must the case of <expression> <expression>, process the first expression
+
+        std::string leftChildExpr = std::any_cast<std::string>(ctx->children[0]->accept(this));
+        
+        if (isOutputItemListForPrintStmt){
+            //Immediately add a printNode after each result
+            //E.g. if the expression to print was written in the PrintStmt itself, e.g. PRINT *, 3+4, then the result is a temporary so we print immediately to consume that temp
+            std::shared_ptr<PrintNode> printNode = std::make_shared<PrintNode>(getItemToPrint(leftChildExpr)); 
+            previousParentNode.lock()->addChild(printNode);
+            previousParentNode = printNode;
+        }
     }
 
     // right child (at index 2 after the comma) should always be an expression to print
-    std::string rightChildExpr = ctx->children[2]->getText();
-    outputList.push_back(getItemToPrint(rightChildExpr));
+    //process the second expression in both cases
+    std::string rightChildExpr = std::any_cast<std::string>(ctx->children[2]->accept(this));
+    
+    if (isOutputItemListForPrintStmt){
+        std::shared_ptr<PrintNode> printNode = std::make_shared<PrintNode>(getItemToPrint(rightChildExpr)); 
+        previousParentNode.lock()->addChild(printNode);
+        previousParentNode = printNode;
+    }
 
-    return outputList;
+    return nullptr;  //could return an outputList if you want to use outputItemList1 for something other than printing
 }
 
 std::any Fortran90ParserIRTreeVisitor::visitReadStmt(Fortran90Parser::ReadStmtContext *ctx)
@@ -351,13 +355,25 @@ std::any Fortran90ParserIRTreeVisitor::visitInputItemList(Fortran90Parser::Input
 std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser::TypeDeclarationStmtContext *ctx)
 {
     // typeDeclarationStmt will be in the form:
-    // <TYPE> <entityDeclList>
-    // or <TYPE> <attrSpec>? :: <entityDeclList>
+    // <typeSpec> <entityDeclList>
+    // or <typeSpec> <attrSpec>? :: <entityDeclList>
 
-    /// NOTE:!! currently just assuming TYPE is always INTEGER - generic 'DECLARE' command
+    /// TODO: need to handle arrays here?
+    ///ignoring attrSpec for now
+    //the typeSpec will be at the first index, and is shared by all the variables in the entityDeclList
+    //the typeSpec may be INTEGER, REAL, DOUBLE, LOGICAL, CHARACTER or INTEGER(8) etc. with a (kindSelector)!
 
     // entityDeclList will be a list of entityDecl separated by commas
     // or just a single variable to declare and no entityDeclList
+
+    //get the data TYPE - could be just the INTEGER, REAL etc. or a typeSpec with a kindSelector
+    std::string datatype;
+    if (dynamic_cast<Fortran90Parser::TypeSpecContext*>(ctx->children[0]) != nullptr){  //process the typeSpec with a kindSelector
+        datatype = std::any_cast<std::string>(ctx->children[0]->accept(this));
+    }else{
+        //just a simple datatype like INTEGER, REAL etc.
+        datatype = getDatatype(ctx->children[0]->getText());
+    }
 
     size_t numChildren = ctx->children.size();
 
@@ -370,7 +386,7 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
     {
 
         std::string variable = ctx->children[entityDeclListIndex]->getText();
-        std::shared_ptr<DeclareNode> declareNode = std::make_shared<DeclareNode>(variable);
+        std::shared_ptr<DeclareNode> declareNode = std::make_shared<DeclareNode>(datatype, variable);
         previousParentNode.lock()->addChild(declareNode);
         previousParentNode = declareNode;
     }
@@ -380,7 +396,7 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
         std::vector<std::string> variables = std::any_cast<std::vector<std::string>>(ctx->children[entityDeclListIndex]->accept(this));
         for (std::string variable : variables)
         {
-            std::shared_ptr<DeclareNode> declareNode = std::make_shared<DeclareNode>(variable);
+            std::shared_ptr<DeclareNode> declareNode = std::make_shared<DeclareNode>(datatype, variable);
             previousParentNode.lock()->addChild(declareNode);
             previousParentNode = declareNode;
         }
@@ -388,6 +404,35 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
 
     return nullptr;
 }
+
+std::any Fortran90ParserIRTreeVisitor::visitTypeSpec(Fortran90Parser::TypeSpecContext *ctx)
+{
+    //if there is a typeSpec node in the AST, then it is not a simple data type like INTEGER, REAL, LOGICAL etc.
+    //it will be something like INTEGER(8) or REAL(4) etc.
+    //so we need to return the datatype plus the kindSelector
+
+    std::string datatype = std::any_cast<std::string>(ctx->children[0]->accept(this));
+    std::string kindSelectorByteSize = std::any_cast<std::string>(ctx->children[1]->accept(this));
+    return getDatatype(datatype, std::stoi(kindSelectorByteSize));
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitKindSelector(Fortran90Parser::KindSelectorContext *ctx)
+{
+    //kindSelector be like LPAREN <byteSize> RPAREN
+    std::string byteSize = std::any_cast<std::string>(ctx->children[1]->accept(this));
+    return byteSize;
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitUnsignedArithmeticConstant(Fortran90Parser::UnsignedArithmeticConstantContext *ctx)
+{
+    //unsignedArithmeticConstant will be in the form:
+    //<int/float CONSTANT> UNDERSCORE <kindSelector>
+
+    //just ignore the kindSelector and return the constant
+    return std::any_cast<std::string>(ctx->children[0]->accept(this));
+}
+
+
 
 std::any Fortran90ParserIRTreeVisitor::visitEntityDeclList(Fortran90Parser::EntityDeclListContext *ctx)
 {
@@ -404,6 +449,7 @@ std::any Fortran90ParserIRTreeVisitor::visitEntityDeclList(Fortran90Parser::Enti
 
         variables.push_back(std::any_cast<std::string>(ctx->children[i]->accept(this))); // this will reach a terminal node and return the variable name
     }
+    ///TODO: handle entityDecl if it is an array
 
     return variables;
 }
@@ -860,6 +906,34 @@ std::string Fortran90ParserIRTreeVisitor::getRelationalOperator(std::string oper
 
     // should never reach here
     return "UNKNOWN";
+}
+
+std::string Fortran90ParserIRTreeVisitor::getDatatype(std::string typeSpec, int byteSize) {
+    //get the datatype from the typeSpec
+    //INTEGER, LOGICAL, REAL, DOUBLEPRECISION, DOUBLE PRECISION
+    //unsupported: CHARACTER, COMPLEX
+    std::string upperTypeSpec = typeSpec;
+    std::transform(typeSpec.begin(), typeSpec.end(), upperTypeSpec.begin(), ::toupper);
+
+   
+    if ((byteSize <= 4) && (upperTypeSpec == "INTEGER" || upperTypeSpec == "LOGICAL")) {
+        return "INT";               //byteSize of 0,1,2,4 etc. all map to i32 in wasm
+    }
+    else if ((byteSize <=8) && (upperTypeSpec == "INTEGER" || upperTypeSpec == "LOGICAL")) {
+        return "INT64";               //INTEGER(8) map to i64 in wasm
+    }
+    else if ((byteSize <= 4) && (upperTypeSpec == "REAL")) {
+        return "REAL";              //can be represented as f32
+    }
+    else if ((byteSize <= 8) && (upperTypeSpec == "REAL" || upperTypeSpec == "DOUBLEPRECISION" || upperTypeSpec == "DOUBLE PRECISION")) {
+        return "DOUBLE";              //can be represented as f64
+    }
+    else {
+        throw std::runtime_error("ERROR: unknown datatype: " + upperTypeSpec + "(" + std::to_string(byteSize) + ")");
+    }
+
+    //CHARACTER is not supported yet
+    
 }
 
 int Fortran90ParserIRTreeVisitor::getNextTempVariableCount()

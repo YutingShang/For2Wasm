@@ -1,7 +1,7 @@
 #include "PlaceholderNode.h"
 
-PlaceholderNode::PlaceholderNode() {
-    this->textVector = {"PLACEHOLDER"};
+std::string PlaceholderNode::getText() const {
+    return "PLACEHOLDER";
 }
 
 std::shared_ptr<BaseNode> PlaceholderNode::cloneContent() const {

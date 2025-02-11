@@ -1,6 +1,6 @@
 	ENTRY
-	DECLARE sum
-	DECLARE a
+	DECLARE INT sum
+	DECLARE INT a
 	CALL PRINT $str1
 	MOV sum 0
 	LOOP body0 endloop0

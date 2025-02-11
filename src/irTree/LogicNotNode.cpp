@@ -1,13 +1,18 @@
 #include "LogicNotNode.h"
 
-LogicNotNode::LogicNotNode(std::string dest, std::string expr) {
-    if (!isVariable(dest)) {
+LogicNotNode::LogicNotNode(std::string dest, std::string src) {
+    if (!IRSemantics::isVariable(dest)) {
         throw std::runtime_error("Invalid destination variable: " + dest);
     }
-    if (isStringConstant(expr)) {
-        throw std::runtime_error("Invalid logic NOT operation operand, cannot be string constant: " + expr);
+    if (IRSemantics::isStringConstant(src)) {
+        throw std::runtime_error("Invalid logic NOT operation operand, cannot be string constant: " + src);
     }
-    this->textVector = {"NOT", dest, expr};
+    this->dest = dest;
+    this->src = src;
+}
+
+std::string LogicNotNode::getText() const {
+    return "NOT " + dest + " " + src;
 }
 
 std::shared_ptr<BaseNode> LogicNotNode::cloneContent() const {
@@ -17,19 +22,19 @@ std::shared_ptr<BaseNode> LogicNotNode::cloneContent() const {
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string LogicNotNode::getDest() const {
-    return textVector[1];
+    return dest;
 }
 
 std::string LogicNotNode::getSrc() const {
-    return textVector[2];
+    return src;
 }
 
 void LogicNotNode::setDest(std::string dest) {
-    textVector[1] = dest;
+    this->dest = dest;
 }
 
 void LogicNotNode::setSrc(std::string src) {
-    textVector[2] = src;
+    this->src = src;
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
@@ -42,7 +47,7 @@ std::string LogicNotNode::accept(IrBaseVisitor& visitor) {
 
 std::set<std::string> LogicNotNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;
-    if (isVariable(getSrc())) {
+    if (IRSemantics::isVariable(getSrc())) {
         referencedVariables.insert(getSrc());
     }
     return referencedVariables;

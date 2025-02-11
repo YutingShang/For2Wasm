@@ -1,22 +1,27 @@
 #include "IfElseNode.h"
 
 IfElseNode::IfElseNode(std::string labelNumber): labelNumber(labelNumber) {
-    this->textVector = {"IF", "cond" + labelNumber, 
-                                "then" + labelNumber, 
-                                "else" + labelNumber, 
-                                "endif" + labelNumber};
+    conditionLabel = "cond" + labelNumber;
+    thenLabel = "then" + labelNumber;
+    elseLabel = "else" + labelNumber;
+    endLabel = "endif" + labelNumber;
 }
 
 std::shared_ptr<BaseNode> IfElseNode::cloneContent() const {
     return std::make_shared<IfElseNode>(labelNumber);
 }
 
+std::string IfElseNode::getText() const {
+    return "IF " + conditionLabel + " " + thenLabel + " " + elseLabel + " " + endLabel;
+}
+
 std::string IfElseNode::stringifyIRTree() const {
     std::string tree = "\t" + getText();       //IF cond then else end
 
-    for (int i=1; i<this->textVector.size(); i++){        //prints the label for cond, then, else, end
-        tree += "\n" + this->textVector[i] +": " + this->children[i-1]->stringifyIRTree();
-    }
+    tree += "\n" + conditionLabel + ": " + getConditionNode()->stringifyIRTree();
+    tree += "\n" + thenLabel + ": " + getThenNode()->stringifyIRTree();
+    tree += "\n" + elseLabel + ": " + getElseNode()->stringifyIRTree();
+    tree += "\n" + endLabel + ": " + getEndIfNode()->stringifyIRTree();
 
     return tree;
 }
@@ -24,19 +29,19 @@ std::string IfElseNode::stringifyIRTree() const {
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string IfElseNode::getConditionLabel() const {
-    return textVector[1];
+    return conditionLabel;
 }
 
 std::string IfElseNode::getThenLabel() const {
-    return textVector[2];
+    return thenLabel;
 }
 
 std::string IfElseNode::getElseLabel() const {
-    return textVector[3];
+    return elseLabel;
 }
 
 std::string IfElseNode::getEndLabel() const {
-    return textVector[4];
+    return endLabel;
 }
 
 std::string IfElseNode::getLabelNumber() const {

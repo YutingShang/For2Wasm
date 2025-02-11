@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include "IrBaseVisitor.h"
+#include "IRSemantics.h"
 #include <set>
 
 //interface for all nodes in the IR tree
@@ -9,11 +10,10 @@
 class BaseNode: public std::enable_shared_from_this<BaseNode> {
     public:
         //Constructor and destructor
-        BaseNode();   //default constructor - used for when we want to create derived nodes without initialising text
-        BaseNode(std::string text);
+        BaseNode() = default;   //default constructor - used for when we want to create derived nodes without initialising text
         virtual ~BaseNode() = default;       //destructor - automatically handled by smart pointers
         virtual std::shared_ptr<BaseNode> cloneContent() const = 0;     //just copy this node, without its children or parent (not a deep copy). Must be implemented by derived classes to give the correct dynamic type
-        virtual std::string getText() const;    //returns the text of the node
+        virtual std::string getText() const = 0;    //returns the text of the node - each IR node must implement itself, how to display in text form
         virtual std::string stringifyIRTree() const;      //print out entire IR tree in text form, including labels and indentation - can be overridden by derived classes
 
         //Getters and setters
@@ -53,14 +53,7 @@ class BaseNode: public std::enable_shared_from_this<BaseNode> {
         virtual std::shared_ptr<BaseNode> removeCurrentNodeFromIRTree() = 0;
 
     protected:
-        std::vector<std::string> textVector;     //vector of tokens in the instruction, first will contain the operation e.g. MOV a b
         std::weak_ptr<BaseNode> parent;         //weak pointer to the parent node
         std::vector<std::shared_ptr<BaseNode>> children = {};    //vector of children of the node
-
-        //VALIDATION METHODS
-        //checks if the item is a variable (temp or user-defined), false if it is a string or positive integer constant
-        bool isVariable(std::string item) const;
-        //checks if the operand is a valid operand for instructions that take in variables or integers
-        bool isStringConstant(const std::string& item) const;
 
 };

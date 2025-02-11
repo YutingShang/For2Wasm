@@ -6,8 +6,7 @@ class SimpleNode : public BaseNode
 {
 public:
     //Constructor and destructor
-    SimpleNode();   //default constructor - used for when we want to create derived nodes without initialising text - will call BaseNode default constructor which does nothing
-    SimpleNode(std::string text);
+    SimpleNode() = default;   //default constructor - used for when we want to create derived nodes without initialising text - will call BaseNode default constructor which does nothing
     ~SimpleNode() override = default;
 
     //Getters and setters

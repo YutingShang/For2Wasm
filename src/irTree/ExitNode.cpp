@@ -1,8 +1,8 @@
 #include "ExitNode.h"
 
-ExitNode::ExitNode() 
-    : SimpleNode("EXIT") {
-} 
+std::string ExitNode::getText() const {
+    return "EXIT";
+}
 
 std::shared_ptr<BaseNode> ExitNode::cloneContent() const {
     return std::make_shared<ExitNode>();

@@ -9,6 +9,7 @@ public:
     //Constructor and destructor
     LogicNotNode(std::string dest, std::string src);
     ~LogicNotNode() override = default;
+    std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Getters and setters
@@ -26,4 +27,7 @@ public:
     std::set<std::string> getReferencedExpressions() const override;
     void replaceReferencedVariable(std::string oldVar, std::string newVar) override;
 
+private:
+    std::string dest;
+    std::string src;
 };

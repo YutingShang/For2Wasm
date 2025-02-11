@@ -21,12 +21,13 @@ const importObject = {
     console: {
         logString: consoleLogString,
         log: (val) => console.log(val),
+        log_i64: (val) => console.log(BigInt(val).toString()),
         promptSync : () => Number(prompt('')),
     },
 };
 
 // Get WASM file path from command line arguments, e.g. node program.js ./output.wasm
-const wasmFile = process.argv[2] || './output.wasm';    
+const wasmFile = process.argv.length > 2 ? process.argv[2] : '';    
 
 // Check if file exists
 if (!fs.existsSync(wasmFile)) {

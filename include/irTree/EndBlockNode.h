@@ -7,8 +7,9 @@
 class EndBlockNode : public SimpleNode {
 public:
     //Constructor and destructor
-    EndBlockNode(std::string text);        //text is ENDTHEN ENDTHEN ENDIF ENDLOOP ENDBODY etc.
+    EndBlockNode(std::string endBlockText);        //text is ENDTHEN ENDTHEN ENDIF ENDLOOP ENDBODY etc.
     ~EndBlockNode() override = default;
+    std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Visitor pattern
@@ -20,5 +21,5 @@ public:
     std::set<std::string> getReferencedExpressions() const override;
 
 private:
-    bool isValidEndBlock(std::string text);
+    std::string endBlockText;
 };

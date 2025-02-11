@@ -8,8 +8,9 @@
 class MovNode : public SimpleNode {
 public:
     // Constructor and destructor
-    MovNode(std::string dest, std::string src);    //set the textVector to be the MOV + dest + src
+    MovNode(std::string dest, std::string src);    
     ~MovNode() override = default;
+    std::string getText() const override;    //getText to return the MOV + dest + src
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     // Getters and setters
@@ -27,4 +28,8 @@ public:
     std::set<std::string> getDefinedVariables() const override;
     std::set<std::string> getReferencedExpressions() const override;
     void replaceReferencedVariable(std::string oldVar, std::string newVar) override;
+
+private:
+    std::string dest;
+    std::string src;
 };

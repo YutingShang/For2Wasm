@@ -1,20 +1,23 @@
 #include "RelOpNode.h"
 
 RelOpNode::RelOpNode(std::string op, std::string dest, std::string src1, std::string src2) {
-    if (!isValidRelOp(op)) {
+    if (!IRSemantics::isValidRelOp(op)) {
         throw std::runtime_error("Invalid relational operation: " + op);
     }
-    if (!isVariable(dest)) {
+    if (!IRSemantics::isVariable(dest)) {
         throw std::runtime_error("Invalid destination variable: " + dest);
     }
-    if (isStringConstant(src1) || isStringConstant(src2)) {
+    if (IRSemantics::isStringConstant(src1) || IRSemantics::isStringConstant(src2)) {
         throw std::runtime_error("Invalid logical operation operands, cannot be string constants: " + src1 + " or " + src2);
     }
-    this->textVector = {op, dest, src1, src2};  
+    this->op = op;
+    this->dest = dest;
+    this->src1 = src1;
+    this->src2 = src2;  
 }
 
-bool RelOpNode::isValidRelOp(const std::string& op) const {
-    return op == "EQ" || op == "NE" || op == "LT" || op == "LE" || op == "GT" || op == "GE";
+std::string RelOpNode::getText() const {
+    return op + " " + dest + " " + src1 + " " + src2;
 }
 
 std::shared_ptr<BaseNode> RelOpNode::cloneContent() const {
@@ -24,47 +27,47 @@ std::shared_ptr<BaseNode> RelOpNode::cloneContent() const {
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string RelOpNode::getOp() const {
-    return textVector[0];
+    return op;
 }
 
 std::string RelOpNode::getDest() const {
-    return textVector[1];
+    return dest;
 }
 
 std::string RelOpNode::getSrc1() const {
-    return textVector[2];
+    return src1;
 }
 
 std::string RelOpNode::getSrc2() const {
-    return textVector[3];
+    return src2;
 } 
 
 void RelOpNode::setOp(std::string op) {
-    if (!isValidRelOp(op)) {
+    if (!IRSemantics::isValidRelOp(op)) {
         throw std::runtime_error("Invalid relational operation: " + op);
     }
-    textVector[0] = op;
+    this->op = op;
 }
 
 void RelOpNode::setDest(std::string dest) {
-    if (!isVariable(dest)) {
+    if (!IRSemantics::isVariable(dest)) {
         throw std::runtime_error("Invalid destination variable: " + dest);
     }
-    textVector[1] = dest;
+    this->dest = dest;
 }
 
 void RelOpNode::setSrc1(std::string src1) {
-    if (isStringConstant(src1)) {
+    if (IRSemantics::isStringConstant(src1)) {
         throw std::runtime_error("Invalid logical operation operands, cannot be string constants: " + src1);
     }
-    textVector[2] = src1;
+    this->src1 = src1;
 }
 
 void RelOpNode::setSrc2(std::string src2) {
-    if (isStringConstant(src2)) {
+    if (IRSemantics::isStringConstant(src2)) {
         throw std::runtime_error("Invalid logical operation operands, cannot be string constants: " + src2);
     }
-    textVector[3] = src2;
+    this->src2 = src2;
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
@@ -77,10 +80,10 @@ std::string RelOpNode::accept(IrBaseVisitor& visitor) {
 
 std::set<std::string> RelOpNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;
-    if (isVariable(getSrc1())) {
+    if (IRSemantics::isVariable(getSrc1())) {
         referencedVariables.insert(getSrc1());
     }
-    if (isVariable(getSrc2())) {
+    if (IRSemantics::isVariable(getSrc2())) {
         referencedVariables.insert(getSrc2());
     }
     return referencedVariables;

@@ -1,3 +1,5 @@
+! can reduce runtime from 25 seconds to 11 second
+
 program partialredundant4
 
     implicit none

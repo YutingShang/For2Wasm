@@ -1,30 +1,5 @@
 #include "BaseNode.h"
 
-BaseNode::BaseNode() {}
-
-BaseNode::BaseNode(std::string text)
-{
-    std::istringstream stream(text);
-    std::string token;
-
-    while (stream >> token)
-    { // split the line into tokens, removing whitespaces
-        this->textVector.push_back(token);
-    }
-}
-
-std::string BaseNode::getText() const
-{
-    std::string text = "";
-    for (std::string token : this->textVector)
-    {
-        text += token + " ";
-    }
-    // trim the last whitespace
-    text = text.substr(0, text.size() - 1);
-    return text;
-}
-
 std::string BaseNode::stringifyIRTree() const
 {
     std::string tree = "\t" + getText();
@@ -96,17 +71,3 @@ void BaseNode::insertSandwichParent(std::shared_ptr<BaseNode> newParent) {
     newParent->addChild(shared_from_this());
 }
 
-/////////////////////////VALIDATION METHODS/////////////////////////
-bool BaseNode::isVariable(std::string item) const{
-
-    bool isPositiveInteger = std::all_of(item.begin(), item.end(), ::isdigit);
-    
-    //it is a variable if it is not a positive integer and is not a string const $
-    bool isVariable = !isPositiveInteger && !isStringConstant(item);
-
-    return isVariable;
-}
-
-bool BaseNode::isStringConstant(const std::string& operand) const {
-    return !operand.empty() && operand[0] == '$';
-}

@@ -1,22 +1,26 @@
 #include "ArithOpNode.h"
 
 ArithOpNode::ArithOpNode(std::string op, std::string dest, std::string src1, std::string src2) {
-    if (!isValidArithOp(op)) {
+    if (!IRSemantics::isValidArithOp(op)) {
         throw std::runtime_error("Invalid arithmetic operation: " + op);
     }
-    if (isStringConstant(src1) || isStringConstant(src2)) {
+    if (IRSemantics::isStringConstant(src1) || IRSemantics::isStringConstant(src2)) {
         throw std::runtime_error("Invalid arithmetic operands, cannot be string constants: " + src1 + " or " + src2);
     }
-    if (!isVariable(dest)) {
+    if (!IRSemantics::isVariable(dest)) {
         throw std::runtime_error("Invalid destination variable: " + dest);
     }
 
-    textVector = {op, dest, src1, src2};
+    this->op = op;
+    this->dest = dest;
+    this->src1 = src1;
+    this->src2 = src2;
 }
 
-bool ArithOpNode::isValidArithOp(const std::string& op) const {
-    return op == "ADD" || op == "SUB" || op == "MUL" || op == "DIV";
+std::string ArithOpNode::getText() const {
+    return op + " " + dest + " " + src1 + " " + src2;
 }
+
 
 std::shared_ptr<BaseNode> ArithOpNode::cloneContent() const {
     return std::make_shared<ArithOpNode>(getOp(), getDest(), getSrc1(), getSrc2());
@@ -25,44 +29,44 @@ std::shared_ptr<BaseNode> ArithOpNode::cloneContent() const {
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string ArithOpNode::getOp() const {
-    return textVector[0];
+    return op;
 }
 
 std::string ArithOpNode::getDest() const {
-    return textVector[1];
+    return dest;
 }
 
 std::string ArithOpNode::getSrc1() const {
-    return textVector[2];
+    return src1;
 }
 
 std::string ArithOpNode::getSrc2() const {
-    return textVector[3];
+    return src2;
 }
 
 void ArithOpNode::setOp(std::string op) {
-    if (!isValidArithOp(op)) {
+    if (!IRSemantics::isValidArithOp(op)) {
         throw std::runtime_error("Invalid arithmetic operation: " + op);
     }
-    textVector[0] = op;
+    this->op = op;
 }
 
 void ArithOpNode::setDest(std::string dest) {
-    textVector[1] = dest;
+    this->dest = dest;
 }
 
 void ArithOpNode::setSrc1(std::string src1) {
-    if (isStringConstant(src1)) {
+    if (IRSemantics::isStringConstant(src1)) {
         throw std::runtime_error("Invalid arithmetic operand, cannot be string constant: " + src1);
     }
-    textVector[2] = src1;
+    this->src1 = src1;
 }
 
 void ArithOpNode::setSrc2(std::string src2) {
-    if (isStringConstant(src2)) {
+    if (IRSemantics::isStringConstant(src2)) {
         throw std::runtime_error("Invalid arithmetic operand, cannot be string constant: " + src2);
     }
-    textVector[3] = src2;
+    this->src2 = src2;
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
@@ -75,10 +79,10 @@ std::string ArithOpNode::accept(IrBaseVisitor& visitor) {
 
 std::set<std::string> ArithOpNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;
-    if (isVariable(getSrc1())) {
+    if (IRSemantics::isVariable(getSrc1())) {
         referencedVariables.insert(getSrc1());
     }
-    if (isVariable(getSrc2())) {
+    if (IRSemantics::isVariable(getSrc2())) {
         referencedVariables.insert(getSrc2());
     }
     return referencedVariables;

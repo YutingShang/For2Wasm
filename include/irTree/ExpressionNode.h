@@ -8,7 +8,7 @@
 class ExpressionNode : public SimpleNode {
 public:
     //Constructor and destructor
-    ExpressionNode() ;
+    ExpressionNode() = default;
     ~ExpressionNode() override = default;
 
     //Getters and setters - must be implemented by subclasses

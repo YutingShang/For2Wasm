@@ -1,7 +1,7 @@
 	ENTRY
-	DECLARE num
-	DECLARE i
-	DECLARE factorial_res
+	DECLARE INT num
+	DECLARE INT i
+	DECLARE INT factorial_res
 	CALL PRINT $str1
 	CALL READ num
 	IF cond0 then0 else0 endif0

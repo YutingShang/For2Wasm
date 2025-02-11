@@ -1,28 +1,33 @@
 #include "LoopNode.h"
 
 LoopNode::LoopNode(std::string labelNumber): labelNumber(labelNumber) {
-    this->textVector = {"LOOP", "body" + labelNumber, "endloop" + labelNumber};
+    this->bodyLabel = "body" + labelNumber;
+    this->endLoopLabel = "endloop" + labelNumber;
 }
 
 std::shared_ptr<BaseNode> LoopNode::cloneContent() const {
     return std::make_shared<LoopNode>(getLabelNumber());
 }
 
+std::string LoopNode::getText() const {
+    return "LOOP " + bodyLabel + " " + endLoopLabel;
+}
+
 std::string LoopNode::stringifyIRTree() const {
     std::string tree = "\t" + getText();
-    tree += "\n" + this->textVector[1] +": " + this->children[0]->stringifyIRTree();      //adds body label
-    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds endloop label
+    tree += "\n" + this->bodyLabel +": " + this->children[0]->stringifyIRTree();      //adds body label
+    tree += "\n" + this->endLoopLabel +": " + this->children[1]->stringifyIRTree();      //adds endloop label
     return tree;
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string LoopNode::getBodyLabel() const {
-    return this->textVector[1];
+    return this->bodyLabel;
 }
 
 std::string LoopNode::getEndloopLabel() const {
-    return this->textVector[2];
+    return this->endLoopLabel;
 }
 
 std::string LoopNode::getLabelNumber() const {

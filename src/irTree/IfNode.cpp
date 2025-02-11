@@ -2,19 +2,25 @@
 #include "IfElseNode.h"
 
 IfNode::IfNode(std::string labelNumber): labelNumber(labelNumber) {
-    this->textVector = {"IF", "cond" + labelNumber, "then" + labelNumber, "endif" + labelNumber};
+    conditionLabel = "cond" + labelNumber;
+    thenLabel = "then" + labelNumber;
+    endLabel = "endif" + labelNumber;
 }
 
 std::shared_ptr<BaseNode> IfNode::cloneContent() const {
     return std::make_shared<IfNode>(labelNumber);
 }
 
+std::string IfNode::getText() const {
+    return "IF " + conditionLabel + " " + thenLabel + " " + endLabel;
+}
+
 std::string IfNode::stringifyIRTree() const {
     std::string tree = "\t" + getText();
 
-    for (int i=1; i<this->textVector.size(); i++){
-        tree += "\n" + this->textVector[i] +": " + this->children[i-1]->stringifyIRTree();
-    }
+    tree += "\n" + conditionLabel + ": " + getConditionNode()->stringifyIRTree();
+    tree += "\n" + thenLabel + ": " + getThenNode()->stringifyIRTree();
+    tree += "\n" + endLabel + ": " + getEndIfNode()->stringifyIRTree();
 
     return tree;
 }
@@ -22,15 +28,15 @@ std::string IfNode::stringifyIRTree() const {
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string IfNode::getConditionLabel() const {
-    return textVector[1];
+    return conditionLabel;
 }
 
 std::string IfNode::getThenLabel() const {
-    return textVector[2];
+    return thenLabel;
 }
 
 std::string IfNode::getEndLabel() const {
-    return textVector[3];
+    return endLabel;
 }
 
 std::string IfNode::getLabelNumber() const {
@@ -124,9 +130,6 @@ std::shared_ptr<BaseNode> IfNode::removeCurrentNodeFromIRTree() {
 std::shared_ptr<IfElseNode> IfNode::convertToIfElseNode() {
 
     //create a new IfElseNode with the same condition, thenLabel, and endLabel
-    std::string thenLabel = this->textVector[2];     //get the label suffix number from the thenLabel
-
-    std::string elseLabel = "else" + labelNumber;
     std::shared_ptr<IfElseNode> ifElseNode = std::make_shared<IfElseNode>(labelNumber);
     
     std::shared_ptr<BaseNode> conditionChild = this->getConditionNode();

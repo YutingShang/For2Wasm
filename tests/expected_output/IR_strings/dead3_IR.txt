@@ -1,8 +1,8 @@
 	ENTRY
-	DECLARE a
-	DECLARE i
-	DECLARE j
-	DECLARE k
+	DECLARE INT a
+	DECLARE INT i
+	DECLARE INT j
+	DECLARE INT k
 	LOOP init0 cond0 body0 step0 endloop0
 init0: 	MOV i 1
 cond0: 	GT _t0 i 10000

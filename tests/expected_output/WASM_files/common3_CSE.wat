@@ -1,5 +1,5 @@
 (module
-(import "console" "log" (func $log (param i32)))
+(import "console" "log" (func $log_i32 (param i32)))
 (import "console" "logString" (func $logString (param i32 i32)))
 (import "console" "promptSync" (func $read (result i32)))
 (import "js" "mem" (memory 1))
@@ -29,7 +29,7 @@ i32.const 0
 i32.const 23
 call $logString
 local.get $R
-call $log
+call $log_i32
 i32.const 23
 i32.const 21
 call $logString
@@ -59,14 +59,14 @@ i32.const 67
 i32.const 23
 call $logString
 local.get $R
-call $log
+call $log_i32
 )
 (else
 i32.const 44
 i32.const 23
 call $logString
 local.get $R
-call $log
+call $log_i32
 )
 )
 )

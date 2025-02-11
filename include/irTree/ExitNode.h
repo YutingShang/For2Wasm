@@ -6,8 +6,9 @@ class ExitNode : public SimpleNode
 {
 public:
     //Constructor and destructor
-    ExitNode(); // text is EXIT
+    ExitNode() = default;
     ~ExitNode() override = default;
+    std::string getText() const override;       // text is EXIT
     std::shared_ptr<BaseNode> cloneContent() const override;
     
     //Visitor pattern

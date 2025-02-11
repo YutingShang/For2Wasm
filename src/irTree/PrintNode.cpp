@@ -2,7 +2,11 @@
 
 PrintNode::PrintNode(std::string operand) {
     //operand can be a variable, integer, or string
-    this->textVector = {"CALL", "PRINT", operand};
+    this->src = operand;
+}
+
+std::string PrintNode::getText() const {
+    return "CALL PRINT " + src;
 }
 
 std::shared_ptr<BaseNode> PrintNode::cloneContent() const {
@@ -12,11 +16,11 @@ std::shared_ptr<BaseNode> PrintNode::cloneContent() const {
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string PrintNode::getSrc() const {
-    return textVector[2];
+    return src;
 }
 
 void PrintNode::setSrc(std::string src) {
-    textVector[2] = src;
+    this->src = src;
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
@@ -29,7 +33,7 @@ std::string PrintNode::accept(IrBaseVisitor& visitor) {
 
 std::set<std::string> PrintNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;
-    if (isVariable(getSrc())) {
+    if (IRSemantics::isVariable(getSrc())) {
         referencedVariables.insert(getSrc());
     }
     return referencedVariables;

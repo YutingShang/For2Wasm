@@ -1,5 +1,5 @@
 (module
-(import "console" "log" (func $log (param i32)))
+(import "console" "log" (func $log_i32 (param i32)))
 (func (export "main")
 (local $_s4 i32)
 (local $_s3 i32)
@@ -64,8 +64,8 @@ local.set $_s4
 )
 )
 local.get $a
-call $log
+call $log_i32
 local.get $_s4
-call $log
+call $log_i32
 )
 )

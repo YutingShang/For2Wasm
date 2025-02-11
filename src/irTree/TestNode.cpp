@@ -1,10 +1,14 @@
 #include "TestNode.h"
 
 TestNode::TestNode(std::string var) {
-    if (isStringConstant(var)) {
+    if (IRSemantics::isStringConstant(var)) {
         throw std::runtime_error("Invalid test node variable, cannot be string constant: " + var);
     }
-    this->textVector = {"TEST", var};
+    this->var = var;
+}
+
+std::string TestNode::getText() const {
+    return "TEST " + var;
 }
 
 std::shared_ptr<BaseNode> TestNode::cloneContent() const {
@@ -14,14 +18,14 @@ std::shared_ptr<BaseNode> TestNode::cloneContent() const {
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string TestNode::getVar() const {
-    return this->textVector[1];
+    return this->var;
 }
 
 void TestNode::setVar(std::string var) {
-    if (isStringConstant(var)) {
+    if (IRSemantics::isStringConstant(var)) {
         throw std::runtime_error("Invalid test node variable, cannot be string constant: " + var);
     }
-    this->textVector[1] = var;
+    this->var = var;
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////
@@ -34,7 +38,7 @@ std::string TestNode::accept(IrBaseVisitor& visitor) {
 
 std::set<std::string> TestNode::getReferencedVariables() const {
     std::set<std::string> referencedVariables;
-    if (isVariable(getVar())) {
+    if (IRSemantics::isVariable(getVar())) {
         referencedVariables.insert(getVar());
     }
     return referencedVariables;

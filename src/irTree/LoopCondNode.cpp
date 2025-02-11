@@ -1,43 +1,51 @@
 #include "LoopCondNode.h"
 
 LoopCondNode::LoopCondNode(std::string labelNumber): labelNumber(labelNumber) {
-    this->textVector = {"LOOP", "init" + labelNumber, "cond" + labelNumber, "body" + labelNumber, "step" + labelNumber, "endloop" + labelNumber};
+    this->initLabel = "init" + labelNumber;
+    this->condLabel = "cond" + labelNumber;
+    this->bodyLabel = "body" + labelNumber;
+    this->stepLabel = "step" + labelNumber;
+    this->endLoopLabel = "endloop" + labelNumber;
 }
 
 std::shared_ptr<BaseNode> LoopCondNode::cloneContent() const {
     return std::make_shared<LoopCondNode>(getLabelNumber());
 }
 
+std::string LoopCondNode::getText() const {
+    return "LOOP " + initLabel + " " + condLabel + " " + bodyLabel + " " + stepLabel + " " + endLoopLabel;
+}
+
 std::string LoopCondNode::stringifyIRTree() const {
     std::string tree = "\t" + getText();
-    tree += "\n" + this->textVector[1] +": " + this->children[0]->stringifyIRTree();      //adds init label
-    tree += "\n" + this->textVector[2] +": " + this->children[1]->stringifyIRTree();      //adds cond label
-    tree += "\n" + this->textVector[3] +": " + this->children[2]->stringifyIRTree();      //adds body label
-    tree += "\n" + this->textVector[4] +": " + this->children[3]->stringifyIRTree();      //adds step label
-    tree += "\n" + this->textVector[5] +": " + this->children[4]->stringifyIRTree();      //adds endloop label
+    tree += "\n" + this->initLabel +": " + this->children[0]->stringifyIRTree();      //adds init label
+    tree += "\n" + this->condLabel +": " + this->children[1]->stringifyIRTree();      //adds cond label
+    tree += "\n" + this->bodyLabel +": " + this->children[2]->stringifyIRTree();      //adds body label
+    tree += "\n" + this->stepLabel +": " + this->children[3]->stringifyIRTree();      //adds step label
+    tree += "\n" + this->endLoopLabel +": " + this->children[4]->stringifyIRTree();      //adds endloop label
     return tree;
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string LoopCondNode::getInitLabel() const {
-    return this->textVector[1];
+    return this->initLabel;
 }
 
 std::string LoopCondNode::getCondLabel() const {
-    return this->textVector[2];
+    return this->condLabel;
 }
 
 std::string LoopCondNode::getBodyLabel() const {
-    return this->textVector[3];
+    return this->bodyLabel;
 }
 
 std::string LoopCondNode::getStepLabel() const {
-    return this->textVector[4];
+    return this->stepLabel;
 }
 
 std::string LoopCondNode::getEndLoopLabel() const {
-    return this->textVector[5];
+    return this->endLoopLabel;
 }
 
 std::string LoopCondNode::getLabelNumber() const {

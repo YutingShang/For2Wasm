@@ -1,5 +1,5 @@
 (module
-(import "console" "log" (func $log (param i32)))
+(import "console" "log" (func $log_i32 (param i32)))
 (import "console" "logString" (func $logString (param i32 i32)))
 (import "js" "mem" (memory 1))
 (data (i32.const 0) "a = 20 * 25 =")
@@ -24,21 +24,21 @@ i32.const 0
 i32.const 13
 call $logString
 local.get $_s2
-call $log
+call $log_i32
 i32.const 13
 i32.const 13
 call $logString
 local.get $_s2
-call $log
+call $log_i32
 i32.const 39
 i32.const 13
 call $logString
 local.get $_s2
-call $log
+call $log_i32
 i32.const 26
 i32.const 13
 call $logString
 local.get $_s2
-call $log
+call $log_i32
 )
 )

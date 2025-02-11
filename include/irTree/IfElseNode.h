@@ -10,6 +10,7 @@ public:
     //Constructor and destructor
     IfElseNode(std::string labelNumber);
     ~IfElseNode() override = default;
+    std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;
     std::string stringifyIRTree() const override;
 
@@ -19,6 +20,7 @@ public:
     std::string getElseLabel() const;
     std::string getEndLabel() const;
     std::string getLabelNumber() const;
+    //getting the Nodes
     std::shared_ptr<BaseNode> getConditionNode() const;
     std::shared_ptr<BaseNode> getThenNode() const;
     std::shared_ptr<BaseNode> getElseNode() const;
@@ -39,4 +41,8 @@ public:
 
 private:
     std::string labelNumber;
+    std::string conditionLabel;
+    std::string thenLabel;
+    std::string elseLabel;
+    std::string endLabel;
 }; 

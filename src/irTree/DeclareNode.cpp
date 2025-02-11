@@ -1,27 +1,46 @@
 #include "DeclareNode.h"
 
-DeclareNode::DeclareNode(std::string var){
-    if (isStringConstant(var)) {
-        throw std::runtime_error("Invalid variable name: cannot be a string constant");
+DeclareNode::DeclareNode(std::string datatype, std::string var){
+    if (!IRSemantics::isProgramVariable(var)) {
+        throw std::runtime_error("Invalid variable name in DECLARE statement: " + var);
     }
-    this->textVector = {"DECLARE", var};
+    if (!IRSemantics::isValidDatatype(datatype)) {
+        throw std::runtime_error("Invalid datatype in DECLARE statement: " + datatype);
+    }
+    this->datatype = datatype;
+    this->var = var;
+}
+
+std::string DeclareNode::getText() const {
+    return "DECLARE " + getDatatype() + " " + getVar();
 }
 
 std::shared_ptr<BaseNode> DeclareNode::cloneContent() const {
-    return std::make_shared<DeclareNode>(getVar());
+    return std::make_shared<DeclareNode>("INT", getVar());
 }
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
 std::string DeclareNode::getVar() const {
-    return textVector[1];
+    return var;
+}
+
+std::string DeclareNode::getDatatype() const {
+    return datatype;
 }
 
 void DeclareNode::setVar(std::string var) {
-    if (isStringConstant(var)) {
-        throw std::runtime_error("Invalid variable name: cannot be a string constant");
+    if (!IRSemantics::isProgramVariable(var)) {
+        throw std::runtime_error("Invalid variable name in DECLARE statement: " + var);
     }
-    textVector[1] = var;
+    this->var = var;
+}
+
+void DeclareNode::setDatatype(std::string datatype) {
+    if (!IRSemantics::isValidDatatype(datatype)) {
+        throw std::runtime_error("Invalid datatype in DECLARE statement: " + datatype);
+    }
+    this->datatype = datatype;
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////

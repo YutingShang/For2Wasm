@@ -68,6 +68,12 @@ public:
 
     virtual std::any visitLoopControl(Fortran90Parser::LoopControlContext *ctx) override;
 
+    virtual std::any visitTypeSpec(Fortran90Parser::TypeSpecContext *ctx) override;
+
+    virtual std::any visitKindSelector(Fortran90Parser::KindSelectorContext *ctx) override;
+
+    virtual std::any visitUnsignedArithmeticConstant(Fortran90Parser::UnsignedArithmeticConstantContext *ctx) override;
+
     std::unordered_map<std::string, std::string> getStringMap(){
         return stringIndexMap;
     };
@@ -83,14 +89,17 @@ private:
     int tempVariableCount = 0;            // just to keep track of temporary variables used for intermediate results - not mapped to any user defined variables
     std::string getNewTempVariableName(); // fresh temp variable name
 
-    //<index> <string_to_print>
+    //methods for converting to IR code:
+    
+    //<index> <string_to_print> where the index is $str1, $str2, etc. and the string to print is the actual string
     // store strings to be printed as '$str1', '$str2', etc:
     // will strip the quotes of the "strings_to_print"
     std::unordered_map<std::string, std::string> stringIndexMap;
     std::string getStringIndex(std::string str);
     std::string getItemToPrint(std::string outputItem);       // check if the outputItem is a string or a variable/number etc.
     std::string getRelationalOperator(std::string operation); // get the relational operator, convert from <, > to LT, GT etc.
-
+    std::string getDatatype(std::string typeSpec, int byteSize = 0);   //might be like INTEGER(8) or REAL(4) etc. default 0 ignore
+ 
     int ifCount = 0; // for naming the [if..else..endif] block labels, each control structure will have the same number
     int loopCount = 0;
 
@@ -103,4 +112,6 @@ private:
         std::shared_ptr<BaseNode> condEndNode;        //will be a > test node
         std::shared_ptr<BaseNode> stepTopNode;
     };
+
+    bool isOutputItemListForPrintStmt = false;  //when visiting printStmt set this to true when we recurse to outputItemList1 - so print stmt added directly after each output item
 };
