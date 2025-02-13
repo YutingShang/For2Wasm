@@ -8,7 +8,7 @@
 class LoadEltNode : public SimpleNode {
 public:
     //Constructor and destructor
-    LoadEltNode(std::string dest, std::string arrayVar, std::vector<std::string> indices);
+    LoadEltNode(std::string dest, std::string arrayVar, std::vector<std::string> f_indices);   //the indices are given in fortran (1-based), but converted to IR indices (0-based)
     ~LoadEltNode() override = default;
     std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;

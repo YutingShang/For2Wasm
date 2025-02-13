@@ -189,3 +189,11 @@ std::string IRSemantics::findLargestDatatype(const std::string& type1, const std
     throw std::runtime_error("Could not find largest datatype between "+type1+" and "+type2);
 }
 
+std::vector<std::string> IRSemantics::convertFortranIndicesToIRIndices(const std::vector<std::string>& f_indices) {
+    std::vector<std::string> ir_indices;
+    for (const std::string& index : f_indices) {
+        ir_indices.push_back(std::to_string(std::stoi(index) - 1));
+    }
+    return ir_indices;
+}
+

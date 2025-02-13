@@ -1015,7 +1015,7 @@ std::any Fortran90ParserIRTreeVisitor::visitNameDataRef(Fortran90Parser::NameDat
 }
 
 std::any Fortran90ParserIRTreeVisitor::visitSectionSubscriptRef(Fortran90Parser::SectionSubscriptRefContext *ctx) {
-    //SectionSubscriptRef
+    //SectionSubscriptRef for accessing/reading/loading from multi-dimensional arrays
     //of the form: LPAREN sectionSubscriptList RPAREN
     //<sectionSubscriptList> will be a list of section subscript values
     //just return the section subscript values
