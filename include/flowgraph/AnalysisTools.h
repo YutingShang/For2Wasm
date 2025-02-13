@@ -33,6 +33,10 @@ class AnalysisTools {
         //returns the set of all expressions in a program, and also a corresponding example node for each expression (so you can convert from expression->node type)
         static std::unordered_map<std::string, std::shared_ptr<ExpressionNode>> getAllProgramExpressionsToCloneableNodesMap(std::shared_ptr<BaseNode> entryNode);
 
+        //returns the set of all expression with their IR datatypes (take the original destination datatype of the expression)
+        //pass in the irDatatypeMap of the variables in the program
+        static std::unordered_map<std::string, std::string> getAllProgramExpressionsToIRDatatypeMap(std::shared_ptr<BaseNode> entryNode, std::unordered_map<std::string, std::string> irDatatypeMap);
+
         //returns the set of expressions Ex that are killed by the node (specific to a program)
         static std::set<std::string> getKilledExpressionsAtNode(std::shared_ptr<BaseNode> node, std::set<std::string> &allExpressions);
 

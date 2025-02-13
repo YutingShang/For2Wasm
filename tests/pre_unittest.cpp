@@ -40,6 +40,11 @@ TEST(PREOptimisationTest, PartialRedundant4ProgramIterPRE_CPWASM)
     run_iterPRE_CP_WASMTest("partialredundant4.f90", "partialredundant4_iterPRE-CP.wat");
 }
 
+TEST(PREOptimisationTest, Common4ProgramIterPRE_CPWASM)
+{
+    run_iterPRE_CP_WASMTest("common4.f90", "common4_iterPRE-CP.wat");
+}
+
 
 //////////////////////// Helper function definitions ////////////////////////
 

@@ -179,3 +179,13 @@ std::string IRSemantics::getVectorText(std::vector<std::string> vector) {
     return tupleText;
 }
 
+std::string IRSemantics::findLargestDatatype(const std::string& type1, const std::string& type2) {
+    std::vector<std::string> highestPriority = {"DOUBLE", "REAL", "INT64", "INT"};
+    for (int i=0; i<highestPriority.size() ; i++){
+        if (type1 == highestPriority[i] || type2 == highestPriority[i]){
+            return highestPriority[i];    //stop and return the highest priority datatype
+        }
+    }
+    throw std::runtime_error("Could not find largest datatype between "+type1+" and "+type2);
+}
+

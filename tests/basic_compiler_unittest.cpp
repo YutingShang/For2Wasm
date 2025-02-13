@@ -78,6 +78,11 @@ TEST(WASMTranslationTest, TriangularProgramWASM)
     runWASMTest("triangular.f90", "triangular.wat");
 }
 
+TEST(WASMTranslationTest, ArithmeticProgramWASM)
+{
+    runWASMTest("arithmetic.f90", "arithmetic.wat");
+}
+
 //////////////////////// Helper function definitions ////////////////////////
 
 void runASTStringTest(std::string inputFileName, std::string expectedOutputFileName)

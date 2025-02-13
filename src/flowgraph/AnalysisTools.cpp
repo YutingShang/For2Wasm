@@ -103,6 +103,44 @@ std::unordered_map<std::string, std::shared_ptr<ExpressionNode>> AnalysisTools::
     return allExpressionsToCloneableNodesMap;
 }
 
+std::unordered_map<std::string, std::string> AnalysisTools::getAllProgramExpressionsToIRDatatypeMap(std::shared_ptr<BaseNode> entryNode, std::unordered_map<std::string, std::string> irDatatypeMap) {
+    std::unordered_map<std::string, std::string> allExpressionsToIRDatatypeMap;
+
+    //IR tree traversal (not a graph)
+    std::queue<std::shared_ptr<BaseNode>> toExploreQueue;
+    toExploreQueue.push(entryNode);
+    while (!toExploreQueue.empty()) {
+        std::shared_ptr<BaseNode> current = toExploreQueue.front();
+        toExploreQueue.pop();
+        //get generated expressions, insert into allExpressions set
+        
+        const std::set<std::string>& generatedExpressions = AnalysisTools::getGeneratedExpressionsAtNode(current);
+        if (generatedExpressions.size() != 0) {
+            assert(current->getDefinedVariables().size() == 1);      //if there is a generated expression, then there should be exactly one defined variable
+        }
+        const std::string definedVariable = *current->getDefinedVariables().begin();
+        const std::string IRdatatype = irDatatypeMap[definedVariable];   //get the IR datatype of the defined variable
+
+        for (const auto &expression : generatedExpressions) {
+            if (allExpressionsToIRDatatypeMap.find(expression) == allExpressionsToIRDatatypeMap.end()) {   //if expression is not already in the map
+                allExpressionsToIRDatatypeMap[expression] = IRdatatype;
+            }else{
+                //it is already in the map, so we check if the datatype is larger than the one stored - if so we update the datatype to the larger one
+                std::string previousIRdatatype = allExpressionsToIRDatatypeMap[expression];
+                if (IRSemantics::findLargestDatatype(previousIRdatatype, IRdatatype) == IRdatatype) {
+                    allExpressionsToIRDatatypeMap[expression] = IRdatatype;  //only update if the new datatype is larger
+                }
+            }
+        }
+        //add children to the queue
+        for (std::shared_ptr<BaseNode> child : current->getChildren()) {
+            toExploreQueue.push(child);
+        }
+    }
+    return allExpressionsToIRDatatypeMap;
+    
+}
+
 std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(std::shared_ptr<BaseNode> node, std::set<std::string> &allExpressions) {
     std::set<std::string> killedExpressions;
 

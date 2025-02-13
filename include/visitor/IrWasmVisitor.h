@@ -10,7 +10,8 @@ class IrWasmVisitor : public IrBaseVisitor {
         // e.g. where str_var = $str1, string_to_print = "Add:"
         ///NOTE: we convert the stringMap to stringMapIndicies in the constructor
         ///NOTE: constructor also creates the memoryImportCode, which is part of the header WASM code
-        IrWasmVisitor(std::unordered_map<std::string, std::string> &stringMap);
+        // note : we also initialise the variableWASMDatatypeMap in the constructor
+        IrWasmVisitor(std::unordered_map<std::string, std::string> &stringMap, std::unordered_map<std::string, std::string> &irDatatypeMap);
 
         ~IrWasmVisitor() = default;
 
@@ -70,8 +71,6 @@ class IrWasmVisitor : public IrBaseVisitor {
         bool isWASMIntDatatype(const std::string& type);     //i32 or i64
         bool isWASMFloatDatatype(const std::string& type);   //f32 or f64
 
-        //finds the largest datatype between two types - e.g. if trying to operate on i32 and f32, then returns f32
-        std::string findLargestDatatype(const std::string& type1, const std::string& type2);
 
         //get the wasm number datatype of a variable or constant
         //typically used for finding the datatype of a nodeSrc. Can then use findLargestDatatype 
@@ -84,7 +83,7 @@ class IrWasmVisitor : public IrBaseVisitor {
         //maps all variables (including internal temp variables) to their WASM datatype (i32, i64, f32, f64)
         //initially add PROGRAM VARIABLES to the map when visiting DECLARE statements
         //then add INTERNAL TEMP VARIABLES to the map when visiting other statements and creating those temporary variables
-        std::unordered_map<std::string, std::string> variableDatatypeMap;
+        std::unordered_map<std::string, std::string> variableWASMDatatypeMap;
        
         //stack contains the endloop labels of the loops
         std::stack<std::string> exitStack;

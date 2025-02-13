@@ -19,9 +19,10 @@
 #include "ReadNode.h"
 #include "BaseNode.h"
 #include "DeclareArrayNode.h"
+#include "IrTypeVisitor.h"
 #include <iostream>
 
-IrWasmVisitor::IrWasmVisitor(std::unordered_map<std::string, std::string> &stringMap){
+IrWasmVisitor::IrWasmVisitor(std::unordered_map<std::string, std::string> &stringMap, std::unordered_map<std::string, std::string> &irDatatypeMap){
     // constructor that converts stringMap to stringMapIndicies
     unsigned long base_offset = 0;
     bool importedMemory = false; // only import memory once, and only if there is at least one string
@@ -37,6 +38,11 @@ IrWasmVisitor::IrWasmVisitor(std::unordered_map<std::string, std::string> &strin
         memoryImportCode += "(data (i32.const " + std::to_string(base_offset) + ") \"" + string_to_print + "\")" + "\n";
         stringMapIndicies[entry.first] = {base_offset, string_to_print.length()};
         base_offset += string_to_print.length();
+    }
+
+    //convert irDatatypeMap to variableWASMDatatypeMap
+    for (auto &entry : irDatatypeMap) {
+        variableWASMDatatypeMap[entry.first] = convertDatatypeToWASM(entry.second);
     }
 }
 
@@ -88,41 +94,14 @@ std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>&
 }
 
 std::string IrWasmVisitor::visitArithOpNode(const std::shared_ptr<ArithOpNode>& node) {
-    std::cerr << "visitArithOpNode" << node->getText() << std::endl;
     std::string nodeDest = node->getDest();
     std::string nodeSrc1 = node->getSrc1();
     std::string nodeSrc2 = node->getSrc2();
     std::string arithOp = node->getOp();
     
     std::string expectedWasmDatatype;
-    if (IRSemantics::isProgramVariable(nodeDest)) {
-        expectedWasmDatatype = variableDatatypeMap[nodeDest];    //if there is a concrete dest, use that datatype
-    }
-    else if (IRSemantics::isInternalTempVar(nodeDest)) {        //if dest is temp, take the largest datatype of the operands
-
-        // //precompute the result and see if there is an overflow to determine the datatype of the temp variable
-        // if (IRSemantics::isPosInt32(nodeSrc1) && IRSemantics::isPosInt32(nodeSrc2)){
-        //     long long result = std::stoll(nodeSrc1) + std::stoll(nodeSrc2);
-        //     if (result > INT_MAX){
-        //         expectedWasmDatatype = "i64";
-        //     }
-        //     else{
-        //         expectedWasmDatatype = "i32";
-        //     }
-        // }
-        // else if (node->getOp() == "SUB"){
-        //     long long result = std::stoll(nodeSrc1) - std::stoll(nodeSrc2);
-        //     if (result < INT_MIN){
-        //         expectedWasmDatatype = "i64";
-        //     }
-        //     else{
-        //         expectedWasmDatatype = "i32";
-        //     }
-        // } 
-       
-        expectedWasmDatatype = findLargestDatatype(getWASMNumberDatatype(nodeSrc1), getWASMNumberDatatype(nodeSrc2));
-        std::cerr << "expectedWasmDatatype: " << expectedWasmDatatype << std::endl;
-        variableDatatypeMap[nodeDest] = expectedWasmDatatype;    //add to the map for the temp variable
+    if (IRSemantics::isVariable(nodeDest)) {
+        expectedWasmDatatype = variableWASMDatatypeMap[nodeDest];    //if there is a concrete dest, use that datatype
     }
     else{
         throw std::runtime_error("Invalid destination in visitArithOpNode: "+nodeDest);
@@ -165,17 +144,12 @@ std::string IrWasmVisitor::visitArithOpNode(const std::shared_ptr<ArithOpNode>& 
 }
 
 std::string IrWasmVisitor::visitLogicBinOpNode(const std::shared_ptr<LogicBinOpNode>& node) {
-    std::cerr << "visitLogicBinOpNode" << std::endl;
     std::string nodeDest = node->getDest();
     std::string nodeSrc1 = node->getSrc1();
     std::string nodeSrc2 = node->getSrc2();
     std::string expectedWasmDatatype;
-    if (IRSemantics::isProgramVariable(nodeDest)) {
-        expectedWasmDatatype = variableDatatypeMap[nodeDest];
-    }
-    else if (IRSemantics::isInternalTempVar(nodeDest)) {
-        expectedWasmDatatype = findLargestDatatype(getWASMNumberDatatype(nodeSrc1), getWASMNumberDatatype(nodeSrc2));
-        variableDatatypeMap[nodeDest] = expectedWasmDatatype;    //add to the map for the temp variable
+    if (IRSemantics::isVariable(nodeDest)) {
+        expectedWasmDatatype = variableWASMDatatypeMap[nodeDest];
     }
     else{
         throw std::runtime_error("Invalid destination in visitLogicBinOpNode: "+nodeDest);
@@ -198,16 +172,11 @@ std::string IrWasmVisitor::visitLogicBinOpNode(const std::shared_ptr<LogicBinOpN
 }
 
 std::string IrWasmVisitor::visitLogicNotNode(const std::shared_ptr<LogicNotNode>& node) {
-    std::cerr << "visitLogicNotNode" << std::endl;
     std::string nodeDest = node->getDest();
     std::string nodeSrc = node->getSrc();
     std::string expectedWasmDatatype;
-    if (IRSemantics::isProgramVariable(nodeDest)) {
-        expectedWasmDatatype = variableDatatypeMap[nodeDest];
-    }
-    else if (IRSemantics::isInternalTempVar(nodeDest)) {
-        expectedWasmDatatype = getWASMNumberDatatype(nodeSrc);    //just take the datatype of the src
-        variableDatatypeMap[nodeDest] = expectedWasmDatatype;    //add to the map for the temp variable
+    if (IRSemantics::isVariable(nodeDest)) {
+        expectedWasmDatatype = variableWASMDatatypeMap[nodeDest];
     }
     else{
         throw std::runtime_error("Invalid destination in visitLogicNotNode: "+nodeDest);
@@ -225,18 +194,13 @@ std::string IrWasmVisitor::visitLogicNotNode(const std::shared_ptr<LogicNotNode>
 }
 
 std::string IrWasmVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node) {
-    std::cerr << "visitRelOpNode" << std::endl;
     std::string nodeDest = node->getDest();
     std::string nodeSrc1 = node->getSrc1();
     std::string nodeSrc2 = node->getSrc2();
     std::string relOp = node->getOp();
     std::string expectedWasmDatatype;
-    if (IRSemantics::isProgramVariable(nodeDest)) {
-        expectedWasmDatatype = variableDatatypeMap[nodeDest];
-    }
-    else if (IRSemantics::isInternalTempVar(nodeDest)) {
-        expectedWasmDatatype = findLargestDatatype(getWASMNumberDatatype(nodeSrc1), getWASMNumberDatatype(nodeSrc2));
-        variableDatatypeMap[nodeDest] = expectedWasmDatatype;    //add to the map for the temp variable
+    if (IRSemantics::isVariable(nodeDest)) {
+        expectedWasmDatatype = variableWASMDatatypeMap[nodeDest];
     }
     else{
         throw std::runtime_error("Invalid destination in visitRelOpNode: "+nodeDest);
@@ -271,16 +235,11 @@ std::string IrWasmVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node
 }
 
 std::string IrWasmVisitor::visitMovNode(const std::shared_ptr<MovNode>& node) {
-    std::cerr << "visitMovNode" << node->getText() << std::endl;
     std::string nodeDest = node->getDest();
     std::string nodeSrc = node->getSrc();
     std::string expectedWasmDatatype;
-    if (IRSemantics::isProgramVariable(nodeDest)) {
-        expectedWasmDatatype = variableDatatypeMap[nodeDest];
-    }
-    else if (IRSemantics::isInternalTempVar(nodeDest)) {
-        expectedWasmDatatype = getWASMNumberDatatype(nodeSrc);    //just take the datatype of the src
-        variableDatatypeMap[nodeDest] = expectedWasmDatatype;    //add to the map for the temp variable
+    if (IRSemantics::isVariable(nodeDest)) {
+        expectedWasmDatatype = variableWASMDatatypeMap[nodeDest];
     }
     else{
         throw std::runtime_error("Invalid destination in visitMovNode: "+nodeDest);
@@ -296,7 +255,6 @@ std::string IrWasmVisitor::visitMovNode(const std::shared_ptr<MovNode>& node) {
 }
 
 std::string IrWasmVisitor::visitEndBlockNode(const std::shared_ptr<EndBlockNode>& node) {
-    std::cerr << "visitEndBlockNode" << std::endl;
     std::string wasmCode = "";
     //DON'T add ) if it is ENDBODY, since we add br $bodyLabel when we process the ENDLOOP node
     if (node->getText() != "ENDBODY") {    
@@ -311,7 +269,6 @@ std::string IrWasmVisitor::visitEndBlockNode(const std::shared_ptr<EndBlockNode>
 }
 
 std::string IrWasmVisitor::visitExitNode(const std::shared_ptr<ExitNode>& node) {
-    std::cerr << "visitExitNode" << std::endl;
     std::string endloopLabel = exitStack.top();
     exitStack.pop();
     std::string wasmCode = "br $" + endloopLabel + "\n";
@@ -324,7 +281,6 @@ std::string IrWasmVisitor::visitExitNode(const std::shared_ptr<ExitNode>& node) 
 }
 
 std::string IrWasmVisitor::visitLoopNode(const std::shared_ptr<LoopNode>& node) {
-    std::cerr << "visitLoopNode" << std::endl;
     std::string wasmCode = "(block $" + node->getEndloopLabel() + "\n";
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
     exitStack.push(node->getEndloopLabel());
@@ -336,7 +292,6 @@ std::string IrWasmVisitor::visitLoopNode(const std::shared_ptr<LoopNode>& node) 
 }
 
 std::string IrWasmVisitor::visitLoopCondNode(const std::shared_ptr<LoopCondNode>& node) {
-    std::cerr << "visitLoopCondNode" << std::endl;
     std::string wasmCode = "(block $" + node->getEndLoopLabel() + "\n";
     
     //sandwich the initialisation code between the block and the loop - unnecessary but might make it clearer it is the initialisation logic
@@ -357,7 +312,6 @@ std::string IrWasmVisitor::visitLoopCondNode(const std::shared_ptr<LoopCondNode>
 }
 
 std::string IrWasmVisitor::visitIfNode(const std::shared_ptr<IfNode>& node) {
-    std::cerr << "visitIfNode" << std::endl;
     std::string conditionCode = node->getChildren()[0]->accept(*this);
     std::string thenCode = node->getChildren()[1]->accept(*this);
 
@@ -367,7 +321,6 @@ std::string IrWasmVisitor::visitIfNode(const std::shared_ptr<IfNode>& node) {
 }
 
 std::string IrWasmVisitor::visitIfElseNode(const std::shared_ptr<IfElseNode>& node) {
-    std::cerr << "visitIfElseNode" << std::endl;
     std::string conditionCode = node->getChildren()[0]->accept(*this);
     std::string thenCode = node->getChildren()[1]->accept(*this);
 
@@ -377,11 +330,10 @@ std::string IrWasmVisitor::visitIfElseNode(const std::shared_ptr<IfElseNode>& no
 }
 
 std::string IrWasmVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode>& node) {
-    std::cerr << "visitDeclareNode" << std::endl;
     std::string wasmDatatype = convertDatatypeToWASM(node->getDatatype());   //convert IR datatype to WASM datatype
-    variableDatatypeMap[node->getVar()] = wasmDatatype;     //add to the map       
+    std::string nodeVar = node->getVar();    
 
-    std::string wasmCode = "(local $" + node->getVar() + " " + wasmDatatype + ")\n";
+    std::string wasmCode = "(local $" + nodeVar + " " + wasmDatatype + ")\n";
     
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(*this);
@@ -391,13 +343,11 @@ std::string IrWasmVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode>& 
 }
 
 std::string IrWasmVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) {
-    std::cerr << "visitDeclareArrayNode" << std::endl;
     ///TODO: implement generate WASM code for array declaration
     return "generate WASM code for array declaration";
 }
 
 std::string IrWasmVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node) {
-    std::cerr << "visitPrintNode" << std::endl;
     std::string nodeSrc = node->getSrc();
     std::string wasmCode = "";
     if (IRSemantics::isStringConstant(nodeSrc)) {
@@ -407,7 +357,6 @@ std::string IrWasmVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node
         wasmCode += convertNumberSrcToWASM(nodeSrc, getWASMNumberDatatype(nodeSrc));    //??? need to check src datatype
     }
 
-    std::cerr << " node source to print: " << nodeSrc << std::endl;
     ///TODO: handle different datatypes for printing
     if (IRSemantics::isStringConstant(nodeSrc)) {
         wasmCode += "call $logString\n";
@@ -443,7 +392,6 @@ std::string IrWasmVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node
 }
 
 std::string IrWasmVisitor::visitReadNode(const std::shared_ptr<ReadNode>& node) {
-    std::cerr << "visitReadNode" << std::endl;
     std::string wasmCode = "call $read\n";
     wasmCode += "local.set $" + node->getVar() + "\n";
     importRead = true;
@@ -459,7 +407,6 @@ std::string IrWasmVisitor::visitReadNode(const std::shared_ptr<ReadNode>& node) 
 // They have no equivalent in the wasm code generation
 
 std::string IrWasmVisitor::visitTestNode(const std::shared_ptr<TestNode>& node) {
-    std::cerr << "visitTestNode" << std::endl;
     if (node->getChildren().size() == 1) {
         return node->getChildren()[0]->accept(*this);      //although TEST probably shouldn't have a child
     }
@@ -475,7 +422,6 @@ std::string IrWasmVisitor::visitTestNode(const std::shared_ptr<TestNode>& node) 
 }
 
 std::string IrWasmVisitor::visitEntryNode(const std::shared_ptr<EntryNode>& node) {
-    std::cerr << "visitEntryNode" << std::endl;
     // just skip the ENTRY node, and process its child
     if (node->getChildren().size() == 1) {
         return node->getChildren()[0]->accept(*this);
@@ -541,7 +487,7 @@ std::string IrWasmVisitor::convertNumberSrcToWASM(const std::string &operand, st
     //However for both user defined and temporary variables, we need to check if the datatype is correct
     //and if not, then convert it to the correct datatype
     if (IRSemantics::isVariable(operand)) {
-        std::string actualWasmDatatype = variableDatatypeMap[operand];  //actual datatype of variable should be in the map
+        std::string actualWasmDatatype = variableWASMDatatypeMap[operand];  //actual datatype of variable should be in the map
         if (actualWasmDatatype != expectedWasmDatatype)
         {
             //float -> int : truncation_s
@@ -639,20 +585,10 @@ bool IrWasmVisitor::isWASMFloatDatatype(const std::string& type) {
     return type == "f32" || type == "f64";
 }
 
-std::string IrWasmVisitor::findLargestDatatype(const std::string& type1, const std::string& type2) {
-    std::vector<std::string> highestPriority = {"f64", "f32", "i64", "i32"};
-    for (int i=0; i<highestPriority.size() ; i++){
-        if (type1 == highestPriority[i] || type2 == highestPriority[i]){
-            return highestPriority[i];    //stop and return the highest priority datatype
-        }
-    }
-
-    throw std::runtime_error("Could not find largest datatype between "+type1+" and "+type2);
-}
 
 std::string IrWasmVisitor::getWASMNumberDatatype(const std::string& item) {
     if (IRSemantics::isVariable(item)) { 
-        return variableDatatypeMap[item];    //find the datatype in the map
+        return variableWASMDatatypeMap[item];    //find the datatype in the map
     }
     else if (IRSemantics::isPosInt32(item)) {
         return "i32";

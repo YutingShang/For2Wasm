@@ -9,7 +9,11 @@
 #include "EntryNode.h"
 
 
-CSEOptimizer::CSEOptimizer(std::shared_ptr<EntryNode> entryNode, int nextProgramTempVariableCount) : entryNode(entryNode), nextProgramTempVariableCount(nextProgramTempVariableCount) {
+CSEOptimizer::CSEOptimizer(std::shared_ptr<EntryNode> entryNode, std::unordered_map<std::string, std::string> irDatatypeMap, int nextProgramTempVariableCount) : entryNode(entryNode), irDatatypeMap(irDatatypeMap), nextProgramTempVariableCount(nextProgramTempVariableCount) {
+}
+
+std::unordered_map<std::string, std::string> CSEOptimizer::getUpdatedIRDatatypeMap() const {
+    return irDatatypeMap;
 }
 
 bool CSEOptimizer::runCommonSubexpressionElimination()
@@ -77,10 +81,13 @@ bool CSEOptimizer::removeCommonSubexpressionsForNode(std::shared_ptr<BaseNode> i
         }
 
         ///FIRST: replace the current instruction y:=e
-        //with a MOV instruction with a new temporary variable y:= t
-        std::string tempVar = addNewProgramTempVariable();     //Also adds a declaration!!
+        //with a MOV instruction with a new temporary variable y:= t   
         assert(simpleNode->getDefinedVariables().size() == 1);
         std::string destVar = *simpleNode->getDefinedVariables().begin();  //the variable defined, i.e. y
+
+        std::string IRdatatype = irDatatypeMap[destVar];
+        std::string tempVar = addNewProgramTempVariable(IRdatatype);     //Also adds a declaration!! - temporary t should be the same datatype as the y
+        
         std::shared_ptr<MovNode> movNode = std::make_shared<MovNode>(destVar,tempVar);
         simpleNode->replaceCurrentNodeInIRTree(movNode);   //WARNING: simple node is no longer in the IR tree!!!
 
@@ -185,13 +192,17 @@ bool CSEOptimizer::basicBlockBackwardsFindAndReplaceExpression(std::shared_ptr<B
     return false;       //expression not found - continue DFS search backwards
 }
 
-std::string CSEOptimizer::addNewProgramTempVariable()
+std::string CSEOptimizer::addNewProgramTempVariable(std::string IRdatatype)
 {
     //increment nextProgramTempVariableCount after creating the new program temp variable
     std::string programTempVar = "_s" + std::to_string(nextProgramTempVariableCount++);
 
     //add a declare statement to the start of the program
-    std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(programTempVar);
+    ///QUESTION: what datatype should we use for the program temp variable?
+    std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(IRdatatype, programTempVar);
+
+    //add the new variable to the irDatatypeMap
+    irDatatypeMap[programTempVar] = IRdatatype;
 
     //insert the declare statement at the start of the program (after the entry node)
     entryNode->insertSandwichChild(declareTempVarNode);

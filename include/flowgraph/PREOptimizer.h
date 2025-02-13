@@ -14,7 +14,7 @@ class PREOptimizer {
 
     public:
 
-        PREOptimizer(std::shared_ptr<EntryNode> entryNode, int nextProgramTempVariableCount);
+        PREOptimizer(std::shared_ptr<EntryNode> entryNode, std::unordered_map<std::string, std::string> irDatatypeMap, int nextProgramTempVariableCount);
 
         //runs PRE (once - same effect as running iteratively) until no more partial redundancies are found
         //returns true if any changes were made
@@ -25,6 +25,9 @@ class PREOptimizer {
 
         int getNextProgramTempVariableCount() const;
 
+        //returns the irDatatypeMap (may be updated PRE)
+        std::unordered_map<std::string, std::string> getUpdatedIRDatatypeMap() const;
+
     private:
 
         std::shared_ptr<EntryNode> entryNode;
@@ -34,6 +37,8 @@ class PREOptimizer {
         std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeLatestExpressionsSets;
         std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> nodeOutUsedSets;
         int nextProgramTempVariableCount;
+        std::unordered_map<std::string, std::string> irDatatypeMap;    //might need to add new variables
+        std::unordered_map<std::string, std::string> irExpressionToDatatypeMap;   //needed to get the datatype of an expression, to create new temporaries
 
         //each expression has a new temporary variable _s associated with it
         //for expressions that need to be PRE optimized, it stores
@@ -53,8 +58,8 @@ class PREOptimizer {
         //for each instruction in basic block, does 2 checks and adds/modifies instructions
         bool basicBlockRemovePartialRedundancy(const std::shared_ptr<BasicBlock>& basicBlock);
 
-        // also adds a declaration statement to the start of the program
-        // and adds it to the expressionToTempVarMap so it can be used in other nodes
+        // either fetches the temp variable from the expressionToTempVarMap, or creates a new temp variable and adds it to the expressionToTempVarMap
+        // adds a declaration statement to the start of the program
         std::string getOrAddNewTempVariableForExpression(std::string &expression);
 
         ///CHECKS: returns set of expressions that are in (latest[B] ∩ out-used[B])

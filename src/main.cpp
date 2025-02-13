@@ -26,6 +26,7 @@
 #include "IrWasmVisitor.h"
 #include "EntryNode.h"
 #include "IrFlowgraphVisitor.h"
+#include "IrTypeVisitor.h"
 #include "DeadCodeElimination.h"
 #include "CSEOptimizer.h"
 #include "tree/Trees.h"
@@ -145,6 +146,13 @@ int main(int argc, const char **argv)
   
   //flowgraph is drawn in each optimisation pass
 
+  /////////////////TYPE VISITOR///////////////////////////////////////////////////
+
+  //get the IR datatype map - needed for CSE and PRE optimisations which needs to know type info to create new variables
+  IrTypeVisitor typeVisitor;
+  entryNode->accept(typeVisitor);
+  std::unordered_map<std::string, std::string> irDatatypeMap = typeVisitor.getVariableIRDatatypeMap();
+
   /////////////////2ND, 3RD, 4TH ... FLAG///////////////////////////////////////////////////
 
   // .main <input file> <flag1 for output> <flag2 for optimisation> <flag3 for optimisation> ...
@@ -165,9 +173,10 @@ int main(int argc, const char **argv)
       deadCodeElimination.iterateDeadCodeElimination();
     }
     else if (optFlag == "-CSE") {
-      CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
+      CSEOptimizer cseOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
       cseOptimizer.runCommonSubexpressionElimination();
       nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
+      irDatatypeMap = cseOptimizer.getUpdatedIRDatatypeMap();
     }
     else if (optFlag == "-CP") {
       PropagationOptimizer PropagationOptimizer(entryNode);
@@ -178,19 +187,22 @@ int main(int argc, const char **argv)
       PropagationOptimizer.runConstantPropagation();
     }
     else if (optFlag == "-iterCSE-CP") {
-      CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
+      CSEOptimizer cseOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
       cseOptimizer.iterateCSE_CopyPropagation();
       nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
+      irDatatypeMap = cseOptimizer.getUpdatedIRDatatypeMap();
     }
     else if (optFlag == "-PRE") {
-      PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+      PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
       preOptimizer.runPartialRedundancyElimination();
       nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+      irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
     }
     else if (optFlag == "-iterPRE-CP") {
-      PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+      PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
       preOptimizer.iteratePRE_CopyPropagation();
       nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+      irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
     }
   }
 
@@ -207,8 +219,9 @@ int main(int argc, const char **argv)
       std::string dotIRTree = DotTreeTools::irTreeToDot(entryNode);
       std::cout << dotIRTree << std::endl;
     }else if (flag1 == "-WASM") {
+      //also get the string map from the irTreeVisitor, to reverse the $str variables to the original string
       std::unordered_map<std::string, std::string> stringMap = irTreeVisitor.getStringMap();
-      IrWasmVisitor wasmVisitor(stringMap);
+      IrWasmVisitor wasmVisitor(stringMap, irDatatypeMap);
       std::string wasm = wasmVisitor.getEntireProgramCode(entryNode);
       std::cout << wasm << std::endl;
     }else if (flag1 == "-flowgraph") {

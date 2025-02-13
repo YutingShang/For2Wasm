@@ -55,5 +55,6 @@ class IRSemantics {
 
         //OTHER METHODS
         static std::string getVectorText(std::vector<std::string> vector);   //turn vector into a tuple looking string (dim1, dim2, dim3, ...) or (index1, index2, index3, ...)
+        static std::string findLargestDatatype(const std::string& type1, const std::string& type2);
        
 };

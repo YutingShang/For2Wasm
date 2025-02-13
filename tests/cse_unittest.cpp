@@ -72,6 +72,11 @@ TEST(CSE_DCEOptimisationTest, Common3ProgramCSE_DCEWASM)
     run_CSE_DCE_WASMTest("common3.f90", "common3_CSE.wat");      
 }
 
+TEST(CSEOptimisationTest, Common4ProgramCSEWASM)
+{
+    run_CSE_WASMTest("common4.f90", "common4_CSE.wat");
+}
+
 //iterCSE_CP tests
 
 //common 1, with iterCSE-CP and DCE

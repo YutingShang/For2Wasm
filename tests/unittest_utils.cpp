@@ -11,6 +11,7 @@
 #include "SimplificationOptimisations.h"
 #include "CSEOptimizer.h"
 #include "IrWasmVisitor.h"
+#include "IrTypeVisitor.h"
 #include "EntryNode.h"
 #include "PREOptimizer.h"
 
@@ -67,6 +68,11 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
 
         //flowgraph is drawn in each optimisation pass
 
+        //type visitor
+        IrTypeVisitor typeVisitor;
+        entryNode->accept(typeVisitor);
+        std::unordered_map<std::string, std::string> irDatatypeMap = typeVisitor.getVariableIRDatatypeMap();
+
         //optimisations
         int nextProgramTempVariableCount = 0;
         if (optimisationFlags.size() > 0){
@@ -80,9 +86,10 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
                     SimplificationOptimisations::removeUnusedDeclareStatements(entryNode);
                 }
                 else if (optimisationFlag == CSE){
-                    CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
+                    CSEOptimizer cseOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
                     cseOptimizer.runCommonSubexpressionElimination();
                     nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
+                    irDatatypeMap = cseOptimizer.getUpdatedIRDatatypeMap();
                 }
                 else if (optimisationFlag == CP){
                     PropagationOptimizer PropagationOptimizer(entryNode);
@@ -93,19 +100,22 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
                     PropagationOptimizer.runConstantPropagation();
                 }
                 else if (optimisationFlag == IterCSE_CP){
-                    CSEOptimizer cseOptimizer(entryNode, nextProgramTempVariableCount);
+                    CSEOptimizer cseOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
                     cseOptimizer.iterateCSE_CopyPropagation();
                     nextProgramTempVariableCount = cseOptimizer.getNextProgramTempVariableCount();
+                    irDatatypeMap = cseOptimizer.getUpdatedIRDatatypeMap();
                 }
                 else if (optimisationFlag == PRE){
-                    PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+                    PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
                     preOptimizer.runPartialRedundancyElimination();
                     nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+                    irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
                 }
                 else if (optimisationFlag == IterPRE_CP){
-                    PREOptimizer preOptimizer(entryNode, nextProgramTempVariableCount);
+                    PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
                     preOptimizer.iteratePRE_CopyPropagation();
                     nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+                    irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
                 }
             }
         }
@@ -117,7 +127,7 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
         }else if (outputFlag == WASM){
             //WASM visitor
             std::unordered_map<std::string, std::string> stringMap = irVisitor.getStringMap();
-            IrWasmVisitor wasmVisitor(stringMap);
+            IrWasmVisitor wasmVisitor(stringMap, irDatatypeMap);
             outputToCompare = wasmVisitor.getEntireProgramCode(entryNode);
         }
 

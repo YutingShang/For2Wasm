@@ -108,5 +108,8 @@ program arithmetic
 
     print *, 1-(9.999),x, 3+p, 4/(-3), -(-3), q
     
+    z = 12/ (16/(8-4.01))
+    print *, "12/ (16/(8-4)) = ", z
+    
     
 end program arithmetic

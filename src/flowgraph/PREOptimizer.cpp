@@ -16,8 +16,11 @@
 #include "PropagationOptimizer.h"
 
 
-PREOptimizer::PREOptimizer(std::shared_ptr<EntryNode> entryNode, int nextProgramTempVariableCount) : entryNode(entryNode), nextProgramTempVariableCount(nextProgramTempVariableCount) {
-  
+PREOptimizer::PREOptimizer(std::shared_ptr<EntryNode> entryNode, std::unordered_map<std::string, std::string> irDatatypeMap, int nextProgramTempVariableCount) : entryNode(entryNode), irDatatypeMap(irDatatypeMap), nextProgramTempVariableCount(nextProgramTempVariableCount) {   
+}
+
+std::unordered_map<std::string, std::string> PREOptimizer::getUpdatedIRDatatypeMap() const {
+    return irDatatypeMap;
 }
 
 bool PREOptimizer::runPartialRedundancyElimination()
@@ -28,6 +31,9 @@ bool PREOptimizer::runPartialRedundancyElimination()
     for (auto it = allExpressionsToCloneableNodesMap.begin(); it != allExpressionsToCloneableNodesMap.end(); ++it) {
         allExpressions.insert(it->first);
     }
+
+    //reinitialise the irExpressionToDatatypeMap
+    irExpressionToDatatypeMap = AnalysisTools::getAllProgramExpressionsToIRDatatypeMap(entryNode, irDatatypeMap);
 
     //redraw flowgraph to synchronize with the updated IR tree
     startBasicBlock = AnalysisTools::drawFlowgraph(entryNode);
@@ -218,6 +224,7 @@ std::set<std::string> PREOptimizer::getTempExpressionsToAdd(std::shared_ptr<Base
 }
 
 std::shared_ptr<ExpressionNode> PREOptimizer::getNewTempExpressionNodeToAdd(std::string &expression) {
+    std::string IRdatatype = irExpressionToDatatypeMap[expression];
 
     std::string tempVar;
     if (expressionToTempVarMap.find(expression) != expressionToTempVarMap.end()) {
@@ -229,7 +236,10 @@ std::shared_ptr<ExpressionNode> PREOptimizer::getNewTempExpressionNodeToAdd(std:
         tempVar = "_s" + std::to_string(nextProgramTempVariableCount++);
         expressionToTempVarMap[expression] = tempVar;
         //add a declare statement to the start of the program
-        std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(tempVar);
+        std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(IRdatatype, tempVar);
+
+        //add the new variable to the irDatatypeMap
+        irDatatypeMap[tempVar] = IRdatatype;
 
         //insert the declare node at the start of the program after the entry node
         entryNode->insertSandwichChild(declareTempVarNode);
@@ -250,6 +260,8 @@ std::shared_ptr<ExpressionNode> PREOptimizer::getNewTempExpressionNodeToAdd(std:
 }
 
 std::string PREOptimizer::getOrAddNewTempVariableForExpression(std::string &expression) {
+    std::string IRdatatype = irExpressionToDatatypeMap[expression];
+
     //if the expression is already in the map, return the temp variable
     if (expressionToTempVarMap.find(expression) != expressionToTempVarMap.end()) {
         return expressionToTempVarMap[expression];
@@ -262,7 +274,10 @@ std::string PREOptimizer::getOrAddNewTempVariableForExpression(std::string &expr
     expressionToTempVarMap[expression] = programTempVar;
 
     //add a declare statement to the start of the program
-    std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(programTempVar);
+    std::shared_ptr<DeclareNode> declareTempVarNode = std::make_shared<DeclareNode>(IRdatatype, programTempVar);
+
+    //add the new variable to the irDatatypeMap
+    irDatatypeMap[programTempVar] = IRdatatype;
 
     //insert the declare node at the start of the program after the entry node
     //either adding declaration in transformation b) add t=x+y or c) replace x+y with t
