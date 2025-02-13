@@ -39,7 +39,7 @@ class IRSemantics {
         static bool isPosFloat(const std::string &s);                //1.0, 2.0, 3.0, etc.
         static bool isStringConstant(const std::string& item);       //$hello, $world, etc.
 
-        //VARIABLES
+        //VARIABLES - checks a string is of the valid form for each of these:
         static bool isVariable(const std::string &s);                //any type of variable - if not a value, then it is a variable
         static bool isInternalTempVar(const std::string &s);         //_t1, _t2, _t3, etc.
         static bool isCompilerGeneratedVar(const std::string &s);    //_s1, _s2, _s3, etc.

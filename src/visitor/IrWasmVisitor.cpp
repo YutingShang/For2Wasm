@@ -19,6 +19,7 @@
 #include "ReadNode.h"
 #include "BaseNode.h"
 #include "DeclareArrayNode.h"
+#include "DataArrayNode.h"
 #include "IrTypeVisitor.h"
 #include <iostream>
 
@@ -347,6 +348,11 @@ std::string IrWasmVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareAr
     return "generate WASM code for array declaration";
 }
 
+std::string IrWasmVisitor::visitDataArrayNode(const std::shared_ptr<DataArrayNode>& node) {
+    ///TODO: implement generate WASM code for array declaration
+    return "generate WASM code for array declaration";
+}
+
 std::string IrWasmVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node) {
     std::string nodeSrc = node->getSrc();
     std::string wasmCode = "";
@@ -428,6 +434,16 @@ std::string IrWasmVisitor::visitEntryNode(const std::shared_ptr<EntryNode>& node
     }
     // in case it has no children, empty program
     return "";
+}
+
+std::string IrWasmVisitor::visitStoreEltNode(const std::shared_ptr<StoreEltNode>& node) {
+    ///TODO: implement generate WASM code for store element
+    return "generate WASM code for store element";
+}
+
+std::string IrWasmVisitor::visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) {
+    ///TODO: implement generate WASM code for load element
+    return "generate WASM code for load element";
 }
 
 ////////////////////////////////////////////////

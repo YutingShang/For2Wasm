@@ -46,6 +46,14 @@ class IrFlowgraphVisitor : public IrBaseVisitor {
 
         std::string visitEntryNode(const std::shared_ptr<EntryNode>& node) override;
 
+        std::string visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) override;
+
+        std::string visitDataArrayNode(const std::shared_ptr<DataArrayNode>& node) override;    
+
+        std::string visitStoreEltNode(const std::shared_ptr<StoreEltNode>& node) override;
+
+        std::string visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) override;
+
 
 
     private:

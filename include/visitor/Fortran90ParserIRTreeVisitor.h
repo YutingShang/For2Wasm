@@ -74,6 +74,29 @@ public:
 
     virtual std::any visitUnsignedArithmeticConstant(Fortran90Parser::UnsignedArithmeticConstantContext *ctx) override;
 
+    virtual std::any visitEntityDecl(Fortran90Parser::EntityDeclContext *ctx) override;
+
+    virtual std::any visitExplicitShapeSpecList(Fortran90Parser::ExplicitShapeSpecListContext *ctx) override;
+
+    virtual std::any visitDataStmt(Fortran90Parser::DataStmtContext *ctx) override;
+
+    virtual std::any visitDataStmtSet(Fortran90Parser::DataStmtSetContext *ctx) override;
+
+    virtual std::any visitDse1(Fortran90Parser::Dse1Context *ctx) override;
+
+    virtual std::any visitDse2(Fortran90Parser::Dse2Context *ctx) override;
+
+    virtual std::any visitSFExprListRef(Fortran90Parser::SFExprListRefContext *ctx) override;
+
+    virtual std::any visitCommaSectionSubscript(Fortran90Parser::CommaSectionSubscriptContext *ctx) override;    //for writing/storing to multi-dimensional arrays
+
+    virtual std::any visitNameDataRef(Fortran90Parser::NameDataRefContext *ctx) override;
+
+    virtual std::any visitSectionSubscriptRef(Fortran90Parser::SectionSubscriptRefContext *ctx) override;
+
+    virtual std::any visitSectionSubscriptList(Fortran90Parser::SectionSubscriptListContext *ctx) override;    //for reading multi-dimensional arrays
+    
+
     std::unordered_map<std::string, std::string> getStringMap(){
         return stringIndexMap;
     };

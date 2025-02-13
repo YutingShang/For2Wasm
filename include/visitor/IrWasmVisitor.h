@@ -49,6 +49,12 @@ class IrWasmVisitor : public IrBaseVisitor {
 
         std::string visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) override;
 
+        std::string visitDataArrayNode(const std::shared_ptr<DataArrayNode>& node) override;
+
+        std::string visitStoreEltNode(const std::shared_ptr<StoreEltNode>& node) override;
+
+        std::string visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) override;
+
         std::string getMemoryImportCode();
 
         std::string getEntireProgramCode(const std::shared_ptr<BaseNode>& startNode);

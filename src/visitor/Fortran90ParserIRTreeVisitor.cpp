@@ -19,9 +19,14 @@
 #include "EndBlockNode.h"
 #include "ExitNode.h"
 #include "DeclareNode.h"
+#include "DeclareArrayNode.h"
+#include "DataArrayNode.h"
+#include "LoadEltNode.h"
+#include "StoreEltNode.h"
 #include "PrintNode.h"
 #include "ReadNode.h"
 #include "IRSemantics.h"
+
 std::any Fortran90ParserIRTreeVisitor::visitChildren(antlr4::tree::ParseTree *node)
 {
 
@@ -80,23 +85,40 @@ std::any Fortran90ParserIRTreeVisitor::visitTerminal(antlr4::tree::TerminalNode 
 
 std::any Fortran90ParserIRTreeVisitor::visitAssignmentStmt(Fortran90Parser::AssignmentStmtContext *ctx)
 {
-    // assignmentStmt will be in the form <NAME> <ASSIGN> <expression>
-    assert(ctx->children.size() == 3);
+    // assignmentStmt will be in the form <NAME> <SFExprListRef>? <ASSIGN (aka = sign)> <expression>
 
-    // first visit children - recurse on the expression
+    // first visit children - get the variable name
     std::string variableName = std::any_cast<std::string>(ctx->children[0]->accept(this));
-    std::string expression = std::any_cast<std::string>(ctx->children[2]->accept(this));
+    
+    if (dynamic_cast<Fortran90Parser::SFExprListRefContext*>(ctx->children[1]) != nullptr){
+        //if there is a <SFExprListRef> then we are accessing an element of a multi-dimensional array
+        //so we need to create a StoreEltNode instead of a MovNode
+        std::vector<std::string> sectionSubscriptValues = std::any_cast<std::vector<std::string>>(ctx->children[1]->accept(this));
 
-    // then process the current node
-    // create a new SimpleNode with the instruction
-    std::shared_ptr<MovNode> movNode = std::make_shared<MovNode>(variableName, expression);
+        std::string expression = std::any_cast<std::string>(ctx->children[3]->accept(this));
 
-    // assign the previous parent node as the parent of the current node
-    // in this case, the previous parent node would be the expression evaluated
-    previousParentNode.lock()->addChild(movNode);
+        //create a StoreEltNode
+        std::shared_ptr<StoreEltNode> storeEltNode = std::make_shared<StoreEltNode>(variableName, sectionSubscriptValues, expression);
+        previousParentNode.lock()->addChild(storeEltNode);
+        previousParentNode = storeEltNode;
+        
+        
+    }
+    else{
+        //if there is no <SFExprListRef> then we are just assigning a value to a variable
+        std::string expression = std::any_cast<std::string>(ctx->children[2]->accept(this));
 
-    // update the previous parent node to be the current node
-    previousParentNode = movNode;
+        // then process the current node
+        // create a new SimpleNode with the instruction
+        std::shared_ptr<MovNode> movNode = std::make_shared<MovNode>(variableName, expression);
+
+        // assign the previous parent node as the parent of the current node
+        // in this case, the previous parent node would be the expression evaluated
+        previousParentNode.lock()->addChild(movNode);
+
+        // update the previous parent node to be the current node
+        previousParentNode = movNode;
+    }
 
     return nullptr;
     /// QUESTION: what to return for assignmentStmt? nothing if its 'void' instruction?
@@ -393,12 +415,24 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
     else
     {
         // recurse on the entityDeclList
-        std::vector<std::string> variables = std::any_cast<std::vector<std::string>>(ctx->children[entityDeclListIndex]->accept(this));
+        std::pair<std::vector<std::string>, std::vector<std::pair<std::string, std::vector<std::string>>>> entityDeclList = std::any_cast<std::pair<std::vector<std::string>, std::vector<std::pair<std::string, std::vector<std::string>>>>>(ctx->children[entityDeclListIndex]->accept(this));
+        std::vector<std::string> variables = entityDeclList.first;     //normal variables
+        std::vector<std::pair<std::string, std::vector<std::string>>> arrayVariables = entityDeclList.second;    //array variables, each is a pair of (arrayName, dimensions)
+        
+        //process the normal variables
         for (std::string variable : variables)
         {
             std::shared_ptr<DeclareNode> declareNode = std::make_shared<DeclareNode>(datatype, variable);
             previousParentNode.lock()->addChild(declareNode);
             previousParentNode = declareNode;
+        }
+
+        //process the array variables
+        for (std::pair<std::string, std::vector<std::string>> arrayVariable : arrayVariables)
+        {
+            std::shared_ptr<DeclareArrayNode> declareArrayNode = std::make_shared<DeclareArrayNode>(datatype, arrayVariable.first, arrayVariable.second);
+            previousParentNode.lock()->addChild(declareArrayNode);
+            previousParentNode = declareArrayNode;
         }
     }
 
@@ -441,17 +475,64 @@ std::any Fortran90ParserIRTreeVisitor::visitEntityDeclList(Fortran90Parser::Enti
     /// TODO: handle more complex entityDecl (including initialisation etc. if WASM allows it)
 
     std::vector<std::string> variables;
+    std::vector<std::pair<std::string, std::vector<std::string>>> arrayVariables;    //pair of array name and dimension vector
 
-    for (size_t i = 0; i < ctx->children.size(); i += 2)
+    for (size_t i = 0; i < ctx->children.size(); i += 2)   //every 2 children is an entityDecl
     {
-        // for every <entityDecl> child of entityDeclList, assume it is only <objectName> (for now)
-        assert(ctx->children[i]->children.size() == 0); // should not have any children
-
-        variables.push_back(std::any_cast<std::string>(ctx->children[i]->accept(this))); // this will reach a terminal node and return the variable name
+        // for every <entityDecl> child of entityDeclList, if it is only <objectName>, then we can just add it to the variables vector
+        if(ctx->children[i]->children.size() == 0){ // if it does not have any children
+            variables.push_back(std::any_cast<std::string>(ctx->children[i]->accept(this))); // this will reach a terminal node and return the variable name
+        }
+        else{
+            //it is an array (or other more complex entityDecl)
+            ///ASSUME: array for now is the only complex entityDecl
+            std::pair<std::string, std::vector<std::string>> arrayDecl = std::any_cast<std::pair<std::string, std::vector<std::string>>>(ctx->children[i]->accept(this));
+            arrayVariables.push_back(arrayDecl);
+        }
     }
     ///TODO: handle entityDecl if it is an array
 
-    return variables;
+    return std::make_pair(variables, arrayVariables);   //returns a list of both variables and arrayVariables
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitEntityDecl(Fortran90Parser::EntityDeclContext *ctx)
+{
+    //entityDecl will be in the form:
+    //<objectName> ( <explicitShapeSpecList> )
+    //e.g. i(5) or j(1, 2, 3)
+
+    //the <explicitShapeSpecList> might be a single upper bound number, or a list of upper bounds separated by commas
+    //e.g. (5) or (1, 2, 3)
+    //we can just return the list of numbers as a vector of strings
+
+    //should return a pair of (variable, vector of dimensions)
+    std::string variable = ctx->children[0]->getText();
+    std::vector<std::string> dimensions;
+
+    if (dynamic_cast<Fortran90Parser::ExplicitShapeSpecListContext*>(ctx->children[2]) != nullptr){
+        dimensions = std::any_cast<std::vector<std::string>>(ctx->children[2]->accept(this));
+    }
+    else{
+        dimensions.push_back(ctx->children[2]->getText());
+    }
+
+    return std::make_pair(variable, dimensions);
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitExplicitShapeSpecList(Fortran90Parser::ExplicitShapeSpecListContext *ctx)
+{
+    //explicitShapeSpecList will be in the form:
+    //<upperBound> (COMMA <upperBound>)*
+
+    std::vector<std::string> upperBounds;
+
+    for (size_t i = 0; i < ctx->children.size(); i += 2)
+    {
+        upperBounds.push_back(std::any_cast<std::string>(ctx->children[i]->accept(this)));
+    }
+
+    return upperBounds;
+    
 }
 
 std::any Fortran90ParserIRTreeVisitor::visitEquivOperand(Fortran90Parser::EquivOperandContext *ctx)
@@ -837,6 +918,129 @@ std::any Fortran90ParserIRTreeVisitor::visitLoopControl(Fortran90Parser::LoopCon
 
     //return a struct in order to construct a LoopCondNode in BlockDoConstruct
     return loopControl;
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitDataStmt(Fortran90Parser::DataStmtContext *ctx) {
+    //dataStmt
+    //of the form: DATA <dataStmtSet> (COMMA <dataStmtSet>)*
+    
+    for (size_t i = 1; i < ctx->children.size(); i+=2) {   //<dataStmtSet> is every other child starting at index 1
+        ctx->children[i]->accept(this);
+    }
+    return nullptr;
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitDataStmtSet(Fortran90Parser::DataStmtSetContext *ctx) {
+    //dataStmtSet
+    //of the form: <dse1> <dse2>
+    //<dse1> will be an array variable name etc.
+    //<dse2> will be the data values
+
+    //will create a DataArrayNode from both of these information
+    std::string arrayName = std::any_cast<std::string>(ctx->children[0]->accept(this));
+    std::vector<std::string> dataValues = std::any_cast<std::vector<std::string>>(ctx->children[1]->accept(this));
+
+    std::shared_ptr<DataArrayNode> dataArrayNode = std::make_shared<DataArrayNode>(arrayName, dataValues);
+    previousParentNode.lock()->addChild(dataArrayNode);
+    previousParentNode = dataArrayNode;
+
+    return nullptr;
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitDse1(Fortran90Parser::Dse1Context *ctx) {
+    //dse1
+    //of the form: <dataStmtObject> (COMMA <dataStmtObject>)* DIV
+    //<dataStmtObject> will be a variable name (e.g. of an array)
+    ///NOTE: I will just assume the format of initialising one array per DATA statement
+    //so of the form: <dataStmtObject> DIV
+    
+    //just return the array name
+    return std::any_cast<std::string>(ctx->children[0]->accept(this));
+    
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitDse2(Fortran90Parser::Dse2Context *ctx) {
+    //dse2
+    //of the form: <dataStmtValue> (COMMA <dataStmtValue>)* DIV
+    //<dataStmtValue> will be a CONSTANT
+
+    //just return a vector of constants that occur at every other index starting at index 0
+    std::vector<std::string> dataStmtValues;
+    for (size_t i = 0; i < ctx->children.size(); i+=2) {
+        dataStmtValues.push_back(std::any_cast<std::string>(ctx->children[i]->accept(this)));
+    }
+    return dataStmtValues;
+    
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitSFExprListRef(Fortran90Parser::SFExprListRefContext *ctx) {
+    //this is accessing indices for storing to multi-dimensional arrays
+    //of the form: ( <expression> <commaSectionSubscript>* )
+    //<expression> will be a subscript value
+    //<commaSectionSubscript> will be a COMMA followed by a subscript value
+        //so need to concatenate all the subscript values
+    
+    std::vector<std::string> subscriptValues;
+    for (size_t i = 1; i < ctx->children.size()-1; i++) {     //between the LPAREN and the RPAREN brackets
+        subscriptValues.push_back(std::any_cast<std::string>(ctx->children[i]->accept(this)));
+    }
+    return subscriptValues;
+    
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitCommaSectionSubscript(Fortran90Parser::CommaSectionSubscriptContext *ctx) {
+    //of the form: COMMA <sectionSubscript>
+    //just return the sectionSubscript
+    return std::any_cast<std::string>(ctx->children[1]->accept(this));    
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitNameDataRef(Fortran90Parser::NameDataRefContext *ctx) {
+    //NameDataRef for accessing/reading/loading from multi-dimensional arrays
+    //of the form: <name> <sectionSubscriptRef>*
+    //e.g. <name> will be the array name, and <sectionSubscriptRef> will be the section subscript values
+    
+    std::string arrayName = std::any_cast<std::string>(ctx->children[0]->accept(this));
+    
+    //just assume one <sectionSubscriptRef> for now
+    // e.g. accessing y(1, 2, 3), the <sectionSubscriptRef> should be (1, 2, 3)
+    std::vector<std::string> sectionSubscriptValues = std::any_cast<std::vector<std::string>>(ctx->children[1]->accept(this));
+
+    //create a LoadEltNode which stores the result of the array access into a temp variable
+    std::string newTempDest = getNewTempVariableName();
+    std::shared_ptr<LoadEltNode> loadEltNode = std::make_shared<LoadEltNode>(newTempDest, arrayName, sectionSubscriptValues);
+    previousParentNode.lock()->addChild(loadEltNode);
+    previousParentNode = loadEltNode;
+
+    return newTempDest;
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitSectionSubscriptRef(Fortran90Parser::SectionSubscriptRefContext *ctx) {
+    //SectionSubscriptRef
+    //of the form: LPAREN sectionSubscriptList RPAREN
+    //<sectionSubscriptList> will be a list of section subscript values
+    //just return the section subscript values
+    if (dynamic_cast<Fortran90Parser::SectionSubscriptListContext*>(ctx->children[1]) != nullptr){
+        return std::any_cast<std::vector<std::string>>(ctx->children[1]->accept(this));
+    }else{
+
+        //just a single subscript value
+        return std::vector<std::string> {std::any_cast<std::string>(ctx->children[1]->accept(this))};
+    }
+    
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitSectionSubscriptList(Fortran90Parser::SectionSubscriptListContext *ctx) {
+    //SectionSubscriptList
+    //of the form: <sectionSubscript> (COMMA <sectionSubscript>)*
+    //<sectionSubscript> will be a subscript value (e.g. could be expression or constant)
+    //just return a vector of the section subscript values
+    
+    std::vector<std::string> sectionSubscriptValues;
+    for (size_t i = 0; i < ctx->children.size(); i+=2) {    //every other child starting at index 0
+        sectionSubscriptValues.push_back(std::any_cast<std::string>(ctx->children[i]->accept(this)));
+    }
+    return sectionSubscriptValues;
+    
 }
 
 

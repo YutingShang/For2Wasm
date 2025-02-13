@@ -19,6 +19,10 @@ class BaseNode;
 class EntryNode;
 class IfElseNode;
 class TestNode;
+class DeclareArrayNode;
+class DataArrayNode;
+class StoreEltNode;
+class LoadEltNode;
 
 // a visitor interface for the IR tree, visit methods will be used in double dispatch in the nodes 'accept' method
 
@@ -56,4 +60,12 @@ class IrBaseVisitor {
         virtual std::string visitTestNode(const std::shared_ptr<TestNode>& node) = 0;
 
         virtual std::string visitEntryNode(const std::shared_ptr<EntryNode>& node) = 0;
+
+        virtual std::string visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) = 0;
+
+        virtual std::string visitDataArrayNode(const std::shared_ptr<DataArrayNode>& node) = 0;
+
+        virtual std::string visitStoreEltNode(const std::shared_ptr<StoreEltNode>& node) = 0;
+
+        virtual std::string visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) = 0;
 };

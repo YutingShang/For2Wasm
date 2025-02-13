@@ -18,6 +18,10 @@
 #include "ReadNode.h"
 #include "BaseNode.h"
 #include "SimpleNode.h"
+#include "DeclareArrayNode.h"
+#include "DataArrayNode.h"
+#include "StoreEltNode.h"
+#include "LoadEltNode.h"
 
 #include <iostream>
 
@@ -78,6 +82,26 @@ std::string IrFlowgraphVisitor::visitEndBlockNode(const std::shared_ptr<EndBlock
 }
 
 std::string IrFlowgraphVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode> &node)
+{
+    return visitSimpleNode(node);
+}
+
+std::string IrFlowgraphVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode> &node)
+{
+    return visitSimpleNode(node);
+}
+
+std::string IrFlowgraphVisitor::visitDataArrayNode(const std::shared_ptr<DataArrayNode> &node)
+{
+    return visitSimpleNode(node);
+}
+
+std::string IrFlowgraphVisitor::visitStoreEltNode(const std::shared_ptr<StoreEltNode> &node)
+{
+    return visitSimpleNode(node);
+}
+
+std::string IrFlowgraphVisitor::visitLoadEltNode(const std::shared_ptr<LoadEltNode> &node)
 {
     return visitSimpleNode(node);
 }

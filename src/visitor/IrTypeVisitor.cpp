@@ -19,6 +19,9 @@
 #include "ReadNode.h"
 #include "BaseNode.h"
 #include "DeclareArrayNode.h"
+#include "DataArrayNode.h"
+#include "StoreEltNode.h"
+#include "LoadEltNode.h"
 #include <iostream>
 
 IrTypeVisitor::IrTypeVisitor() {
@@ -149,6 +152,19 @@ std::string IrTypeVisitor::visitEntryNode(const std::shared_ptr<EntryNode>& node
 std::string IrTypeVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) {
     return acceptAllChildren(node);
 }
+
+std::string IrTypeVisitor::visitDataArrayNode(const std::shared_ptr<DataArrayNode>& node) {
+    return acceptAllChildren(node);
+}
+
+std::string IrTypeVisitor::visitStoreEltNode(const std::shared_ptr<StoreEltNode>& node) {
+    return acceptAllChildren(node);
+}
+
+std::string IrTypeVisitor::visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) {
+    return acceptAllChildren(node);
+}
+
 
 
 /////////////////////////HELPER FUNCTIONS/////////////////////////
