@@ -83,6 +83,16 @@ TEST(WASMTranslationTest, ArithmeticProgramWASM)
     runWASMTest("arithmetic.f90", "arithmetic.wat");
 }
 
+TEST(WASMTranslationTest, Array1ProgramWASM)
+{
+    runWASMTest("array1.f90", "array1.wat");
+}
+
+TEST(WASMTranslationTest, Array2ProgramWASM)
+{
+    runWASMTest("array2.f90", "array2.wat");
+}
+
 //////////////////////// Helper function definitions ////////////////////////
 
 void runASTStringTest(std::string inputFileName, std::string expectedOutputFileName)

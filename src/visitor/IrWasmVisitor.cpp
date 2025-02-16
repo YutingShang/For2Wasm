@@ -239,7 +239,6 @@ std::string IrWasmVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node
 }
 
 std::string IrWasmVisitor::visitMovNode(const std::shared_ptr<MovNode>& node) {
-    std::cerr << "visitMovNode" << node->getText() << std::endl;
     std::string nodeDest = node->getDest();
     std::string nodeSrc = node->getSrc();
     std::string expectedWasmDatatype;
@@ -582,9 +581,7 @@ std::string IrWasmVisitor::visitLoadEltNode(const std::shared_ptr<LoadEltNode>& 
     wasmCode += arrayWasmDatatype + ".load\n";
 
     //put the value in the destination variable
-    std::cerr << "dest is " << dest << std::endl;
     wasmCode += convertDestToWASM(dest);
-    std::cerr << "current wasm code is " << wasmCode << std::endl;
 
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(*this);
@@ -719,7 +716,6 @@ std::string IrWasmVisitor::convertDestToWASM(const std::string &dest) {
         wasmCode += "local.set $" + dest + "\n";
     }
     //otherwise it is a temp variable, so we leave it on the stack
-    std::cerr << "wasm code added for dest: " << wasmCode << std::endl;
     return wasmCode;
 }
 
@@ -818,7 +814,6 @@ int IrWasmVisitor::getWASMByteSize(const std::string& type) {
 
 std::string IrWasmVisitor::getHexByteInitialisationString(const std::string& number, const std::string& numtype){
     //e.g. returns "\01\00\00\00" for 1 as a i32
-    std::cerr << "getting hex string for number " << number << " of type " << numtype << std::endl;
     if (numtype == "i32"){
             int32_t num = std::stoi(number);
             std::stringstream ss;
@@ -833,7 +828,6 @@ std::string IrWasmVisitor::getHexByteInitialisationString(const std::string& num
                 littleEndianHexString += hexString.substr(i, 2);
             }
 
-            std::cerr << "hexString of i32 number " << number << " is: " << littleEndianHexString << std::endl;
             return littleEndianHexString;
     }
     else if (numtype == "i64"){
@@ -850,7 +844,6 @@ std::string IrWasmVisitor::getHexByteInitialisationString(const std::string& num
             littleEndianHexString += hexString.substr(i, 2);
         }
 
-        std::cerr << "hexString of i64 number " << number << " is: " << littleEndianHexString << std::endl;
         return littleEndianHexString;
     }
     else if (numtype == "f32"){
@@ -874,21 +867,26 @@ std::string IrWasmVisitor::convertIndexOffsetToWASM(const std::vector<std::strin
     std::string wasmCode = "";
     for (int d = indices.size() - 1; d >= 0; d--) {
         //the datatype of the indicies should always be i32
-        std::cerr << "index at " << d << " is " << indices[d] << std::endl;
 
         wasmCode += convertNumberSrcToWASM(indices[d], "i32");     //the index could be a variable
         wasmCode += "i32.const 1\n";  //need to subtract 1 for index calculation since it is 1-based
         wasmCode += "i32.sub\n";   
 
+        //calculate the dimension product from 1 to d-1 statically in the compiler
+        //then do final multiplication at runtime
+        int dimensionProduct = 1;
         for (int i=0; i<d; i++){
-            wasmCode += "i32.const " + std::to_string(dimensions[i]) + "\n";
+            dimensionProduct *= dimensions[i];
+        }
+        if (dimensionProduct != 1){
+            wasmCode += "i32.const " + std::to_string(dimensionProduct) + "\n";
             wasmCode += "i32.mul\n";
         }
+
+        //if not the last index, then add the result to the next index
         if (d<indices.size()-1){
             wasmCode += "i32.add\n";
         }
-
-        std::cerr << "wasm code added is: " << wasmCode << std::endl;
     }
     //integer index has been calculated, but need to multiply by the byte size of the datatype
     wasmCode += "i32.const " + std::to_string(getWASMByteSize(arrayWasmDatatype)) + "\n";
