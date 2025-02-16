@@ -7,7 +7,7 @@ DataArrayNode::DataArrayNode(std::string arrayName, std::vector<std::string> dat
 }
 
 std::string DataArrayNode::getText() const {
-    return "DATA " + arrayName + " " + IRSemantics::getVectorText(dataValues);
+    return "DATA " + arrayName + " " + IRSemantics::getVectorText(getDataValues());
 }
 
 std::shared_ptr<BaseNode> DataArrayNode::cloneContent() const {
@@ -17,7 +17,7 @@ std::shared_ptr<BaseNode> DataArrayNode::cloneContent() const {
 
 /////////////////////////GETTERS AND SETTERS/////////////////////////
 
-std::string DataArrayNode::getArrayName() const {
+std::string DataArrayNode::getArrayVar() const {
     return arrayName;
 }
 

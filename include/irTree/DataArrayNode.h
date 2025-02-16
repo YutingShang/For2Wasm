@@ -14,7 +14,7 @@ public:
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Getters and setters
-    std::string getArrayName() const;
+    std::string getArrayVar() const;
     std::vector<std::string> getDataValues() const;
     void setArrayName(std::string arrayName);
     void setDataValues(std::vector<std::string> dataValues);

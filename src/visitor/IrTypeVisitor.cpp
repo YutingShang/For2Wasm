@@ -133,6 +133,14 @@ std::string IrTypeVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode>& 
     return acceptAllChildren(node);
 }
 
+std::string IrTypeVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) {
+    std::string var = node->getArrayVar();
+    std::string datatype = node->getDatatype();   //declare nodes store the datatype of the array variable
+    variableDatatypeMap[var] = datatype;   
+    arrayVariables.insert(var);   //add to the set of array variables
+    return acceptAllChildren(node);
+}
+
 std::string IrTypeVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node) {
     return acceptAllChildren(node);
 }
@@ -149,10 +157,6 @@ std::string IrTypeVisitor::visitEntryNode(const std::shared_ptr<EntryNode>& node
     return acceptAllChildren(node);
 }
 
-std::string IrTypeVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) {
-    return acceptAllChildren(node);
-}
-
 std::string IrTypeVisitor::visitDataArrayNode(const std::shared_ptr<DataArrayNode>& node) {
     return acceptAllChildren(node);
 }
@@ -162,6 +166,13 @@ std::string IrTypeVisitor::visitStoreEltNode(const std::shared_ptr<StoreEltNode>
 }
 
 std::string IrTypeVisitor::visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) {
+    std::string dest = node->getDest();
+    std::string src = node->getArrayVar();
+
+    if (IRSemantics::isInternalTempVar(dest)) {
+        std::string tempDestDatatype = variableDatatypeMap[src];
+        variableDatatypeMap[dest] = tempDestDatatype;
+    }
     return acceptAllChildren(node);
 }
 

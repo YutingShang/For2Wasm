@@ -8,7 +8,7 @@
 class StoreEltNode : public SimpleNode {
 public:
     //Constructor and destructor
-    StoreEltNode(std::string arrayVar, std::vector<std::string> f_indices, std::string src);   //the indices are given in fortran (1-based), but converted to IR indices (0-based)
+    StoreEltNode(std::string arrayVar, std::vector<std::string> indices, std::string src);   //the indices are given in fortran (1-based), only converted to 0-based in Wasm
     ~StoreEltNode() override = default;
     std::string getText() const override;
     std::shared_ptr<BaseNode> cloneContent() const override;

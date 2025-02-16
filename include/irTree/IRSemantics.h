@@ -52,10 +52,14 @@ class IRSemantics {
         static bool isValidRelOp(const std::string& op);
         static bool isValidDatatype(const std::string& type);
         static bool isValidEndBlock(std::string text);
-
-        //OTHER METHODS
-        static std::string getVectorText(std::vector<std::string> vector);   //turn vector into a tuple looking string (dim1, dim2, dim3, ...) or (index1, index2, index3, ...)
         static std::string findLargestDatatype(const std::string& type1, const std::string& type2);
-        static std::vector<std::string> convertFortranIndicesToIRIndices(const std::vector<std::string>& f_indices);
-       
+
+        //ARRAYS
+      
+        //turn vector (of strings or ints! - overloading method) into a tuple looking string (dim1, dim2, dim3, ...) or (index1, index2, index3, ...) or (data1, data2, data3, ...)
+        static std::string getVectorText(const std::vector<std::string>& string_vector);
+        static std::string getVectorText(const std::vector<int>& int_vector);
+        // static std::vector<std::string> convertFortranIndicesToIRIndices(const std::vector<std::string>& f_indices);
+        static std::vector<int> getIntVector(const std::vector<std::string>& string_vector);   //gets the int vector from a string vector
+        static std::vector<std::string> getStringVector(const std::vector<int>& int_vector);   //gets the string vector from an int vector
 };

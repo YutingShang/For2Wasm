@@ -86,15 +86,19 @@ public:
 
     virtual std::any visitDse2(Fortran90Parser::Dse2Context *ctx) override;
 
+    ////for storing/writing into arrays
     virtual std::any visitSFExprListRef(Fortran90Parser::SFExprListRefContext *ctx) override;
 
-    virtual std::any visitCommaSectionSubscript(Fortran90Parser::CommaSectionSubscriptContext *ctx) override;    //for writing/storing to multi-dimensional arrays
+    virtual std::any visitCommaSectionSubscript(Fortran90Parser::CommaSectionSubscriptContext *ctx) override;    
 
+    ////for reading from arrays
     virtual std::any visitNameDataRef(Fortran90Parser::NameDataRefContext *ctx) override;
 
     virtual std::any visitSectionSubscriptRef(Fortran90Parser::SectionSubscriptRefContext *ctx) override;
 
-    virtual std::any visitSectionSubscriptList(Fortran90Parser::SectionSubscriptListContext *ctx) override;    //for reading multi-dimensional arrays
+    virtual std::any visitSectionSubscriptList(Fortran90Parser::SectionSubscriptListContext *ctx) override; 
+
+    virtual std::any visitConstant(Fortran90Parser::ConstantContext *ctx) override;   //for negative numbers in the data segment   
     
 
     std::unordered_map<std::string, std::string> getStringMap(){

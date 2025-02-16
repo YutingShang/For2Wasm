@@ -12,10 +12,9 @@ public:
     //Getters and setters
     std::string getArrayVar() const;
     std::string getDatatype() const;
-    std::vector<std::string> getArrayDimensions() const;
+    std::vector<int> getArrayDimensions() const;
     void setArrayVar(std::string arrayVar);
     void setDatatype(std::string datatype);
-    void setArrayDimensions(std::vector<std::string> arrayDimensions);
     
 
     //Visitor pattern
@@ -29,6 +28,6 @@ public:
 private:
     std::string arrayVar;
     std::string datatype;
-    std::vector<std::string> arrayDimensions;    //actual dimensions of the array, vector easy for processing - to print, use getArrayDimensionsText
+    std::vector<int> arrayDimensions;    //actual dimensions of the array, vector easy for processing - to print, use getArrayDimensionsText
     
 };

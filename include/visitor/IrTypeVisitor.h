@@ -2,6 +2,7 @@
 
 #include "IrBaseVisitor.h"
 #include <map>
+#include <unordered_set>
 
 //visitor will determine the types of the variables in the IR tree
 //and add them to the variableDatatypeMap
@@ -53,6 +54,8 @@ class IrTypeVisitor : public IrBaseVisitor {
 
         std::unordered_map<std::string, std::string> getVariableIRDatatypeMap();
 
+        std::unordered_set<std::string> getArrayVariables();    //not sure if used
+
 private:
 
     //accepts all children of a node and returns an empty string
@@ -62,6 +65,9 @@ private:
     //initially add PROGRAM VARIABLES to the map when visiting DECLARE statements
     //then add INTERNAL TEMP VARIABLES to the map when visiting other statements and creating those temporary variables
     std::unordered_map<std::string, std::string> variableDatatypeMap;
+
+    //a set of all array variables in the program
+    std::unordered_set<std::string> arrayVariables;
 
     //get the IR datatype of a variable or constant (e.g. input x or _t0 or 3.14, returns INT or REAL etc.)
     std::string getIRNumberDatatype(const std::string& item);

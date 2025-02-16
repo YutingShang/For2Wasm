@@ -1,7 +1,7 @@
 #include "StoreEltNode.h"
 
-StoreEltNode::StoreEltNode(std::string arrayVar, std::vector<std::string> f_indices, std::string src) : 
-arrayVar(arrayVar), indices(IRSemantics::convertFortranIndicesToIRIndices(f_indices)), src(src) {}
+StoreEltNode::StoreEltNode(std::string arrayVar, std::vector<std::string> indices, std::string src) : 
+arrayVar(arrayVar), indices(indices), src(src) {}
 
 std::string StoreEltNode::getText() const {
     return "STORE " + arrayVar + " " + IRSemantics::getVectorText(indices) + " " + src;

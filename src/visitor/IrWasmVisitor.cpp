@@ -20,35 +20,32 @@
 #include "BaseNode.h"
 #include "DeclareArrayNode.h"
 #include "DataArrayNode.h"
+#include "StoreEltNode.h"
+#include "LoadEltNode.h"
 #include "IrTypeVisitor.h"
 #include <iostream>
+#include <iomanip>  //for setfill and setw
 
 IrWasmVisitor::IrWasmVisitor(std::unordered_map<std::string, std::string> &stringMap, std::unordered_map<std::string, std::string> &irDatatypeMap){
     // constructor that converts stringMap to stringMapIndicies
-    unsigned long base_offset = 0;
-    bool importedMemory = false; // only import memory once, and only if there is at least one string
-   
+    
+    // only import memory once, and only if there is at least one string
     for (auto &entry : stringMap)
     {
-        if (!importedMemory) {
-            memoryImportCode = "(import \"js\" \"mem\" (memory 1))\n";
-            importedMemory = true;
+        if (!requiresMemoryImport) {    //for first string, set the memory import to true
+            requiresMemoryImport = true;
         }
         std::string string_to_print = entry.second;
-        //string constants using i32 to specify the offset
-        memoryImportCode += "(data (i32.const " + std::to_string(base_offset) + ") \"" + string_to_print + "\")" + "\n";
-        stringMapIndicies[entry.first] = {base_offset, string_to_print.length()};
-        base_offset += string_to_print.length();
+        //base address of memory always specified as i32
+        stringConstantInitialisationCode += "(data (i32.const " + std::to_string(nextAvailableMemoryOffset) + ") \"" + string_to_print + "\")" + "\n";
+        stringMapIndicies[entry.first] = {nextAvailableMemoryOffset, int(string_to_print.length())};
+        nextAvailableMemoryOffset += string_to_print.length();
     }
 
     //convert irDatatypeMap to variableWASMDatatypeMap
     for (auto &entry : irDatatypeMap) {
         variableWASMDatatypeMap[entry.first] = convertDatatypeToWASM(entry.second);
     }
-}
-
-std::string IrWasmVisitor::getMemoryImportCode() {
-    return memoryImportCode;
 }
 
 std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>& startNode) {
@@ -90,7 +87,13 @@ std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>&
     if (addTempSwapDeclaration_f64) {
         funcHeader += "(local $tempSwap_f64 f64)\n";
     }
-    std::string overallCode = moduleHeader + getMemoryImportCode() + funcHeader + mainCode;
+
+    std::string memoryImportCode = "";
+    if (requiresMemoryImport) {
+        memoryImportCode = "(import \"js\" \"mem\" (memory 1))\n";
+    }
+
+    std::string overallCode = moduleHeader + memoryImportCode + stringConstantInitialisationCode + arrayInitialisationCode + funcHeader + mainCode;
     return overallCode;
 }
 
@@ -127,7 +130,7 @@ std::string IrWasmVisitor::visitArithOpNode(const std::shared_ptr<ArithOpNode>& 
     }
     else if (arithOp == "DIV"){
         if (isWASMIntDatatype(expectedWasmDatatype)){
-            wasmCode += "div_s\n";   //signed division!? (hmm doesn't assume positive numbers? or just consistent with stuff - check edge cases)
+            wasmCode += "div_s\n";   //signed division - because WASM must be able to process negative numbers (irrelevant to my IR)
         }
         else{
             wasmCode += "div\n";    
@@ -236,6 +239,7 @@ std::string IrWasmVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node
 }
 
 std::string IrWasmVisitor::visitMovNode(const std::shared_ptr<MovNode>& node) {
+    std::cerr << "visitMovNode" << node->getText() << std::endl;
     std::string nodeDest = node->getDest();
     std::string nodeSrc = node->getSrc();
     std::string expectedWasmDatatype;
@@ -331,9 +335,9 @@ std::string IrWasmVisitor::visitIfElseNode(const std::shared_ptr<IfElseNode>& no
 }
 
 std::string IrWasmVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode>& node) {
-    std::string wasmDatatype = convertDatatypeToWASM(node->getDatatype());   //convert IR datatype to WASM datatype
     std::string nodeVar = node->getVar();    
-
+    std::string wasmDatatype = variableWASMDatatypeMap[nodeVar];   //get the wasm datatype of the variable
+    
     std::string wasmCode = "(local $" + nodeVar + " " + wasmDatatype + ")\n";
     
     if (node->getChildren().size() == 1) {
@@ -344,49 +348,132 @@ std::string IrWasmVisitor::visitDeclareNode(const std::shared_ptr<DeclareNode>& 
 }
 
 std::string IrWasmVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareArrayNode>& node) {
-    ///TODO: implement generate WASM code for array declaration
-    return "generate WASM code for array declaration";
+    requiresMemoryImport = true;      //having arrays means we need to import memory from JS
+
+    std::string arrayVar = node->getArrayVar();    
+    std::string wasmDatatype = variableWASMDatatypeMap[arrayVar];   //get the wasm datatype of the variable
+    
+    //when declaring an array, need to reserve some memory of the correct size for the array (even if we don't put any data there)
+    //so have a map that stores the base index of the array, and also the size of the array (which we can get from the array type and dimensions)
+    
+    std::vector<int> arrayDimensions = node->getArrayDimensions();
+    int arrayEltSize = 1;
+    for (int dim : arrayDimensions) {
+        arrayEltSize *= dim;
+    }
+
+    int arrayByteSize = arrayEltSize * getWASMByteSize(wasmDatatype);
+
+    arrayVariablesMemoryMap[arrayVar] = {nextAvailableMemoryOffset, arrayDimensions};
+    nextAvailableMemoryOffset += arrayByteSize;
+    
+    //get the rest of the code
+    if (node->getChildren().size() == 1) {
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
+        return restOfCode;
+    }
+    return "";
 }
 
 std::string IrWasmVisitor::visitDataArrayNode(const std::shared_ptr<DataArrayNode>& node) {
-    ///TODO: implement generate WASM code for array declaration
-    return "generate WASM code for array declaration";
+    //byte-addressed array initialisation
+    //e.g (data (i32.const <base address>) "\01\00\00\00\02\00\00\00\03\00\00\00")  ;; Initialize memory with [1, 2, 3]
+    //each 2 hex digits is 1 byte
+
+    //the offset is always specified as i32 (how you interpret the data is a different matter)
+    std::string arrayVar = node->getArrayVar();
+    std::string arrayBaseAddress = std::to_string(arrayVariablesMemoryMap[arrayVar].first);
+    std::string wasmCode = "(data (i32.const " + arrayBaseAddress + ") ";
+   
+    std::string wasmDatatype = variableWASMDatatypeMap[arrayVar];
+    std::vector<std::string> dataValues = node->getDataValues();
+
+    wasmCode += "\"";
+    for (std::string value : dataValues) {
+        wasmCode += getHexByteInitialisationString(value, wasmDatatype);
+    }
+    wasmCode += "\")\n";
+
+    arrayInitialisationCode += wasmCode;    //add the initialisation code for the array
+
+    //return the rest of the code
+    if (node->getChildren().size() == 1) {
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
+        return restOfCode;
+    }
+    return "";
 }
 
 std::string IrWasmVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node) {
     std::string nodeSrc = node->getSrc();
     std::string wasmCode = "";
-    if (IRSemantics::isStringConstant(nodeSrc)) {
-        wasmCode += convertStringSrcToWASM(nodeSrc, stringMapIndicies);
-    }
-    else{ //its a number (const or variable)
-        wasmCode += convertNumberSrcToWASM(nodeSrc, getWASMNumberDatatype(nodeSrc));    //??? need to check src datatype
-    }
+    if (arrayVariablesMemoryMap.find(nodeSrc) != arrayVariablesMemoryMap.end()) {   //print an array
+        std::string arrayBaseAddress = std::to_string(arrayVariablesMemoryMap[nodeSrc].first);
+        std::string arrayDatatype = variableWASMDatatypeMap[nodeSrc];
+        std::vector<int> arrayDimensions = arrayVariablesMemoryMap[nodeSrc].second;
+        int arraySize = 1;
+        for (int dim : arrayDimensions) {
+            arraySize *= dim;
+        }
+        for (int i=0; i<arraySize; i++) {
+            int indexToPrintAt = std::stoi(arrayBaseAddress) + i*getWASMByteSize(arrayDatatype);
+            wasmCode += "i32.const " + std::to_string(indexToPrintAt) + "\n";   //specify the index to load from
+            wasmCode += arrayDatatype + ".load\n";
 
-    ///TODO: handle different datatypes for printing
-    if (IRSemantics::isStringConstant(nodeSrc)) {
-        wasmCode += "call $logString\n";
-        importPrintString = true;
-    } else {
-        std::string numDatatype = getWASMNumberDatatype(nodeSrc);
-        if (numDatatype == "i32"){
-            wasmCode += "call $log_i32\n";
-            importPrint_i32 = true;
+            if (arrayDatatype == "i32"){
+                wasmCode += "call $log_i32\n";
+                importPrint_i32 = true;
+            }
+            else if (arrayDatatype == "i64"){
+                wasmCode += "call $log_i64\n";
+                importPrint_i64 = true;
+            }
+            else if (arrayDatatype == "f32"){
+                wasmCode += "call $log_f32\n";
+                importPrint_f32 = true;
+            }
+            else if (arrayDatatype == "f64"){
+                wasmCode += "call $log_f64\n";
+                importPrint_f64 = true;
+            }
+            else{
+                throw std::runtime_error("Invalid datatype in visitPrintNode: "+arrayDatatype);
+            }
         }
-        else if (numDatatype == "i64"){
-            wasmCode += "call $log_i64\n";
-            importPrint_i64 = true;
+    }else {
+        if (IRSemantics::isStringConstant(nodeSrc)) {
+            wasmCode += convertStringSrcToWASM(nodeSrc, stringMapIndicies);
         }
-        else if (numDatatype == "f32"){
-            wasmCode += "call $log_f32\n";
-            importPrint_f32 = true;
+        else{ //its a number (const or variable)
+            wasmCode += convertNumberSrcToWASM(nodeSrc, getWASMNumberDatatype(nodeSrc));    //??? need to check src datatype
         }
-        else if (numDatatype == "f64"){
-            wasmCode += "call $log_f64\n";
-            importPrint_f64 = true;
-        }
-        else{
-            throw std::runtime_error("Invalid datatype in visitPrintNode: "+numDatatype);
+
+        ///TODO: handle different datatypes for printing - maybe for arrays too??!
+        if (IRSemantics::isStringConstant(nodeSrc)) {
+            wasmCode += "call $logString\n";
+            importPrintString = true;
+        } 
+        else {
+            std::string numDatatype = getWASMNumberDatatype(nodeSrc);
+            if (numDatatype == "i32"){
+                wasmCode += "call $log_i32\n";
+                importPrint_i32 = true;
+            }
+            else if (numDatatype == "i64"){
+                wasmCode += "call $log_i64\n";
+                importPrint_i64 = true;
+            }
+            else if (numDatatype == "f32"){
+                wasmCode += "call $log_f32\n";
+                importPrint_f32 = true;
+            }
+            else if (numDatatype == "f64"){
+                wasmCode += "call $log_f64\n";
+                importPrint_f64 = true;
+            }
+            else{
+                throw std::runtime_error("Invalid datatype in visitPrintNode: "+numDatatype);
+            }
         }
     }
 
@@ -437,13 +524,74 @@ std::string IrWasmVisitor::visitEntryNode(const std::shared_ptr<EntryNode>& node
 }
 
 std::string IrWasmVisitor::visitStoreEltNode(const std::shared_ptr<StoreEltNode>& node) {
-    ///TODO: implement generate WASM code for store element
-    return "generate WASM code for store element";
+    std::string wasmCode = "";
+    std::string arrayVar = node->getArrayVar();
+    std::vector<std::string> indices = node->getIndicies();
+    std::string valueToStore = node->getSrc();
+
+    //value to store may be a temp variable - so we need to save it to restore later in the correct order
+    ///NOTE:since STORE_ELT is a non-commutative operation, the order of the operands is important
+    wasmCode += checkAndSaveTempVarToLocal(arrayVar, valueToStore);
+
+    //get the wasm datatype of the array
+    std::string arrayWasmDatatype = variableWASMDatatypeMap[arrayVar];      //type of the array - take that as the expected datatype
+    // std::string valueWasmDatatype = getWASMNumberDatatype(valueToStore);    //type of the value we are trying store
+
+   
+    //get the offset of the array element to store to - need array dimensions
+    std::vector<int> arrayDimensions = arrayVariablesMemoryMap[arrayVar].second;
+    wasmCode += convertIndexOffsetToWASM(indices, arrayDimensions, arrayWasmDatatype);  //would either compute at runtime or compile time the index
+
+    //add the base address to the offset in the wasm
+    int baseAddress = arrayVariablesMemoryMap[arrayVar].first;
+    wasmCode += "i32.const " + std::to_string(baseAddress) + "\n";
+    wasmCode += "i32.add\n";
+
+    //put the value to store on the stack - might have already been computed - so need to restore from temp swap var
+    wasmCode += convertNumberSrcToWASM(valueToStore, arrayWasmDatatype);
+
+    //<datatype>.store
+    wasmCode += arrayWasmDatatype + ".store\n";
+
+    if (node->getChildren().size() == 1) {
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
+        return wasmCode + restOfCode;
+    }
+    return wasmCode;
 }
 
 std::string IrWasmVisitor::visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) {
-    ///TODO: implement generate WASM code for load element
-    return "generate WASM code for load element";
+    std::string wasmCode = "";
+    std::string arrayVar = node->getArrayVar();
+    std::vector<std::string> indices = node->getIndicies();
+    std::string dest = node->getDest();
+
+    //get the wasm datatype of the array
+    std::string arrayWasmDatatype = variableWASMDatatypeMap[arrayVar];      //type of the array - take that as the expected datatype
+
+    //get the offset of the array element to store to - need array dimensions
+    std::vector<int> arrayDimensions = arrayVariablesMemoryMap[arrayVar].second;
+    wasmCode += convertIndexOffsetToWASM(indices, arrayDimensions, arrayWasmDatatype);  //would either compute at runtime or compile time the index
+
+    //add the base address to the offset in the wasm
+    int baseAddress = arrayVariablesMemoryMap[arrayVar].first;
+    wasmCode += "i32.const " + std::to_string(baseAddress) + "\n";
+    wasmCode += "i32.add\n";
+
+    //put the value to store on the stack
+    wasmCode += arrayWasmDatatype + ".load\n";
+
+    //put the value in the destination variable
+    std::cerr << "dest is " << dest << std::endl;
+    wasmCode += convertDestToWASM(dest);
+    std::cerr << "current wasm code is " << wasmCode << std::endl;
+
+    if (node->getChildren().size() == 1) {
+        std::string restOfCode = node->getChildren()[0]->accept(*this);
+        return wasmCode + restOfCode;
+    }
+    return wasmCode;
+
 }
 
 ////////////////////////////////////////////////
@@ -491,8 +639,7 @@ std::string IrWasmVisitor::convertNumberSrcToWASM(const std::string &operand, st
     }
     //otherwise... IT IS A TEMPORARY VARIABLE 
     //hopefully we don't need to print/get the value, it has been left on the stack
-    //but we need to check if this temp variable is indeed the last one on the stack - if its not, then we must save it on to the 
-    //if so, then we need to pop it off the stack
+    //but it might have been saved to a temporary local variable (operands needed to be swapped) - so we should pop and restore it now
     else if (IRSemantics::isInternalTempVar(operand) && needToRestoreSwappedTemporary)
     {
         wasmCode += "local.get $tempSwap_" + getWASMNumberDatatype(operand) + "\n";
@@ -550,13 +697,13 @@ std::string IrWasmVisitor::convertNumberSrcToWASM(const std::string &operand, st
 }
 
 
-std::string IrWasmVisitor::convertStringSrcToWASM(const std::string &str, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies){
+std::string IrWasmVisitor::convertStringSrcToWASM(const std::string &str, std::unordered_map<std::string, std::array<int, 2>> &stringMapIndicies){
     std::string wasmCode = "";
     if (IRSemantics::isStringConstant(str))
     { // string constant
 
-        unsigned long start_offset = stringMapIndicies[str][0];
-        unsigned long length = stringMapIndicies[str][1];
+        int start_offset = stringMapIndicies[str][0];
+        int length = stringMapIndicies[str][1];
         wasmCode += "i32.const " + std::to_string(start_offset) + "\n" +    //string still use i32 to specify the offset
                     "i32.const " + std::to_string(length) + "\n";
     }else{
@@ -572,6 +719,7 @@ std::string IrWasmVisitor::convertDestToWASM(const std::string &dest) {
         wasmCode += "local.set $" + dest + "\n";
     }
     //otherwise it is a temp variable, so we leave it on the stack
+    std::cerr << "wasm code added for dest: " << wasmCode << std::endl;
     return wasmCode;
 }
 
@@ -653,5 +801,98 @@ std::string IrWasmVisitor::checkAndSaveTempVarToLocal(std::string src1, std::str
             throw std::runtime_error("Invalid datatype in checkAndSaveTempVarToLocal: "+tempDataType);
         }
     }
+    return wasmCode;
+}
+
+int IrWasmVisitor::getWASMByteSize(const std::string& type) {
+    if (type == "i32" || type == "f32") {
+        return 4;
+    }
+    else if (type == "i64" || type == "f64") {
+        return 8;
+    }
+    else{
+        throw std::runtime_error("Invalid datatype in getWASMByteSize: "+type);
+    }
+}
+
+std::string IrWasmVisitor::getHexByteInitialisationString(const std::string& number, const std::string& numtype){
+    //e.g. returns "\01\00\00\00" for 1 as a i32
+    std::cerr << "getting hex string for number " << number << " of type " << numtype << std::endl;
+    if (numtype == "i32"){
+            int32_t num = std::stoi(number);
+            std::stringstream ss;
+            ss << std::setw(8) << std::setfill('0') << std::hex << static_cast<uint32_t>(num);
+            std::string hexString = ss.str();
+            //current format is 00000001
+
+            //turn into little endian and add backslashes
+            std::string littleEndianHexString = "";
+            for (int i = 6; i >= 0; i-=2) {
+                littleEndianHexString += "\\";
+                littleEndianHexString += hexString.substr(i, 2);
+            }
+
+            std::cerr << "hexString of i32 number " << number << " is: " << littleEndianHexString << std::endl;
+            return littleEndianHexString;
+    }
+    else if (numtype == "i64"){
+        int64_t num = std::stoull(number);
+        std::stringstream ss;
+        ss << std::setw(16) << std::setfill('0') << std::hex << num;
+        std::string hexString = ss.str();
+        //current format is 0000000000000001
+
+        //turn into little endian and add backslashes
+        std::string littleEndianHexString = "";
+        for (int i = 14; i >= 0; i-=2) {
+            littleEndianHexString += "\\";
+            littleEndianHexString += hexString.substr(i, 2);
+        }
+
+        std::cerr << "hexString of i64 number " << number << " is: " << littleEndianHexString << std::endl;
+        return littleEndianHexString;
+    }
+    else if (numtype == "f32"){
+        float num = std::stof(number);
+        uint32_t int_rep;
+        std::memcpy(&int_rep, &num, sizeof(float));  // Reinterpret float as uint32_t, since std::hex only works for ints
+        return getHexByteInitialisationString(std::to_string(int_rep), "i32");
+    }
+    else if (numtype == "f64"){
+        double num = std::stod(number);
+        uint64_t int_rep;
+        std::memcpy(&int_rep, &num, sizeof(double));  // Reinterpret double as uint64_t, since std::hex only works for ints
+        return getHexByteInitialisationString(std::to_string(int_rep), "i64");
+    }
+    else{
+        throw std::runtime_error("Invalid datatype in getHexByteInitialisationString: "+numtype);
+    }
+}
+
+std::string IrWasmVisitor::convertIndexOffsetToWASM(const std::vector<std::string>& indices, const std::vector<int>& dimensions, const std::string& arrayWasmDatatype){
+    std::string wasmCode = "";
+    for (int d = indices.size() - 1; d >= 0; d--) {
+        //the datatype of the indicies should always be i32
+        std::cerr << "index at " << d << " is " << indices[d] << std::endl;
+
+        wasmCode += convertNumberSrcToWASM(indices[d], "i32");     //the index could be a variable
+        wasmCode += "i32.const 1\n";  //need to subtract 1 for index calculation since it is 1-based
+        wasmCode += "i32.sub\n";   
+
+        for (int i=0; i<d; i++){
+            wasmCode += "i32.const " + std::to_string(dimensions[i]) + "\n";
+            wasmCode += "i32.mul\n";
+        }
+        if (d<indices.size()-1){
+            wasmCode += "i32.add\n";
+        }
+
+        std::cerr << "wasm code added is: " << wasmCode << std::endl;
+    }
+    //integer index has been calculated, but need to multiply by the byte size of the datatype
+    wasmCode += "i32.const " + std::to_string(getWASMByteSize(arrayWasmDatatype)) + "\n";
+    wasmCode += "i32.mul\n";
+
     return wasmCode;
 }

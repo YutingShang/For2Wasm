@@ -162,23 +162,6 @@ bool IRSemantics::isValidDatatype(const std::string& type) {
     return type == "INT" || type == "INT64" || type == "REAL" || type == "DOUBLE";
 }
 
-/////////////////////////OTHER METHODS/////////////////////////
-
-std::string IRSemantics::getVectorText(std::vector<std::string> vector) {
-    if (vector.empty()) {
-        throw std::runtime_error("Cannot get vector text for empty vector");
-    }
-    std::string tupleText = "(";
-    for (const std::string& value : vector) {
-        tupleText += value + ", ";
-    }
-    // Remove the last comma and space
-    tupleText.pop_back();
-    tupleText.pop_back();
-    tupleText += ")";
-    return tupleText;
-}
-
 std::string IRSemantics::findLargestDatatype(const std::string& type1, const std::string& type2) {
     std::vector<std::string> highestPriority = {"DOUBLE", "REAL", "INT64", "INT"};
     for (int i=0; i<highestPriority.size() ; i++){
@@ -189,11 +172,59 @@ std::string IRSemantics::findLargestDatatype(const std::string& type1, const std
     throw std::runtime_error("Could not find largest datatype between "+type1+" and "+type2);
 }
 
-std::vector<std::string> IRSemantics::convertFortranIndicesToIRIndices(const std::vector<std::string>& f_indices) {
-    std::vector<std::string> ir_indices;
-    for (const std::string& index : f_indices) {
-        ir_indices.push_back(std::to_string(std::stoi(index) - 1));
+/////////////////////////ARRAY METHODS/////////////////////////
+
+std::string IRSemantics::getVectorText(const std::vector<std::string>& string_vector) {
+    if (string_vector.empty()) {
+        throw std::runtime_error("Cannot get vector text for empty vector");
     }
-    return ir_indices;
+    std::string tupleText = "(";
+    for (const std::string& value : string_vector) {
+        tupleText += value + ", ";
+    }
+    // Remove the last comma and space
+    tupleText.pop_back();
+    tupleText.pop_back();
+    tupleText += ")";
+    return tupleText;
 }
 
+std::string IRSemantics::getVectorText(const std::vector<int>& int_vector) {
+    if (int_vector.empty()) {
+        throw std::runtime_error("Cannot get vector text for empty vector");
+    }
+    std::string tupleText = "(";
+    for (const int& value : int_vector) {
+        tupleText += std::to_string(value) + ", ";
+    }
+    // Remove the last comma and space
+    tupleText.pop_back();
+    tupleText.pop_back();
+    tupleText += ")";
+    return tupleText;
+}
+
+
+// std::vector<std::string> IRSemantics::convertFortranIndicesToIRIndices(const std::vector<std::string>& f_indices) {
+//     std::vector<std::string> ir_indices;
+//     for (const std::string& index : f_indices) {
+//         ir_indices.push_back(std::to_string(std::stoi(index) - 1));
+//     }
+//     return ir_indices;
+// }
+
+std::vector<int> IRSemantics::getIntVector(const std::vector<std::string>& string_vector) {
+    std::vector<int> int_vector;
+    for (const std::string& str : string_vector) {
+        int_vector.push_back(std::stoi(str));
+    }
+    return int_vector;
+}
+
+std::vector<std::string> IRSemantics::getStringVector(const std::vector<int>& int_vector) {
+    std::vector<std::string> string_vector;
+    for (const int& num : int_vector) {
+        string_vector.push_back(std::to_string(num));
+    }
+    return string_vector;
+}

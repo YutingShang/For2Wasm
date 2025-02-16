@@ -55,8 +55,6 @@ class IrWasmVisitor : public IrBaseVisitor {
 
         std::string visitLoadEltNode(const std::shared_ptr<LoadEltNode>& node) override;
 
-        std::string getMemoryImportCode();
-
         std::string getEntireProgramCode(const std::shared_ptr<BaseNode>& startNode);
 
     private:
@@ -65,13 +63,16 @@ class IrWasmVisitor : public IrBaseVisitor {
         std::string convertNumberSrcToWASM(const std::string &operand, std::string expectedWasmDatatype);
 
         //for string constants, converts $str1 to the array offset and length to be fetched from the wasm memory
-        std::string convertStringSrcToWASM(const std::string &str, std::unordered_map<std::string, std::array<unsigned long, 2>> &stringMapIndicies);
+        std::string convertStringSrcToWASM(const std::string &str, std::unordered_map<std::string, std::array<int, 2>> &stringMapIndicies);
 
         // dest can be program variables including _s, or internal _t temp variables
         std::string convertDestToWASM(const std::string &dest);
 
         //converts IR datatype to wasm datatype
         std::string convertDatatypeToWASM(const std::string &datatype);
+
+        //converts index offset to wasm code (either compile time computation for constant indices, or runtime computation for variable indices)
+        std::string convertIndexOffsetToWASM(const std::vector<std::string>& indices, const std::vector<int>& dimensions, const std::string& arrayWasmDatatype);
 
         //very simple helper functions for differentiating i32/i64 , f32/f64
         bool isWASMIntDatatype(const std::string& type);     //i32 or i64
@@ -82,15 +83,24 @@ class IrWasmVisitor : public IrBaseVisitor {
         //typically used for finding the datatype of a nodeSrc. Can then use findLargestDatatype 
         std::string getWASMNumberDatatype(const std::string& item);    //e.g. input x or _t0 or 3.14, returns i32 or f32 etc.
 
+        int getWASMByteSize(const std::string& type);
+
+        //e.g. returns "\01\00\00\00" for 1 as a i32
+        std::string getHexByteInitialisationString(const std::string& number, const std::string& numtype);
+
         ///NOTE: stringMapIndicies is from <str_var> -> array<start_offset, length>
         // e.g. where str_var = $str1, start_offset = 50, length = 4
-        std::unordered_map<std::string, std::array<unsigned long, 2>> stringMapIndicies;
+        std::unordered_map<std::string, std::array<int, 2>> stringMapIndicies;
 
         //maps all variables (including internal temp variables) to their WASM datatype (i32, i64, f32, f64)
         //initially add PROGRAM VARIABLES to the map when visiting DECLARE statements
         //then add INTERNAL TEMP VARIABLES to the map when visiting other statements and creating those temporary variables
         std::unordered_map<std::string, std::string> variableWASMDatatypeMap;
-       
+
+        //maps all array variables to their base index and size allocated in memory
+        //array var : <base index, dimensions>
+        std::unordered_map<std::string, std::pair<int, std::vector<int>>> arrayVariablesMemoryMap;
+
         //stack contains the endloop labels of the loops
         std::stack<std::string> exitStack;
 
@@ -100,7 +110,8 @@ class IrWasmVisitor : public IrBaseVisitor {
         bool importPrint_f64 = false;
         bool importPrintString = false;
         bool importRead = false;
-        std::string memoryImportCode = "";
+        std::string stringConstantInitialisationCode = "";
+        std::string arrayInitialisationCode = "";
 
         //return wasm code to save a temporary variable into the tempSwap wasm local variable - so we need to fetch it when we want to use this temp variable
         //currently supports binary operations (could expand for 3, 4, etc. operands)
@@ -112,5 +123,10 @@ class IrWasmVisitor : public IrBaseVisitor {
         bool addTempSwapDeclaration_i64 = false;
         bool addTempSwapDeclaration_f32 = false;
         bool addTempSwapDeclaration_f64 = false;
+
+        //base offset of the memory allocated for the program - e.g. to store arrays or string constants
+        int nextAvailableMemoryOffset = 0;
+
+        bool requiresMemoryImport = false;
 
 };

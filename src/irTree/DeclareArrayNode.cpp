@@ -1,6 +1,6 @@
 #include "DeclareArrayNode.h"
 
-DeclareArrayNode::DeclareArrayNode(std::string datatype, std::string arrayVar, std::vector<std::string> arrayDimensions): arrayDimensions(arrayDimensions){
+DeclareArrayNode::DeclareArrayNode(std::string datatype, std::string arrayVar, std::vector<std::string> arrayDimensions){
     if (!IRSemantics::isProgramVariable(arrayVar)) {
         throw std::runtime_error("Invalid variable name: not a program variable that needs to be declared : " + arrayVar);
     }
@@ -10,7 +10,7 @@ DeclareArrayNode::DeclareArrayNode(std::string datatype, std::string arrayVar, s
     
     this->datatype = datatype;
     this->arrayVar = arrayVar;
-    this->arrayDimensions = arrayDimensions;
+    this->arrayDimensions = IRSemantics::getIntVector(arrayDimensions);
 }
 
 std::string DeclareArrayNode::getText() const {
@@ -18,7 +18,7 @@ std::string DeclareArrayNode::getText() const {
 }
 
 std::shared_ptr<BaseNode> DeclareArrayNode::cloneContent() const {
-    return std::make_shared<DeclareArrayNode>(getDatatype(), getArrayVar(), getArrayDimensions());
+    return std::make_shared<DeclareArrayNode>(getDatatype(), getArrayVar(), IRSemantics::getStringVector(getArrayDimensions()));
 }
 
 
@@ -32,7 +32,7 @@ std::string DeclareArrayNode::getDatatype() const {
     return datatype;
 }
 
-std::vector<std::string> DeclareArrayNode::getArrayDimensions() const {
+std::vector<int> DeclareArrayNode::getArrayDimensions() const {
     return arrayDimensions;
 }
 
@@ -50,9 +50,6 @@ void DeclareArrayNode::setDatatype(std::string datatype) {
     this->datatype = datatype;
 }
 
-void DeclareArrayNode::setArrayDimensions(std::vector<std::string> arrayDimensions) {
-    this->arrayDimensions = arrayDimensions;
-}
 
 /////////////////////////VISITOR PATTERN/////////////////////////
 

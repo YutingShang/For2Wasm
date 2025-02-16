@@ -412,7 +412,7 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
         previousParentNode.lock()->addChild(declareNode);
         previousParentNode = declareNode;
     }
-    else
+    else if (dynamic_cast<Fortran90Parser::EntityDeclListContext*>(ctx->children[entityDeclListIndex]) != nullptr)
     {
         // recurse on the entityDeclList
         std::pair<std::vector<std::string>, std::vector<std::pair<std::string, std::vector<std::string>>>> entityDeclList = std::any_cast<std::pair<std::vector<std::string>, std::vector<std::pair<std::string, std::vector<std::string>>>>>(ctx->children[entityDeclListIndex]->accept(this));
@@ -434,6 +434,12 @@ std::any Fortran90ParserIRTreeVisitor::visitTypeDeclarationStmt(Fortran90Parser:
             previousParentNode.lock()->addChild(declareArrayNode);
             previousParentNode = declareArrayNode;
         }
+    } else if (dynamic_cast<Fortran90Parser::EntityDeclContext*>(ctx->children[entityDeclListIndex]) != nullptr) {
+        //process the entityDecl - would be a single array declaration
+        std::pair<std::string, std::vector<std::string>> entityDecl = std::any_cast<std::pair<std::string, std::vector<std::string>>>(ctx->children[entityDeclListIndex]->accept(this));
+        std::shared_ptr<DeclareArrayNode> declareArrayNode = std::make_shared<DeclareArrayNode>(datatype, entityDecl.first, entityDecl.second);
+        previousParentNode.lock()->addChild(declareArrayNode);
+        previousParentNode = declareArrayNode;
     }
 
     return nullptr;
@@ -971,6 +977,22 @@ std::any Fortran90ParserIRTreeVisitor::visitDse2(Fortran90Parser::Dse2Context *c
     }
     return dataStmtValues;
     
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitConstant(Fortran90Parser::ConstantContext *ctx) {
+    //constant
+    //of the form: (PLUS | MINUS)? unsignedArithmeticConstant
+    //just return the constant if its a negative number
+
+    if (ctx->children[0]->getText() == "+") {    //positive number just return as normal
+        return std::any_cast<std::string>(ctx->children[1]->accept(this));
+    }
+    else if (ctx->children[0]->getText() == "-") {    //negative number just return as normal
+        return "-" + std::any_cast<std::string>(ctx->children[1]->accept(this));   //still works with stoi
+    }
+    else{
+        throw std::runtime_error("ERROR: unknown constant: " + ctx->getText());
+    }
 }
 
 std::any Fortran90ParserIRTreeVisitor::visitSFExprListRef(Fortran90Parser::SFExprListRefContext *ctx) {

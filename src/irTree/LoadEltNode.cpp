@@ -1,7 +1,7 @@
 #include "LoadEltNode.h"
 
-LoadEltNode::LoadEltNode(std::string dest, std::string arrayVar, std::vector<std::string> f_indices) : 
-dest(dest), arrayVar(arrayVar), indices(IRSemantics::convertFortranIndicesToIRIndices(f_indices)) {}
+LoadEltNode::LoadEltNode(std::string dest, std::string arrayVar, std::vector<std::string> indices) : 
+dest(dest), arrayVar(arrayVar), indices(indices) {}
 
 std::string LoadEltNode::getText() const {
     return "LOAD " + dest + " " + arrayVar + " " + IRSemantics::getVectorText(indices);
