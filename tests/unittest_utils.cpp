@@ -17,7 +17,7 @@
 
 using namespace antlr4;
 
-std::string relativeProjectRootPath = "./";      //from where the makefile is run
+std::string relativeProjectRootPath = "../../";      //from where the makefile is run
 
 void run_custom_pipeline_test(std::string inputFileName, std::string expectedOutputFileName, OutputFlag outputFlag, std::vector<OptimisationFlag> optimisationFlags) {
     //reading the input file

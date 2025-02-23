@@ -129,4 +129,11 @@ class IrWasmVisitor : public IrBaseVisitor {
 
         bool requiresMemoryImport = false;
 
+        //default memory size is 1 page, add more pages if you have large arrays etc.
+        int estimatedExtraAllocatedBytes = 0;
+
+        int numPagesNeeded = 1;    //at least 1 page needed
+
+        const int WASM_PAGE_SIZE = 65536;    //each page is 64KiB, use this and the estimatedBytesAllocated to calculate the number of pages needed
+
 };

@@ -20,7 +20,7 @@ include definitions.mk
 GTEST_DIR = $(THIRD_PARTY_DIR)/googletest/googletest
 
 # Where to find user code.
-TEST_SRC_DIR = ./tests
+TEST_SRC_DIR = ../../tests
 TEST_BUILD_DIR = $(BUILD_DIR)/tests
 TEST_INCLUDE_DIR = $(TEST_SRC_DIR)
 

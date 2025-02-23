@@ -3,7 +3,8 @@
 *node_modules
 *.antlr
 .rough
-build
+/build/
+!*/build/ 
 dist
 third-party/googletest
 

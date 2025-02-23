@@ -90,7 +90,8 @@ std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>&
 
     std::string memoryImportCode = "";
     if (requiresMemoryImport) {
-        memoryImportCode = "(import \"js\" \"mem\" (memory 1))\n";
+        numPagesNeeded += (estimatedExtraAllocatedBytes) / WASM_PAGE_SIZE;
+        memoryImportCode = "(import \"js\" \"mem\" (memory " + std::to_string(numPagesNeeded) + "))\n";
     }
 
     std::string overallCode = moduleHeader + memoryImportCode + stringConstantInitialisationCode + arrayInitialisationCode + funcHeader + mainCode;
@@ -362,6 +363,7 @@ std::string IrWasmVisitor::visitDeclareArrayNode(const std::shared_ptr<DeclareAr
     }
 
     int arrayByteSize = arrayEltSize * getWASMByteSize(wasmDatatype);
+    estimatedExtraAllocatedBytes += arrayByteSize;
 
     arrayVariablesMemoryMap[arrayVar] = {nextAvailableMemoryOffset, arrayDimensions};
     nextAvailableMemoryOffset += arrayByteSize;

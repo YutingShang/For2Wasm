@@ -1,7 +1,7 @@
-BUILD_DIR = ./build
-SRC_DIR = ./src
+BUILD_DIR = ../../build
+SRC_DIR = ../../src
 OBJ_DIR = $(BUILD_DIR)/obj
-THIRD_PARTY_DIR = ./third-party
+THIRD_PARTY_DIR = ../../third-party
 GENERATED_DIR = $(BUILD_DIR)/generated
 GENERATED_ANTLR_DIR = $(GENERATED_DIR)/antlr
 
@@ -13,7 +13,7 @@ GENERATED_SRCS = $(GENERATED_ANTLR_DIR)/Fortran90Lexer.cpp \
 # EDIT: change the antlr4-runtime and lib path to the one on your system in LDFLAGS and INCLUDE_DIRS
 # EDIT: add the new include directories to INCLUDE_DIRS
 CXX = g++
-INCLUDE_DIRS = /usr/local/lib/antlr4-runtime ./include/visitor ./include/irTree ./include/utils ./include/flowgraph $(GENERATED_ANTLR_DIR) $(THIRD_PARTY_DIR)/fortran
+INCLUDE_DIRS = /usr/local/lib/antlr4-runtime ../../include/visitor ../../include/irTree ../../include/utils ../../include/flowgraph $(GENERATED_ANTLR_DIR) $(THIRD_PARTY_DIR)/fortran
 CXXFLAGS += -std=c++17 $(foreach dir, $(INCLUDE_DIRS), -I$(dir)) 
 LDFLAGS += -L/usr/local/lib/lib -lantlr4-runtime
 
