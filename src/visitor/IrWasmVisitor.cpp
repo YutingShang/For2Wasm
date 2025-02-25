@@ -75,17 +75,17 @@ std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>&
         moduleHeader += "(import \"console\" \"promptSync\" (func $read (result i32)))\n";
     }
 
-    if (addTempSwapDeclaration_i32) {
-        funcHeader += "(local $tempSwap_i32 i32)\n";
+    if (add_tempSwapDeclaration_i32) {
+        funcHeader += "(local $_tempSwap_i32 i32)\n";
     }
-    if (addTempSwapDeclaration_i64) {
-        funcHeader += "(local $tempSwap_i64 i64)\n";
+    if (add_tempSwapDeclaration_i64) {
+        funcHeader += "(local $_tempSwap_i64 i64)\n";
     }
-    if (addTempSwapDeclaration_f32) {
-        funcHeader += "(local $tempSwap_f32 f32)\n";
+    if (add_tempSwapDeclaration_f32) {
+        funcHeader += "(local $_tempSwap_f32 f32)\n";
     }
-    if (addTempSwapDeclaration_f64) {
-        funcHeader += "(local $tempSwap_f64 f64)\n";
+    if (add_tempSwapDeclaration_f64) {
+        funcHeader += "(local $_tempSwap_f64 f64)\n";
     }
 
     std::string memoryImportCode = "";
@@ -642,7 +642,7 @@ std::string IrWasmVisitor::convertNumberSrcToWASM(const std::string &operand, st
     //but it might have been saved to a temporary local variable (operands needed to be swapped) - so we should pop and restore it now
     else if (IRSemantics::isInternalTempVar(operand) && needToRestoreSwappedTemporary)
     {
-        wasmCode += "local.get $tempSwap_" + getWASMNumberDatatype(operand) + "\n";
+        wasmCode += "local.get $_tempSwap_" + getWASMNumberDatatype(operand) + "\n";
         needToRestoreSwappedTemporary = false;
     }
 
@@ -781,20 +781,20 @@ std::string IrWasmVisitor::checkAndSaveTempVarToLocal(std::string src1, std::str
 
         std::string tempDataType = getWASMNumberDatatype(src2);
         if (tempDataType == "i32") {
-            addTempSwapDeclaration_i32 = true;
-            wasmCode += "local.set $tempSwap_i32\n";
+            add_tempSwapDeclaration_i32 = true;
+            wasmCode += "local.set $_tempSwap_i32\n";
         }
         else if (tempDataType == "i64") {
-            addTempSwapDeclaration_i64 = true;
-            wasmCode += "local.set $tempSwap_i64\n";
+            add_tempSwapDeclaration_i64 = true;
+            wasmCode += "local.set $_tempSwap_i64\n";
         }
         else if (tempDataType == "f32") {
-            addTempSwapDeclaration_f32 = true;
-            wasmCode += "local.set $tempSwap_f32\n";
+            add_tempSwapDeclaration_f32 = true;
+            wasmCode += "local.set $_tempSwap_f32\n";
         }
         else if (tempDataType == "f64") {
-            addTempSwapDeclaration_f64 = true;
-            wasmCode += "local.set $tempSwap_f64\n";
+            add_tempSwapDeclaration_f64 = true;
+            wasmCode += "local.set $_tempSwap_f64\n";
         }
         else{
             throw std::runtime_error("Invalid datatype in checkAndSaveTempVarToLocal: "+tempDataType);

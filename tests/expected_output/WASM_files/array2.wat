@@ -7,7 +7,7 @@
 (data (i32.const 1) "*")
 (data (i32.const 2) "*")
 (func (export "main")
-(local $tempSwap_f32 f32)
+(local $_tempSwap_f32 f32)
 (local $i i32)
 (local $j i32)
 (local $k i32)
@@ -87,7 +87,7 @@ i32.mul
 f32.convert_i32_s
 f32.const 1.00009
 f32.add
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 local.get $l
 i32.const 1
 i32.sub
@@ -113,7 +113,7 @@ i32.const 4
 i32.mul
 i32.const 3
 i32.add
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.store
 local.get $l
 i32.const 1

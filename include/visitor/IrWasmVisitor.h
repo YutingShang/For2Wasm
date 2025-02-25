@@ -113,16 +113,16 @@ class IrWasmVisitor : public IrBaseVisitor {
         std::string stringConstantInitialisationCode = "";
         std::string arrayInitialisationCode = "";
 
-        //return wasm code to save a temporary variable into the tempSwap wasm local variable - so we need to fetch it when we want to use this temp variable
+        //return wasm code to save a temporary variable into the _tempSwap wasm local variable - so we need to fetch it when we want to use this temp variable
         //currently supports binary operations (could expand for 3, 4, etc. operands)
         std::string checkAndSaveTempVarToLocal(std::string src1, std::string src2);    
 
-        bool needToRestoreSwappedTemporary = false;    //set to true when we have stored a temporary variable into the tempSwap wasm local variable
+        bool needToRestoreSwappedTemporary = false;    //set to true when we have stored a temporary variable into the _tempSwap wasm local variable
 
-        bool addTempSwapDeclaration_i32 = false;  //hopefully just one variable of each type needs to be added to the top declaration section if required
-        bool addTempSwapDeclaration_i64 = false;
-        bool addTempSwapDeclaration_f32 = false;
-        bool addTempSwapDeclaration_f64 = false;
+        bool add_tempSwapDeclaration_i32 = false;  //hopefully just one variable of each type needs to be added to the top declaration section if required
+        bool add_tempSwapDeclaration_i64 = false;
+        bool add_tempSwapDeclaration_f32 = false;
+        bool add_tempSwapDeclaration_f64 = false;
 
         //base offset of the memory allocated for the program - e.g. to store arrays or string constants
         int nextAvailableMemoryOffset = 0;

@@ -24,8 +24,8 @@
 (data (i32.const 349) "-(-3.14) = ")
 (data (i32.const 360) "12/ (16/(8-4)) = ")
 (func (export "main")
-(local $tempSwap_i32 i32)
-(local $tempSwap_f32 f32)
+(local $_tempSwap_i32 i32)
+(local $_tempSwap_f32 f32)
 (local $p i32)
 (local $q i32)
 (local $r i32)
@@ -166,9 +166,9 @@ local.get $d
 f32.div
 local.get $e
 f32.div
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 local.get $a
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.sub
 local.set $k
 i32.const 224
@@ -198,9 +198,9 @@ local.get $d
 f32.div
 local.get $e
 f32.div
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 local.get $a
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.sub
 local.set $k
 i32.const 184
@@ -226,15 +226,15 @@ call $log_f32
 local.get $d
 local.get $e
 f32.div
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 local.get $c
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.div
 local.get $b
 f32.mul
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 local.get $a
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.sub
 local.set $k
 i32.const 256
@@ -289,18 +289,18 @@ local.set $p
 f32.const 0
 f32.const 3.14
 f32.sub
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 f32.const 0
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.sub
 f64.promote_f32
 local.set $x
 i32.const 1
 i32.const 5
 i32.sub
-local.set $tempSwap_i32
+local.set $_tempSwap_i32
 i32.const 8
-local.get $tempSwap_i32
+local.get $_tempSwap_i32
 i32.div_s
 i32.const 3
 i32.add
@@ -333,17 +333,17 @@ call $log_i32
 i32.const 0
 i32.const 3
 i32.sub
-local.set $tempSwap_i32
+local.set $_tempSwap_i32
 i32.const 4
-local.get $tempSwap_i32
+local.get $_tempSwap_i32
 i32.div_s
 call $log_i32
 i32.const 0
 i32.const 3
 i32.sub
-local.set $tempSwap_i32
+local.set $_tempSwap_i32
 i32.const 0
-local.get $tempSwap_i32
+local.get $_tempSwap_i32
 i32.sub
 call $log_i32
 local.get $q
@@ -351,13 +351,13 @@ call $log_i32
 f32.const 8
 f32.const 4.01
 f32.sub
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 f32.const 16
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.div
-local.set $tempSwap_f32
+local.set $_tempSwap_f32
 f32.const 12
-local.get $tempSwap_f32
+local.get $_tempSwap_f32
 f32.div
 f64.promote_f32
 local.set $z
