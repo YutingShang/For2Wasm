@@ -68,8 +68,8 @@ std::shared_ptr<BaseNode> LoopCondNode::getStepNode() const {
     return this->children[3];
 }
 
-std::shared_ptr<BaseNode> LoopCondNode::getEndLoopNode() const {
-    return this->children[4];
+std::shared_ptr<EndBlockNode> LoopCondNode::getEndLoopNode() const {
+    return std::dynamic_pointer_cast<EndBlockNode>(this->children[4]);
 }
 
 /////////////////////////VISITOR PATTERN/////////////////////////

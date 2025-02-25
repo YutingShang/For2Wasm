@@ -33,6 +33,7 @@
 #include "SimplificationOptimisations.h"
 #include "PropagationOptimizer.h"
 #include "PREOptimizer.h"
+#include "LoopTiling.h"
 #include "VBE.h"
 #include "AVAIL_PRE.h"
 #include "POST.h"
@@ -203,6 +204,10 @@ int main(int argc, const char **argv)
       preOptimizer.iteratePRE_CopyPropagation();
       nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
       irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
+    }
+    else if (optFlag == "-tiling") {
+      LoopTiling tiling(entryNode);
+      tiling.getPerfectlyNestedLoops();
     }
   }
 

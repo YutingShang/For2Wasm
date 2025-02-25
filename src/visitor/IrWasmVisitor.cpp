@@ -532,6 +532,7 @@ std::string IrWasmVisitor::visitStoreEltNode(const std::shared_ptr<StoreEltNode>
 
     //value to store may be a temp variable - so we need to save it to restore later in the correct order
     ///NOTE:since STORE_ELT is a non-commutative operation, the order of the operands is important
+    //this isn't quite right - but we don't support storing to index where you calculate the value e.g. a(i+1) = b(i)
     wasmCode += checkAndSaveTempVarToLocal(arrayVar, valueToStore);
 
     //get the wasm datatype of the array

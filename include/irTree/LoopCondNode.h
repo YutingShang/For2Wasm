@@ -27,7 +27,7 @@ class LoopCondNode : public BaseNode {
         std::shared_ptr<BaseNode> getCondNode() const;
         std::shared_ptr<BaseNode> getBodyNode() const;
         std::shared_ptr<BaseNode> getStepNode() const;
-        std::shared_ptr<BaseNode> getEndLoopNode() const;
+        std::shared_ptr<EndBlockNode> getEndLoopNode() const;
 
         //Visitor pattern
         std::string accept(IrBaseVisitor& visitor) override;
