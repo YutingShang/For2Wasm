@@ -53,13 +53,16 @@ class LoopTiling {
         //nest the inner loopCondNode inside the outer loopCondNode, sandwich before the ENDBODY of the outer loopCondNode
         void nestLoopCondNodes(std::shared_ptr<LoopCondNode> outerLoopCondNode, std::shared_ptr<LoopCondNode> innerLoopCondNode);
 
-        // //also need to keep track of what variable declarations to add for the tiled loops
-        // std::vector<std::string> tilingVariableDeclarationsToAdd;
-        // void addAllTilingVariableDeclarations();
-        //keep track of which variables have already been added to the entry node (declarations)
+        //keep track of which variables have already been added to the entry node (declarations), so we don't add them again
         std::vector<std::string> tilingVariablesAdded;
 
-        //then later need to modify the original loopCondNode to have the correct bounds
-        void modifyOriginalLoopCondNodeBounds(std::shared_ptr<LoopCondNode> loopCondNode, std::string newLowerBoundVariable, std::string newUpperBoundVariable);
+        //returns a pair of the top and bottom nodes of the copied arithmetic condition (copied from the original condition node)
+        std::pair<std::shared_ptr<ArithOpNode>, std::shared_ptr<ArithOpNode>> getCopyOfArithCondition(std::shared_ptr<ArithOpNode> startArithOpNode);
+
+        //get the original upper bound of the loopCondNode (i.e. goes all the way down and finds the actual upper bound, e.g. (GT _t2 i B), then returns B)
+        std::string getOriginalUpperBound(std::shared_ptr<LoopCondNode> loopCondNode);
+
+        //modify the upper bound of the loopCondNode, by replacing the original loop variable with the new loop variable
+        void modifyUpperBoundCondNode(std::shared_ptr<LoopCondNode> loopCondNode, std::string newLoopVariable);
 
 };
