@@ -14,6 +14,7 @@
 #include "IrTypeVisitor.h"
 #include "EntryNode.h"
 #include "PREOptimizer.h"
+#include "LoopTiling.h"
 
 using namespace antlr4;
 
@@ -116,6 +117,10 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
                     preOptimizer.iteratePRE_CopyPropagation();
                     nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
                     irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
+                }else if (optimisationFlag == Tile){
+                    LoopTiling tiling(entryNode, irVisitor.getNextLoopLabelNumber(), irVisitor.getNextIfLabelNumber(), irVisitor.getNextTempVariableCount(), irDatatypeMap);
+                    tiling.runLoopTiling();
+                    irDatatypeMap = tiling.getUpdatedIRDatatypeMap();
                 }
             }
         }

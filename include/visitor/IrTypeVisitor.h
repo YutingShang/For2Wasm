@@ -4,7 +4,7 @@
 #include <map>
 #include <unordered_set>
 
-//visitor will determine the types of the variables in the IR tree
+//visitor will determine the types of the variables (including internal temp variables) in the IR tree
 //and add them to the variableDatatypeMap
 
 class IrTypeVisitor : public IrBaseVisitor {

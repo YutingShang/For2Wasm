@@ -205,9 +205,10 @@ int main(int argc, const char **argv)
       nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
       irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
     }
-    else if (optFlag == "-tiling") {
-      LoopTiling tiling(entryNode);
-      tiling.getPerfectlyNestedLoops();
+    else if (optFlag == "-tile") {
+      LoopTiling tiling(entryNode, irTreeVisitor.getNextLoopLabelNumber(), irTreeVisitor.getNextIfLabelNumber(), irTreeVisitor.getNextTempVariableCount(), irDatatypeMap);
+      tiling.runLoopTiling();
+      irDatatypeMap = tiling.getUpdatedIRDatatypeMap();
     }
   }
 

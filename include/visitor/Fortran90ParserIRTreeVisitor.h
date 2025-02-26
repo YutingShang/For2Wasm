@@ -109,6 +109,10 @@ public:
     //different to private getNewTempVariableName(), which modifies the tempVariableCount
     int getNextTempVariableCount();
 
+    int getNextLoopLabelNumber();
+
+    int getNextIfLabelNumber();
+
 private:
     // the parser to access the rule names
     Fortran90Parser &parser;
@@ -128,7 +132,7 @@ private:
     std::string getDatatype(std::string typeSpec, int byteSize = 0);   //might be like INTEGER(8) or REAL(4) etc. default 0 ignore
  
     int ifCount = 0; // for naming the [if..else..endif] block labels, each control structure will have the same number
-    int loopCount = 0;
+    int loopCount = 0;  //the next loop label number for LoopCondNode or LoopNode
 
     std::weak_ptr<BaseNode> previousParentNode;     // store the previous parent node in the flow diagram, so we can assign the current node as a child of the previous parent node
 

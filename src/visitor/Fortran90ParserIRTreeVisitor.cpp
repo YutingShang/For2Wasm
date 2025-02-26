@@ -1166,3 +1166,11 @@ int Fortran90ParserIRTreeVisitor::getNextTempVariableCount()
 {
     return tempVariableCount;
 }
+
+int Fortran90ParserIRTreeVisitor::getNextLoopLabelNumber() {
+    return loopCount;
+}
+
+int Fortran90ParserIRTreeVisitor::getNextIfLabelNumber() {
+    return ifCount;
+}

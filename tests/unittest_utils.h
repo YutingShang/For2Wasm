@@ -16,6 +16,7 @@ enum OptimisationFlag {
     IterCSE_CP,
     PRE,
     IterPRE_CP,
+    Tile
 };
 
 enum OutputFlag {
