@@ -1,5 +1,6 @@
 #include "IfNode.h"
 #include "IfElseNode.h"
+#include <iostream>
 
 IfNode::IfNode(std::string labelNumber): labelNumber(labelNumber) {
     conditionLabel = "cond" + labelNumber;
@@ -149,10 +150,11 @@ std::shared_ptr<IfElseNode> IfNode::convertToIfElseNode() {
     ifElseNode->addChild(endElseNode);          //else block
     ifElseNode->addChild(endIfChild);    //endif block
 
-    //get the current node's parent and add the new node to the parent
+    //get the current node's parent and add the new node to the parent AT THE SAME POSITION
     std::shared_ptr<BaseNode> parent = this->getParent();
+    int indexInParent = this->getPositionInParent();
     parent->removeChild(*this);
-    parent->addChild(ifElseNode);
+    parent->addChildAtIndex(ifElseNode, indexInParent);
     
     return ifElseNode;
 }

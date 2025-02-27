@@ -221,14 +221,27 @@ std::string IrWasmVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node
         wasmCode += "eq\n";
     else if (relOp == "NE")
         wasmCode += "ne\n";
-    else if (relOp == "LT")
-        wasmCode += "lt_s\n";
-    else if (relOp == "GT")
-        wasmCode += "gt_s\n";
-    else if (relOp == "LE")
-        wasmCode += "le_s\n";
-    else if (relOp == "GE")
-        wasmCode += "ge_s\n";
+    else {
+        if (isWASMIntDatatype(expectedWasmDatatype)) {
+            if (relOp == "LT")
+                wasmCode += "lt_s\n";
+            else if (relOp == "GT")
+                wasmCode += "gt_s\n";
+            else if (relOp == "LE")
+                wasmCode += "le_s\n";
+            else if (relOp == "GE")
+                wasmCode += "ge_s\n";
+        } else {     //float data type - don't have the _s
+            if (relOp == "LT")
+                wasmCode += "lt\n";
+            else if (relOp == "GT")
+                wasmCode += "gt\n";
+            else if (relOp == "LE")
+                wasmCode += "le\n";
+            else if (relOp == "GE")
+                wasmCode += "ge\n";
+        }
+    }
 
     wasmCode += convertDestToWASM(nodeDest);
 
