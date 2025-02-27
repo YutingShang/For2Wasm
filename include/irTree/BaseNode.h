@@ -34,7 +34,7 @@ class BaseNode: public std::enable_shared_from_this<BaseNode> {
         //used in copy propagation to replace a referenced variable with a new variable
         //a substitution [y/x] means all instances of referenced variable x are replaced with y
         // e.g. x+x -> y+y, where referenced var set only contained {x}
-        //NOTE: only need to be implemented by nodes that have non-empty referenced var set
+        ///NOTE: only need to be implemented by nodes that have non-empty referenced var set
         //default implementation is to do nothing
         virtual void replaceReferencedVariable(std::string oldVar, std::string newVar);
 

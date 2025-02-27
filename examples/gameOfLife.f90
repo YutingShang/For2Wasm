@@ -1,5 +1,6 @@
 ! running PRE makes it take longer
 ! regression test for fixed error - ifElseNode was not being added to the parent at the correct position
+! another regression test for constant propagation - LoadElt and StoreElt did not have replaceReferencedVariable implemented
 
 program game_of_life
     implicit none

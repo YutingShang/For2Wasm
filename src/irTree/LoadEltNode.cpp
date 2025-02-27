@@ -65,3 +65,14 @@ std::set<std::string> LoadEltNode::getDefinedVariables() const {
 std::set<std::string> LoadEltNode::getReferencedExpressions() const {
     return {};
 }
+
+void LoadEltNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    for (auto& index : indices) {
+        if (index == oldVar) {
+            index = newVar;
+        }
+    }
+    if (arrayVar == oldVar) {
+        arrayVar = newVar;
+    }
+}

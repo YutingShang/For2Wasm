@@ -67,6 +67,18 @@ std::set<std::string> StoreEltNode::getReferencedExpressions() const {
     return {};
 }
 
+void StoreEltNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {
+    for (auto& index : indices) {
+        if (index == oldVar) {
+            index = newVar;
+        }
+    }
+
+    if (arrayVar == oldVar) {
+        arrayVar = newVar;
+    }
+}
+
 
 
 

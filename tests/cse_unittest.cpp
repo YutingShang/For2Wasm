@@ -23,6 +23,9 @@ void run_iterCSE_CP_const_DCE_IRStringTest(std::string inputFileName, std::strin
 void run_const_iterCSE_CP_DCE_WASMTest(std::string inputFileName, std::string expectedOutputFileName);
 void run_iterCSE_CP_const_DCE_WASMTest(std::string inputFileName, std::string expectedOutputFileName);
 
+//CSE then CP once
+void run_CSE_CP_WASMTest(std::string inputFileName, std::string expectedOutputFileName);
+
 
 //////////////////////// Tests ///////////////////////////////////////////////
 TEST(CSEOptimisationTest, Common1ProgramCSEIR)
@@ -112,6 +115,13 @@ TEST(CSE_IterCSE_CPOptimisationTest, Common2ProgramIterCSE_CP_DCEWASM)
     run_const_iterCSE_CP_DCE_WASMTest("common2.f90", "common2_iterCSE-CP_const_DCE.wat");    //const before iterCSE_CP should not affect the output
 }
 
+// a regression test for fixed error - LoadElt and StoreElt did not have replaceReferencedVariable implemented
+TEST(CSE_IterCSE_CPOptimisationTest, GameOfLifeProgramCSE_CP_WASM)
+{
+    run_CSE_CP_WASMTest("gameOfLife.f90", "gameOfLife_CSE_CP.wat");
+}
+
+
 //////////////////////// Helper function definitions ////////////////////////
 
 void run_CSE_IRStringTest(std::string inputFileName, std::string expectedOutputFileName)
@@ -155,6 +165,9 @@ void run_iterCSE_CP_const_DCE_WASMTest(std::string inputFileName, std::string ex
     run_custom_pipeline_test(inputFileName, expectedOutputFileName, WASM, {IterCSE_CP, Const, DCE});
 }
 
-
+void run_CSE_CP_WASMTest(std::string inputFileName, std::string expectedOutputFileName)
+{
+    run_custom_pipeline_test(inputFileName, expectedOutputFileName, WASM, {CSE, CP});
+}
 
 

@@ -29,6 +29,8 @@ public:
     std::set<std::string> getDefinedVariables() const override;
     std::set<std::string> getReferencedExpressions() const override;
 
+    void replaceReferencedVariable(std::string oldVar, std::string newVar) override;
+
 private:
     std::string arrayVar;
     std::vector<std::string> indices;
