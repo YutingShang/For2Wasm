@@ -8,6 +8,7 @@
 void run_PRE_WASMTest(std::string inputFileName, std::string expectedOutputFileName);
 void run_iterPRE_CP_WASMTest(std::string inputFileName, std::string expectedOutputFileName);
 void run_iterPRE_CP_const_DCE_WASMTest(std::string inputFileName, std::string expectedOutputFileName);
+void run_iterPRE_CP_DCE_simplify_WASMTest(std::string inputFileName, std::string expectedOutputFileName);
 
 //////////////////////// Tests ///////////////////////////////////////////////
 TEST(PREOptimisationTest, PartialRedundant1ProgramPREWASM)
@@ -50,6 +51,11 @@ TEST(PREOptimisationTest, GameOfLifeProgramPREWASM)
     run_PRE_WASMTest("gameOfLife.f90", "gameOfLife_PRE.wat");
 }
 
+TEST(PREOptimisationTest, ImageFilterProgramIterPRE_CP_DCE_simplifyWASM)
+{
+    run_iterPRE_CP_DCE_simplify_WASMTest("imageFilter.f90", "imageFilter_iterPRE_CP_DCE_simplify.wat");
+}
+
 
 //////////////////////// Helper function definitions ////////////////////////
 
@@ -68,6 +74,10 @@ void run_iterPRE_CP_const_DCE_WASMTest(std::string inputFileName, std::string ex
     run_custom_pipeline_test(inputFileName, expectedOutputFileName, WASM, {IterPRE_CP, Const, DCE});
 }
 
+void run_iterPRE_CP_DCE_simplify_WASMTest(std::string inputFileName, std::string expectedOutputFileName)
+{
+    run_custom_pipeline_test(inputFileName, expectedOutputFileName, WASM, {IterPRE_CP, DCE, Simplify});
+}
 
 
 

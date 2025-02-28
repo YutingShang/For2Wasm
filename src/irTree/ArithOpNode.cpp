@@ -105,6 +105,7 @@ std::set<std::string> ArithOpNode::getReferencedExpressions() const {
     if (op == "SUB") return {src1 + "-" + src2};
     if (op == "MUL") return {src1 + "*" + src2};
     if (op == "DIV") return {src1 + "/" + src2};
+    if (op == "POW") return {src1 + "^" + src2};
     
     throw std::runtime_error("Invalid arithmetic operation: " + op);
 }

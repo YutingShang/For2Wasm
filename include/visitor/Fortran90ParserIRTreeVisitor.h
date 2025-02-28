@@ -48,6 +48,8 @@ public:
 
     virtual std::any visitAndOperand(Fortran90Parser::AndOperandContext *ctx) override;
 
+    virtual std::any visitMultOperand(Fortran90Parser::MultOperandContext *ctx) override;
+
     virtual std::any visitLevel4Expr(Fortran90Parser::Level4ExprContext *ctx) override;
 
     virtual std::any visitIfConstruct(Fortran90Parser::IfConstructContext *ctx) override;

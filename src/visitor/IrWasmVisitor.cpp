@@ -74,6 +74,9 @@ std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>&
     if (importRead) {
         moduleHeader += "(import \"console\" \"promptSync\" (func $read (result i32)))\n";
     }
+    if (importMathPow) {
+        moduleHeader += "(import \"math\" \"pow\" (func $pow (param f64 f64) (result f64)))\n";   //convert operands to f64 before calling pow
+    }
 
     if (add_tempSwapDeclaration_i32) {
         funcHeader += "(local $_tempSwap_i32 i32)\n";
@@ -113,28 +116,53 @@ std::string IrWasmVisitor::visitArithOpNode(const std::shared_ptr<ArithOpNode>& 
     }
 
     std::string wasmCode = "";
-    if (arithOp == "SUB" || arithOp == "DIV"){   //non-commutative operations
+    if (arithOp == "SUB" || arithOp == "DIV" || arithOp == "POW"){   //non-commutative operations
         wasmCode += checkAndSaveTempVarToLocal(nodeSrc1, nodeSrc2);   //need to check whether you need to swap operands (i.e. save then restore) on the stack
     }
-    wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
+    if (arithOp == "POW"){
+        //convert both operands to f64
+        wasmCode += convertNumberSrcToWASM(nodeSrc1, "f64") + convertNumberSrcToWASM(nodeSrc2, "f64");
+    }
+    else{
+        wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
+    }
 
-    
-    wasmCode += expectedWasmDatatype + ".";     //e.g. i32.add
-    if (arithOp =="ADD"){
-        wasmCode += "add\n";
-    }
-    else if (arithOp == "SUB"){
-        wasmCode += "sub\n";
-    }
-    else if (arithOp == "MUL"){
-        wasmCode += "mul\n";
-    }
-    else if (arithOp == "DIV"){
-        if (isWASMIntDatatype(expectedWasmDatatype)){
-            wasmCode += "div_s\n";   //signed division - because WASM must be able to process negative numbers (irrelevant to my IR)
+    //first check for POW - special handling
+    if (arithOp == "POW"){
+        if (expectedWasmDatatype == "i64"){
+            throw std::runtime_error("POW operation not supported for i64");
         }
-        else{
-            wasmCode += "div\n";    
+        importMathPow = true;
+        wasmCode += "call $pow\n";
+        
+        if (expectedWasmDatatype != "f64"){    //need to convert result back to expectedWasmDatatype   
+            if (isWASMIntDatatype(expectedWasmDatatype)){      //f64 -> int : truncation_s
+                wasmCode += expectedWasmDatatype + ".trunc_f64_s\n";
+            }else if (expectedWasmDatatype == "f32"){    //f64 -> f32 : demotion
+                wasmCode += "f32.demote_f64\n";
+            }else{
+                throw std::runtime_error("Invalid destination in visitArithOpNode: "+nodeDest);
+            }
+        }
+    }
+    else{
+        wasmCode += expectedWasmDatatype + ".";     //e.g. i32.add
+        if (arithOp =="ADD"){
+            wasmCode += "add\n";
+        }
+        else if (arithOp == "SUB"){
+            wasmCode += "sub\n";
+        }
+        else if (arithOp == "MUL"){
+            wasmCode += "mul\n";
+        }
+        else if (arithOp == "DIV"){
+            if (isWASMIntDatatype(expectedWasmDatatype)){
+                wasmCode += "div_s\n";   //signed division - because WASM must be able to process negative numbers (irrelevant to my IR)
+            }
+            else{
+                wasmCode += "div\n";    
+            }
         }
     }
 
@@ -633,13 +661,23 @@ std::string IrWasmVisitor::convertNumberSrcToWASM(const std::string &operand, st
         //so first have the float, then truncate it to an integer
         else if (expectedWasmDatatype == "i32")
         {
-            wasmCode += "f32.const " + operand + "\n";   //first print out the float constant of the same no. bytes
-            wasmCode += "i32.trunc_f32_s\n";             //then truncate it to match the expected datatype
+            if (IRSemantics::isPosFloat32(operand)) {
+                wasmCode += "f32.const " + operand + "\n";   //first print out the float constant of the same no. bytes
+                wasmCode += "i32.trunc_f32_s\n";             //then truncate it to match the expected datatype
+            } else if (IRSemantics::isPosFloat64(operand)) {
+                wasmCode += "f64.const " + operand + "\n";   
+                wasmCode += "i32.trunc_f64_s\n";             
+            }
         }
         else if (expectedWasmDatatype == "i64")
         {
-            wasmCode += "f32.const " + operand + "\n";
-            wasmCode += "i64.trunc_f32_s\n";
+            if (IRSemantics::isPosFloat32(operand)) {
+                wasmCode += "f32.const " + operand + "\n";
+                wasmCode += "i64.trunc_f32_s\n";
+            } else if (IRSemantics::isPosFloat64(operand)) {
+                wasmCode += "f64.const " + operand + "\n";
+                wasmCode += "i64.trunc_f64_s\n";
+            }
         }
         else{
             throw std::runtime_error("Could not convert float "+operand+" to "+expectedWasmDatatype);

@@ -74,8 +74,8 @@ void StoreEltNode::replaceReferencedVariable(std::string oldVar, std::string new
         }
     }
 
-    if (arrayVar == oldVar) {
-        arrayVar = newVar;
+    if (src == oldVar) {
+        src = newVar;
     }
 }
 

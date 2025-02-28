@@ -230,6 +230,27 @@ std::any Fortran90ParserIRTreeVisitor::visitAddOperand(Fortran90Parser::AddOpera
     }
 }
 
+std::any Fortran90ParserIRTreeVisitor::visitMultOperand(Fortran90Parser::MultOperandContext *ctx)
+{
+    // multOperand will be in the form:
+    // level1Expr (POWER level1Expr)*
+
+    //should not be the case that there is only one level1Expr (then MultOperand is not in the AST)
+
+    //start from the RHS since it associates to the right 2**3**3 -> 2**(3**3)
+    std::string exponent = std::any_cast<std::string>(ctx->children[ctx->children.size() - 1]->accept(this));
+    for (int i = ctx->children.size() - 3; i >= 0; i -= 2) {      
+        std::string base = std::any_cast<std::string>(ctx->children[i]->accept(this));
+        std::string tempResultVar = getNewTempVariableName();
+        std::shared_ptr<ArithOpNode> arithOpNode = std::make_shared<ArithOpNode>("POW", tempResultVar, base, exponent);
+        previousParentNode.lock()->addChild(arithOpNode);
+        previousParentNode = arithOpNode;
+        exponent = tempResultVar;
+    }
+
+    return exponent;  //will be the last temp variable in the loop
+}
+
 std::any Fortran90ParserIRTreeVisitor::visitPrimary(Fortran90Parser::PrimaryContext *ctx)
 {
     // primary will be in the form:

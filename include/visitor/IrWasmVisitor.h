@@ -110,6 +110,7 @@ class IrWasmVisitor : public IrBaseVisitor {
         bool importPrint_f64 = false;
         bool importPrintString = false;
         bool importRead = false;
+        bool importMathPow = false;     //only supports f64
         std::string stringConstantInitialisationCode = "";
         std::string arrayInitialisationCode = "";
 

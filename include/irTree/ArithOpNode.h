@@ -4,6 +4,7 @@
 // Arithmetic operations
 // <op> <dest> <src1> <src2>
 // where <op> is one of ADD, SUB, MUL, DIV
+// also supports POW (but need to import function from JS)
 
 class ArithOpNode : public ExpressionNode {
 public:

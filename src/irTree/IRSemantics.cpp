@@ -143,7 +143,7 @@ bool IRSemantics::isUserDefinedVar(const std::string &s) {
 
 
 bool IRSemantics::isValidArithOp(const std::string& op) {
-    return op == "ADD" || op == "SUB" || op == "MUL" || op == "DIV";
+    return op == "ADD" || op == "SUB" || op == "MUL" || op == "DIV" || op == "POW";
 }
 
 bool IRSemantics::isValidLogicBinOp(const std::string& op) {
