@@ -28,7 +28,6 @@
 
 IrWasmVisitor::IrWasmVisitor(std::unordered_map<std::string, std::string> &stringMap, std::unordered_map<std::string, std::string> &irDatatypeMap){
     // constructor that converts stringMap to stringMapIndicies
-    
     // only import memory once, and only if there is at least one string
     for (auto &entry : stringMap)
     {
@@ -71,8 +70,14 @@ std::string IrWasmVisitor::getEntireProgramCode(const std::shared_ptr<BaseNode>&
     if (importPrintString) {
         moduleHeader += "(import \"console\" \"logString\" (func $logString (param i32 i32)))\n";
     }
-    if (importRead) {
-        moduleHeader += "(import \"console\" \"promptSync\" (func $read (result i32)))\n";
+    if (importRead_i32) {
+        moduleHeader += "(import \"console\" \"promptSync\" (func $read_i32 (result i32)))\n";
+    }
+    if (importRead_f32) {
+        moduleHeader += "(import \"console\" \"promptSync\" (func $read_f32 (result f32)))\n";
+    }
+    if (importRead_f64) {
+        moduleHeader += "(import \"console\" \"promptSync\" (func $read_f64 (result f64)))\n";
     }
     if (importMathPow) {
         moduleHeader += "(import \"math\" \"pow\" (func $pow (param f64 f64) (result f64)))\n";   //convert operands to f64 before calling pow
@@ -307,6 +312,10 @@ std::string IrWasmVisitor::visitEndBlockNode(const std::shared_ptr<EndBlockNode>
         wasmCode = ")\n";
     }
 
+    if (node->getText() == "ENDLOOP"){
+        exitStack.pop();
+    }
+
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(*this);
         return wasmCode + restOfCode;
@@ -315,8 +324,8 @@ std::string IrWasmVisitor::visitEndBlockNode(const std::shared_ptr<EndBlockNode>
 }
 
 std::string IrWasmVisitor::visitExitNode(const std::shared_ptr<ExitNode>& node) {
-    std::string endloopLabel = exitStack.top();
-    exitStack.pop();
+    std::string endloopLabel = exitStack.top();     //should pop it off when we process the ENDLOOP node
+
     std::string wasmCode = "br $" + endloopLabel + "\n";
 
     if (node->getChildren().size() == 1) {
@@ -329,7 +338,7 @@ std::string IrWasmVisitor::visitExitNode(const std::shared_ptr<ExitNode>& node) 
 std::string IrWasmVisitor::visitLoopNode(const std::shared_ptr<LoopNode>& node) {
     std::string wasmCode = "(block $" + node->getEndloopLabel() + "\n";
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
-    exitStack.push(node->getEndloopLabel());
+    exitStack.push(node->getEndloopLabel());    //should pop it off when we process the ENDLOOP node
     wasmCode += node->getChildren()[0]->accept(*this);    // process the body of the loop
     wasmCode += "br $" + node->getBodyLabel() + "\n)\n";     // for end of one of the block statement
     
@@ -341,18 +350,22 @@ std::string IrWasmVisitor::visitLoopCondNode(const std::shared_ptr<LoopCondNode>
     std::string wasmCode = "(block $" + node->getEndLoopLabel() + "\n";
     
     //sandwich the initialisation code between the block and the loop - unnecessary but might make it clearer it is the initialisation logic
-    std::string initCode = node->getChildren()[0]->accept(*this);       
+    std::string initCode = node->getInitNode()->accept(*this);       
     wasmCode += initCode;
 
+    //add the endloopLabel to the stack - even if no exit in the loop, we need to pop it off when we finish processing the loop
+    exitStack.push(node->getEndLoopLabel());
+
     wasmCode += "(loop $" + node->getBodyLabel() + "\n";
-    std::string conditionCode = node->getChildren()[1]->accept(*this);
+    std::string conditionCode = node->getCondNode()->accept(*this);
     //does not need to use exitStack here, since we know where the EXIT is 
     //we are adding it at the start of the loop, after the termination condition check
     std::string extraTerminationCode = "(if \n(then \n br $" + node->getEndLoopLabel() + "\n)\n)\n";
-    std::string bodyCode = node->getChildren()[2]->accept(*this);
-    std::string stepCode = node->getChildren()[3]->accept(*this);
+    std::string bodyCode = node->getBodyNode()->accept(*this);
+    std::string stepCode = node->getStepNode()->accept(*this);
     std::string extraEndloopCode = "br $" + node->getBodyLabel() + "\n)\n";
-    std::string afterEndNodeCode = node->getChildren()[4]->accept(*this);
+    std::string afterEndNodeCode = node->getEndLoopNode()->accept(*this);
+
     wasmCode += conditionCode + extraTerminationCode + bodyCode + stepCode + extraEndloopCode + afterEndNodeCode;
     return wasmCode;
 }
@@ -527,9 +540,21 @@ std::string IrWasmVisitor::visitPrintNode(const std::shared_ptr<PrintNode>& node
 }
 
 std::string IrWasmVisitor::visitReadNode(const std::shared_ptr<ReadNode>& node) {
-    std::string wasmCode = "call $read\n";
+    std::string expectedWasmDatatype = getWASMNumberDatatype(node->getVar());
+    std::string wasmCode = "call $read_" + expectedWasmDatatype + "\n";
     wasmCode += "local.set $" + node->getVar() + "\n";
-    importRead = true;
+    if (expectedWasmDatatype == "i32"){
+        importRead_i32 = true;
+    }
+    else if (expectedWasmDatatype == "f32"){
+        importRead_f32 = true;
+    }
+    else if (expectedWasmDatatype == "f64"){
+        importRead_f64 = true;
+    }
+    else{
+        throw std::runtime_error("Invalid datatype in visitReadNode: "+expectedWasmDatatype);
+    }
 
     if (node->getChildren().size() == 1) {
         std::string restOfCode = node->getChildren()[0]->accept(*this);

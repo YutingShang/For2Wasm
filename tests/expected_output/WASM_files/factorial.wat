@@ -1,7 +1,7 @@
 (module
 (import "console" "log" (func $log_i32 (param i32)))
 (import "console" "logString" (func $logString (param i32 i32)))
-(import "console" "promptSync" (func $read (result i32)))
+(import "console" "promptSync" (func $read_i32 (result i32)))
 (import "js" "mem" (memory 1))
 (data (i32.const 0) "Enter a positive integer:")
 (data (i32.const 25) "Factorial is not defined for negative numbers.")
@@ -14,7 +14,7 @@
 i32.const 0
 i32.const 25
 call $logString
-call $read
+call $read_i32
 local.set $num
 local.get $num
 i32.const 0

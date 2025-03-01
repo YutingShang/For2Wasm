@@ -1,0 +1,58 @@
+	ENTRY
+	DECLARE DOUBLE a
+	DECLARE DOUBLE b
+	DECLARE INT64 j
+	DECLARE INT64 i
+	MOV i 0
+	LOOP body0 endloop0
+body0: 	CALL PRINT $str1
+	CALL READ a
+	IF cond0 then0 endif0
+cond0: 	EQ _t0 a 0
+	TEST _t0
+then0: 	EXIT
+	ENDTHEN
+endif0: 	ENDIF
+	LOOP init1 cond1 body1 step1 endloop1
+init1: 	MOV j 1
+cond1: 	GT _t1 j 5
+	TEST _t1
+body1: 	CALL PRINT $str2
+	CALL READ b
+	IF cond1 then1 else1 endif1
+cond1: 	LT _t3 b a
+	TEST _t3
+then1: 	EXIT
+	ENDTHEN
+else1: 	IF cond2 then2 else2 endif2
+cond2: 	GT _t4 b a
+	TEST _t4
+then2: 	CALL PRINT $str3
+	ENDTHEN
+else2: 	IF cond3 then3 endif3
+cond3: 	EQ _t5 b a
+	TEST _t5
+then3: 	CALL PRINT $str4
+	ENDTHEN
+endif3: 	ENDIF
+	ENDELSE
+endif2: 	ENDIF
+	ENDELSE
+endif1: 	ENDIF
+	ENDBODY
+step1: 	ADD _t2 j 1
+	MOV j _t2
+endloop1: 	ENDLOOP
+	CALL PRINT $str5
+	ADD _t6 i 1
+	MOV i _t6
+	IF cond4 then4 endif4
+cond4: 	EQ _t7 i 3
+	TEST _t7
+then4: 	EXIT
+	ENDTHEN
+endif4: 	ENDIF
+	CALL PRINT $str6
+	CALL PRINT $str7
+	ENDBODY
+endloop0: 	ENDLOOP

@@ -62,7 +62,7 @@ std::any Fortran90ParserIRTreeVisitor::visitTerminal(antlr4::tree::TerminalNode 
     std::transform(text.begin(), text.end(), textUPPER.begin(), ::toupper); // stores upper case of text in new string - 'EXIT' IR instruction, if we see 'exit' or 'EXIT' in the AST
 
     // check if the terminal is a reserved keyword
-    std::vector<std::string> reservedTerminalKeywords = {"EXIT", "ENDIF"};
+    std::vector<std::string> reservedTerminalKeywords = {"EXIT", "ENDIF", ".TRUE.", ".FALSE."};
     if (std::find(reservedTerminalKeywords.begin(), reservedTerminalKeywords.end(), textUPPER) != reservedTerminalKeywords.end())
     {
         std::shared_ptr<SimpleNode> instructionNode;
@@ -71,9 +71,19 @@ std::any Fortran90ParserIRTreeVisitor::visitTerminal(antlr4::tree::TerminalNode 
         {
             instructionNode = std::make_shared<ExitNode>();
         }
-        else
+        else if (textUPPER == "ENDIF")
         {
             instructionNode = std::make_shared<EndBlockNode>(textUPPER);
+        }
+        else if (textUPPER == ".TRUE.")
+        {
+            text = "1";
+            return text;
+        }
+        else if (textUPPER == ".FALSE.")
+        {
+            text = "0";
+            return text;
         }
 
         previousParentNode.lock()->addChild(instructionNode);
@@ -721,7 +731,7 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
 
         //the ENDIF would be the previousParentNode, and continue sequentially from there
     }
-    else if (ctx->children.size() == 4)
+    else if (dynamic_cast<Fortran90Parser::ElseConstructContext*>(ctx->children[2]))
     { // <ifThenStmt> <conditionalBody> <elseConstruct> <endIfStmt>
         std::string labelNumber = std::to_string(ifCount++);   // increment the ifCount
       
@@ -749,6 +759,67 @@ std::any Fortran90ParserIRTreeVisitor::visitIfConstruct(Fortran90Parser::IfConst
         ctx->children[3]->accept(this);
 
         //the ENDIF would be the previousParentNode, and continue sequentially from there
+    }else if (dynamic_cast<Fortran90Parser::ElseIfConstructContext*>(ctx->children[2])){
+        // <ifThenStmt> <conditionalBody> <elseIfConstruct>* <elseConstruct>? <endIfStmt>
+        ///NOTE: may or may not have an <elseConstruct>
+        ///CONVERTING: elseif into else { if ... endif} endif but need keep count of how many endif to add at the end
+        
+        std::string labelNumber = std::to_string(ifCount++);
+        std::shared_ptr<IfElseNode> ifElseNode = std::make_shared<IfElseNode>(labelNumber);    //create an IfElseNode
+        previousParentNode.lock()->addChild(ifElseNode);
+        previousParentNode = ifElseNode;
+
+        // process the ifThenStmt 
+        ctx->children[0]->accept(this);         //add the <cond> to the ifElseNode
+        previousParentNode = ifElseNode;
+
+        // process the conditionalBody
+        ctx->children[1]->accept(this);         //add the <then> to the ifElseNode
+        std::shared_ptr<EndBlockNode> endThenNode = std::make_shared<EndBlockNode>("ENDTHEN");
+        previousParentNode.lock()->addChild(endThenNode);
+        previousParentNode = ifElseNode;
+
+        //could be multiple elseIfConstructs, so need to process each one
+        ///NOTE: this will actually be the 'ELSE' body of the original ifElseNode created. But inside that we would need to create an additional ifElseNode for the 'elseif'. If there is no final 'elseConstruct' last elseIf should be an IfNode, not an IfElseNode
+        int index = 2;
+        std::vector<std::shared_ptr<IfElseNode>> savedIfElseNodesToAddEndBlocksTo;
+        while (index < ctx->children.size() && dynamic_cast<Fortran90Parser::ElseIfConstructContext*>(ctx->children[index])){
+            //check to see if the elseIfConstruct is the last child of the ifConstruct before the endIfStmt, if so, there is no elseConstruct, so create an IfNode (not an IfElseNode)
+            if (index == ctx->children.size() - 2){   
+                createIfElseNode = false;
+            }else{
+                createIfElseNode = true;
+            }
+            ctx->children[index]->accept(this);   //this will create the nodes with <cond> and <then>, next iteration will add the <else>, at the end of all the nests, need to add the <endif> and <endelse>
+            if (dynamic_cast<IfElseNode*>(previousParentNode.lock().get())){    //if it is an IfElseNode, we need to add <endif> and <endelse> later
+                savedIfElseNodesToAddEndBlocksTo.push_back(std::dynamic_pointer_cast<IfElseNode>(previousParentNode.lock()));
+            }
+
+            index ++;
+        }
+        int numElseIfs = index - 2;
+
+        //process the elseConstruct if it exists - add to the very last 'else' of the innermost ifElseNode created from all the elifs
+        if (index < ctx->children.size() && dynamic_cast<Fortran90Parser::ElseConstructContext*>(ctx->children[index])){
+            ctx->children[index]->accept(this);
+            std::shared_ptr<EndBlockNode> endElseNode = std::make_shared<EndBlockNode>("ENDELSE");
+            previousParentNode.lock()->addChild(endElseNode);
+            index ++;
+        }
+        previousParentNode = ifElseNode;   //back to the outermost original ifElseNode
+
+
+        //process the endIfStmt (at the last index now) (just add 1 - should handle the other endifs at each other layer)
+        ctx->children[index]->accept(this);    //adds the ENDIF to the outermost original ifElseNode
+
+        //add the end blocks to the savedIfElseNodesToAddEndBlocksTo (like the inner nested ifElseNodes)
+        for (auto ifElseNode : savedIfElseNodesToAddEndBlocksTo){
+            std::shared_ptr<EndBlockNode> endIfNode = std::make_shared<EndBlockNode>("ENDIF");
+            ifElseNode->addChild(endIfNode);
+            std::shared_ptr<EndBlockNode> endElseNode = std::make_shared<EndBlockNode>("ENDELSE");
+            endIfNode->addChild(endElseNode);
+        }
+        
     }
 
     return nullptr;
@@ -772,16 +843,71 @@ std::any Fortran90ParserIRTreeVisitor::visitIfThenStmt(Fortran90Parser::IfThenSt
     return nullptr;
 }
 
-///TODO: implement elseif
-// std::any Fortran90ParserTranslatorVisitor::visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx)
-// {
-//     return visitChildren(ctx);
-// }
+std::any Fortran90ParserIRTreeVisitor::visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx)
+{
+    //elseIfConstruct: <elseIfStmt> <conditionalBody>
+    //process the elseIfStmt
 
-// std::any Fortran90ParserTranslatorVisitor::visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx)
-// {
-//     return visitChildren(ctx);
-// }
+
+    //so depending on the createIfElseNode flag, we will create an IfElseNode or an IfNode
+    std::string labelNumber = std::to_string(ifCount++);
+    if (createIfElseNode){
+        std::shared_ptr<IfElseNode> ifElseNode = std::make_shared<IfElseNode>(labelNumber);
+        previousParentNode.lock()->addChild(ifElseNode);
+        previousParentNode = ifElseNode;
+
+        //process the elseIfStmt  (kind of like an ifThenStmt, basically just a <cond>)
+        ctx->children[0]->accept(this);
+        previousParentNode = ifElseNode;
+
+        //process the conditionalBody (kind of like a <then>)
+        ctx->children[1]->accept(this);
+        std::shared_ptr<EndBlockNode> endThenNode = std::make_shared<EndBlockNode>("ENDTHEN");
+        previousParentNode.lock()->addChild(endThenNode);
+        previousParentNode = ifElseNode;    //for the next elseIfConstruct or elseConstruct
+
+    }else{
+        std::shared_ptr<IfNode> ifNode = std::make_shared<IfNode>(labelNumber);
+        previousParentNode.lock()->addChild(ifNode);
+        previousParentNode = ifNode;
+
+        //process the elseIfStmt  (kind of like an ifThenStmt, basically just a <cond>)
+        ctx->children[0]->accept(this);
+        previousParentNode = ifNode;
+
+        //process the conditionalBody (kind of like a <then>)
+        ctx->children[1]->accept(this);
+        std::shared_ptr<EndBlockNode> endThenNode = std::make_shared<EndBlockNode>("ENDTHEN");
+        previousParentNode.lock()->addChild(endThenNode);
+        previousParentNode = ifNode;     
+
+        //no more elseIfConstructs, so add the endIf node and endElse node
+        std::shared_ptr<EndBlockNode> endIfNode = std::make_shared<EndBlockNode>("ENDIF");
+        previousParentNode.lock()->addChild(endIfNode);
+        std::shared_ptr<EndBlockNode> endElseNode = std::make_shared<EndBlockNode>("ENDELSE");
+        endIfNode->addChild(endElseNode);
+        // previousParentNode = ifNode;
+    }
+
+    return nullptr;
+
+}
+
+std::any Fortran90ParserIRTreeVisitor::visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx)
+{
+    //elseIfStmt: ELSE IF LPAREN expression RPAREN THEN
+            //or  ELSEIF LPAREN expression RPAREN THEN
+    //so just visit the expression
+
+    //kind of like an ifThenStmt, basically just a <cond>
+
+    int index = ctx->children.size()-3;     //find the expression from the end of the list
+    std::string conditionVar = std::any_cast<std::string>(ctx->children[index]->accept(this));
+    std::shared_ptr<TestNode> testNode = std::make_shared<TestNode>(conditionVar);
+    previousParentNode.lock()->addChild(testNode);
+    // previousParentNode = testNode;    //probably not needed
+    return nullptr;
+}
 
 std::any Fortran90ParserIRTreeVisitor::visitElseConstruct(Fortran90Parser::ElseConstructContext *ctx)
 {

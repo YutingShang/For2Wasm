@@ -105,11 +105,13 @@ class IrWasmVisitor : public IrBaseVisitor {
         std::stack<std::string> exitStack;
 
         bool importPrint_i32 = false;
-        bool importPrint_i64 = false;
+        bool importPrint_i64 = false;       //special support for i64
         bool importPrint_f32 = false;
         bool importPrint_f64 = false;
         bool importPrintString = false;
-        bool importRead = false;
+        bool importRead_i32 = false;     //no i64 supported
+        bool importRead_f32 = false;
+        bool importRead_f64 = false;
         bool importMathPow = false;     //only supports f64
         std::string stringConstantInitialisationCode = "";
         std::string arrayInitialisationCode = "";

@@ -52,7 +52,7 @@ const importObject = {
         logString: consoleLogString,
         log: (val) => console.log(val),
         log_i64: (val) => console.log(BigInt(val).toString()),
-        promptSync : () => Number(prompt('')),
+        promptSync : () => Number(prompt('')),              //won't work for i64
     },
     math: {
         pow: (base, exponent) => Math.pow(base, exponent),   //won't work for i64

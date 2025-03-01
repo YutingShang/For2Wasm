@@ -1,7 +1,7 @@
 (module
 (import "console" "log" (func $log_i32 (param i32)))
 (import "console" "logString" (func $logString (param i32 i32)))
-(import "console" "promptSync" (func $read (result i32)))
+(import "console" "promptSync" (func $read_i32 (result i32)))
 (import "js" "mem" (memory 1))
 (data (i32.const 0) "Enter 1 or 2 to determine which branch is executed")
 (data (i32.const 50) "(1+2+3+4+5+6+7+8) ^ 2 =")
@@ -49,7 +49,7 @@
 i32.const 0
 i32.const 50
 call $logString
-call $read
+call $read_i32
 local.set $flag
 local.get $flag
 i32.const 1

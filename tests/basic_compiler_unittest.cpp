@@ -63,6 +63,12 @@ TEST(IRTranslationTest, Common1ProgramIR)
     runIRStringTest("common1.f90", "common1_IR.txt");
 }
 
+TEST(IRTranslationTest, ControlFlowProgramIR)
+{
+    runIRStringTest("controlFlow.f90", "controlFlow_IR.txt");
+}
+
+
 TEST(WASMTranslationTest, SummationProgramWASM)
 {
     runWASMTest("summation.f90", "summation.wat");
@@ -91,6 +97,11 @@ TEST(WASMTranslationTest, Array1ProgramWASM)
 TEST(WASMTranslationTest, Array2ProgramWASM)
 {
     runWASMTest("array2.f90", "array2.wat");
+}
+
+TEST(WASMTranslationTest, ControlFlowProgramWASM)
+{
+    runWASMTest("controlFlow.f90", "controlFlow.wat");
 }
 
 //////////////////////// Helper function definitions ////////////////////////

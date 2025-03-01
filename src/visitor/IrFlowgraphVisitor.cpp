@@ -77,6 +77,10 @@ std::string IrFlowgraphVisitor::visitMovNode(const std::shared_ptr<MovNode> &nod
 
 std::string IrFlowgraphVisitor::visitEndBlockNode(const std::shared_ptr<EndBlockNode> &node)
 {
+    if (node->getText() == "ENDLOOP"){
+        // pop the loop stack when we finish processing the loop
+        exitStack.pop();
+    }
 
     return visitSimpleNode(node);
 }
@@ -137,14 +141,14 @@ std::string IrFlowgraphVisitor::visitLoopNode(const std::shared_ptr<LoopNode> &n
     std::shared_ptr<BasicBlock> loopBody = currentBasicBlock;
 
     // process the body of the loop - should contain an EXIT instruction
-    node->getChildren()[0]->accept(*this);
+    node->getBodyNode()->accept(*this);
 
     // last instruction of the loop body should connect back to the loop body basic block
     currentBasicBlock->add_successor(loopBody);
 
     // process the end of the loop, i.e. ENDLOOP or the endloopLabel of the loop
     currentBasicBlock = loopEndloop;
-    node->getChildren()[1]->accept(*this);
+    node->getEndLoopNode()->accept(*this);
 
     return "";
 }
@@ -154,25 +158,31 @@ std::string IrFlowgraphVisitor::visitLoopCondNode(const std::shared_ptr<LoopCond
 
     //add the LOOP instruction to the current basic block, add the initialisation code also the the same basic block
     currentBasicBlock->add_instruction(node);
-    node->getChildren()[0]->accept(*this);
+    node->getInitNode()->accept(*this);
     //create a new basic block for the termination condition of the loop
     startNewBasicBlockSuccessor();
     std::shared_ptr<BasicBlock> terminationConditionBasicBlock = currentBasicBlock;     //save the basic block for later
-    node->getChildren()[1]->accept(*this);
+    node->getCondNode()->accept(*this);
+
+    //create a new basic block for the loop endloop (POTENTIALLY exit node within the LoopCondNode)
+    std::shared_ptr<BasicBlock> loopEndloop = std::make_shared<BasicBlock>();
+    exitStack.push(loopEndloop);
 
     //create a new basic block for the loop body+step code, process the two children
     startNewBasicBlockSuccessor();
-    node->getChildren()[2]->accept(*this);
-    node->getChildren()[3]->accept(*this);
+    node->getBodyNode()->accept(*this);
+    node->getStepNode()->accept(*this);
 
     //connect the loop body+step code to the termination condition basic block
     currentBasicBlock->add_successor(terminationConditionBasicBlock);
 
     //set the current basic block to the termination condition basic block
     //and create a new basic block for the ENDLOOP instruction
-    currentBasicBlock = terminationConditionBasicBlock;
-    startNewBasicBlockSuccessor();
-    node->getChildren()[4]->accept(*this);
+    // currentBasicBlock = terminationConditionBasicBlock;
+    // startNewBasicBlockSuccessor();
+    terminationConditionBasicBlock->add_successor(loopEndloop);
+    currentBasicBlock = loopEndloop;
+    node->getEndLoopNode()->accept(*this);
 
     return "";
 }
@@ -184,8 +194,7 @@ std::string IrFlowgraphVisitor::visitExitNode(const std::shared_ptr<ExitNode> &n
     currentBasicBlock->setContainsExitNode(true);
     currentBasicBlock->add_successor(loopEndloop, false);  //FALSE - do not check if it is an exit node, always connect the exit node to the endloop basic block
 
-    // pop the loop stack
-    exitStack.pop();
+    // pop the loop stack when we finish processing the loop (could be another exit node within the loop)
 
     // but continue adding to the current basic block
     return visitSimpleNode(node);

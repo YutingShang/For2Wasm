@@ -56,9 +56,9 @@ public:
 
     virtual std::any visitIfThenStmt(Fortran90Parser::IfThenStmtContext *ctx) override;
 
-    // virtual std::any visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx) override;
+    virtual std::any visitElseIfConstruct(Fortran90Parser::ElseIfConstructContext *ctx) override;
 
-    // virtual std::any visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx) override;
+    virtual std::any visitElseIfStmt(Fortran90Parser::ElseIfStmtContext *ctx) override;
 
     virtual std::any visitElseConstruct(Fortran90Parser::ElseConstructContext *ctx) override;
 
@@ -147,4 +147,6 @@ private:
     };
 
     bool isOutputItemListForPrintStmt = false;  //when visiting printStmt set this to true when we recurse to outputItemList1 - so print stmt added directly after each output item
+
+    bool createIfElseNode = true;    // for if..elseif..else..endif, you create IfElseNode, but if it is if..elseif..endif, you need to create an IfNode
 };

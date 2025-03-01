@@ -1,7 +1,7 @@
 (module
 (import "console" "log" (func $log_i32 (param i32)))
 (import "console" "logString" (func $logString (param i32 i32)))
-(import "console" "promptSync" (func $read (result i32)))
+(import "console" "promptSync" (func $read_i32 (result i32)))
 (import "js" "mem" (memory 1))
 (data (i32.const 0) "What's the triangular number of?")
 (data (i32.const 32) "TADA here is triangular number of ")
@@ -12,7 +12,7 @@
 i32.const 0
 i32.const 32
 call $logString
-call $read
+call $read_i32
 local.set $q
 i32.const 0
 local.set $res
