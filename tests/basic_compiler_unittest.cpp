@@ -89,6 +89,11 @@ TEST(WASMTranslationTest, ArithmeticProgramWASM)
     runWASMTest("arithmetic.f90", "arithmetic.wat");
 }
 
+TEST(WASMTranslationTest, Arithmetic2ProgramWASM)
+{
+    runWASMTest("arithmetic2.f90", "arithmetic2.wat");
+}
+
 TEST(WASMTranslationTest, Array1ProgramWASM)
 {
     runWASMTest("array1.f90", "array1.wat");

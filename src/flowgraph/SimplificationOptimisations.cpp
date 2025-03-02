@@ -83,9 +83,9 @@ bool SimplificationOptimisations::removeEmptyStatements(std::shared_ptr<BaseNode
 
 void SimplificationOptimisations::removeUnusedDeclareStatements(std::shared_ptr<BaseNode> root) {
     //get all referenced variables in the program
-    //then go through each node, if it is a declare statement and the variable is not referenced, remove it
+    //then go through each node, if it is a declare statement and the variable is not referenced or defined (i.e. it just doesn't appear anywhere in the program), remove it
 
-    std::set<std::string> referencedVariables;
+    std::set<std::string> allUsedProgramVariables;
     std::set<std::shared_ptr<DeclareNode>> declareNodesInProgram;
 
     //visit the tree and get all referenced variables
@@ -97,7 +97,9 @@ void SimplificationOptimisations::removeUnusedDeclareStatements(std::shared_ptr<
         nodesToVisit.pop();
         //add the node's referenced variables to the set
         std::set<std::string> currentNodeReferencedVariables = currentNode->getReferencedVariables();
-        referencedVariables.insert(currentNodeReferencedVariables.begin(), currentNodeReferencedVariables.end());
+        std::set<std::string> currentNodeDefinedVariables = currentNode->getDefinedVariables();
+        allUsedProgramVariables.insert(currentNodeReferencedVariables.begin(), currentNodeReferencedVariables.end());
+        allUsedProgramVariables.insert(currentNodeDefinedVariables.begin(), currentNodeDefinedVariables.end());
 
         //add the node's children to the stack
         for (std::shared_ptr<BaseNode> child : currentNode->getChildren()) {
@@ -112,7 +114,7 @@ void SimplificationOptimisations::removeUnusedDeclareStatements(std::shared_ptr<
 
     //go through each declare node in the program, if it is not referenced, remove it
     for (std::shared_ptr<DeclareNode> declareNode : declareNodesInProgram) {
-        if (referencedVariables.find(declareNode->getVar()) == referencedVariables.end()) {
+        if (allUsedProgramVariables.find(declareNode->getVar()) == allUsedProgramVariables.end()) {
             //declare node is not referenced, so remove it
             declareNode->removeCurrentNodeFromIRTree();
         }

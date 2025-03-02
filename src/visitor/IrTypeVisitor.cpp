@@ -61,6 +61,7 @@ std::string IrTypeVisitor::visitLogicBinOpNode(const std::shared_ptr<LogicBinOpN
     std::string src2 = node->getSrc2();
 
     if (IRSemantics::isInternalTempVar(dest)) {
+        //these should be INT I think.., but could be different i32 or i64 for logical
         std::string tempDestDatatype = IRSemantics::findLargestDatatype(getIRNumberDatatype(src1), getIRNumberDatatype(src2));
         variableDatatypeMap[dest] = tempDestDatatype;
     }
@@ -84,8 +85,9 @@ std::string IrTypeVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node
     std::string src2 = node->getSrc2();
 
     if (IRSemantics::isInternalTempVar(dest)) {
-        std::string tempDestDatatype = IRSemantics::findLargestDatatype(getIRNumberDatatype(src1), getIRNumberDatatype(src2));
-        variableDatatypeMap[dest] = tempDestDatatype;
+        // std::string tempDestDatatype = IRSemantics::findLargestDatatype(getIRNumberDatatype(src1), getIRNumberDatatype(src2));
+        //result is always i32
+        variableDatatypeMap[dest] = "INT";
     }
     return acceptAllChildren(node);
 }

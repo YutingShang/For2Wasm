@@ -122,15 +122,23 @@ std::string IrWasmVisitor::visitArithOpNode(const std::shared_ptr<ArithOpNode>& 
 
     std::string wasmCode = "";
     if (arithOp == "SUB" || arithOp == "DIV" || arithOp == "POW"){   //non-commutative operations
-        wasmCode += checkAndSaveTempVarToLocal(nodeSrc1, nodeSrc2);   //need to check whether you need to swap operands (i.e. save then restore) on the stack
+        // wasmCode += checkAndSaveTempVarToLocal(nodeSrc1, nodeSrc2);   //need to check whether you need to swap operands (i.e. save then restore) on the stack
+        wasmCode += checkAndSaveNonCommutativeOperands(nodeSrc1, nodeSrc2, expectedWasmDatatype);
+
+        //then as normal, get each of the operands
+        if (arithOp == "POW"){
+            wasmCode += convertNumberSrcToWASM(nodeSrc1, "f64") + convertNumberSrcToWASM(nodeSrc2, "f64");     //f64 is not necessarily the expectedWasmDatatype of the result, just intermediate datatype required for Math.pow
+        }
+        else{
+            wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
+        }
+    } else if (arithOp == "ADD" || arithOp == "MUL"){
+        //commutative operations
+        //usually just process as normal src1 then src2
+        wasmCode = handleCommutativeNumberOperands(nodeSrc1, nodeSrc2, expectedWasmDatatype);
     }
-    if (arithOp == "POW"){
-        //convert both operands to f64
-        wasmCode += convertNumberSrcToWASM(nodeSrc1, "f64") + convertNumberSrcToWASM(nodeSrc2, "f64");
-    }
-    else{
-        wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
-    }
+    //the above should handle all cases, so shouldn't need an 'else'
+    
 
     //first check for POW - special handling
     if (arithOp == "POW"){
@@ -192,7 +200,11 @@ std::string IrWasmVisitor::visitLogicBinOpNode(const std::shared_ptr<LogicBinOpN
     else{
         throw std::runtime_error("Invalid destination in visitLogicBinOpNode: "+nodeDest);
     }
-    std::string wasmCode = convertNumberSrcToWASM(node->getSrc1(), expectedWasmDatatype) + convertNumberSrcToWASM(node->getSrc2(), expectedWasmDatatype);
+    
+    //all the operations are commutative, but may need special handling
+    std::string wasmCode = handleCommutativeNumberOperands(nodeSrc1, nodeSrc2, expectedWasmDatatype);
+    
+    // std::string wasmCode = convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
     std::string logicOp = node->getOp();
     wasmCode += expectedWasmDatatype + ".";     //e.g. i32.and
     if (logicOp == "AND")
@@ -237,17 +249,22 @@ std::string IrWasmVisitor::visitRelOpNode(const std::shared_ptr<RelOpNode>& node
     std::string nodeSrc2 = node->getSrc2();
     std::string relOp = node->getOp();
     std::string expectedWasmDatatype;
-    if (IRSemantics::isVariable(nodeDest)) {
-        expectedWasmDatatype = variableWASMDatatypeMap[nodeDest];
-    }
-    else{
-        throw std::runtime_error("Invalid destination in visitRelOpNode: "+nodeDest);
-    }
+
+    //the destination of a relop is always i32
+    //so the expectedWasmDatatype (which we do like f32.ge, even tho it will always return i32, we are free to operate on any datatype)
+    //this datatype will be the larger of the two operands
+    std::string largerWASMDatatype = findLargestWASMDatatype(getWASMNumberDatatype(nodeSrc1), getWASMNumberDatatype(nodeSrc2));
+    expectedWasmDatatype = largerWASMDatatype;
+
     std::string wasmCode = "";
-    if (relOp == "LT" || relOp == "GT" || relOp == "LE" || relOp == "GE"){  //non-commutative operations
-        wasmCode += checkAndSaveTempVarToLocal(nodeSrc1, nodeSrc2);   //need to check whether you need to swap operands on the stack
+    if (relOp == "LT" || relOp == "GT" || relOp == "LE" || relOp == "GE"){  //non-commutative operations - check to see if we need to save and restore operands
+        wasmCode += checkAndSaveNonCommutativeOperands(nodeSrc1, nodeSrc2, expectedWasmDatatype);
+        wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
+    }else{
+        //commutative operations like EQ, NE
+        wasmCode += handleCommutativeNumberOperands(nodeSrc1, nodeSrc2, expectedWasmDatatype);
     }
-    wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
+   
 
     wasmCode += expectedWasmDatatype + ".";     //e.g. i32.eq
     if (relOp == "EQ")
@@ -598,8 +615,16 @@ std::string IrWasmVisitor::visitStoreEltNode(const std::shared_ptr<StoreEltNode>
 
     //value to store may be a temp variable - so we need to save it to restore later in the correct order
     ///NOTE:since STORE_ELT is a non-commutative operation, the order of the operands is important
-    //this isn't quite right - but we don't support storing to index where you calculate the value e.g. a(i+1) = b(i)
-    wasmCode += checkAndSaveTempVarToLocal(arrayVar, valueToStore);
+   
+    //for store instructions, need to save the top of the stack to a local variable in two cases:
+    //1. <non-temp> <temp>  -  since its non-commutative, need to get src1 first
+    //2. <temp index> <temp value>   - since we also need to add code to the index calculation
+    ///HENCE: we need to save top of stack whenever the valueToStore is a temp variable
+
+    if (IRSemantics::isInternalTempVar(valueToStore)){
+        wasmCode += saveTempVarToLocal(valueToStore);
+    }
+        
 
     //get the wasm datatype of the array
     std::string arrayWasmDatatype = variableWASMDatatypeMap[arrayVar];      //type of the array - take that as the expected datatype
@@ -716,10 +741,10 @@ std::string IrWasmVisitor::convertNumberSrcToWASM(const std::string &operand, st
     //otherwise... IT IS A TEMPORARY VARIABLE 
     //hopefully we don't need to print/get the value, it has been left on the stack
     //but it might have been saved to a temporary local variable (operands needed to be swapped) - so we should pop and restore it now
-    else if (IRSemantics::isInternalTempVar(operand) && needToRestoreSwappedTemporary)
+    else if (IRSemantics::isInternalTempVar(operand) && tempSwapVariableName == operand)
     {
         wasmCode += "local.get $_tempSwap_" + getWASMNumberDatatype(operand) + "\n";
-        needToRestoreSwappedTemporary = false;
+        tempSwapVariableName = "";
     }
 
 
@@ -846,38 +871,86 @@ std::string IrWasmVisitor::getWASMNumberDatatype(const std::string& item) {
     }
 }
 
+std::string IrWasmVisitor::findLargestWASMDatatype(const std::string& type1, const std::string& type2){
+    std::vector<std::string> highestPriority = {"f64", "f32", "i64", "i32"};
+    for (int i=0; i<highestPriority.size() ; i++){
+        if (type1 == highestPriority[i] || type2 == highestPriority[i]){
+            return highestPriority[i];    //stop and return the highest priority datatype
+        }
+    }
+    throw std::runtime_error("Could not find largest WASM datatype between "+type1+" and "+type2);
+}
 
-std::string IrWasmVisitor::checkAndSaveTempVarToLocal(std::string src1, std::string src2){
-    //check if the first source is not a temporary variable, but the second is
+std::string IrWasmVisitor::saveTempVarToLocal(std::string tempVar){
     std::string wasmCode = "";
-    if (!IRSemantics::isInternalTempVar(src1) && IRSemantics::isInternalTempVar(src2)){
-        //if so, then we need to save the temp variable (Which is currently top of the stack) to a local variable of the correct datatype 
-
-        needToRestoreSwappedTemporary = true;
-
-        std::string tempDataType = getWASMNumberDatatype(src2);
-        if (tempDataType == "i32") {
-            add_tempSwapDeclaration_i32 = true;
-            wasmCode += "local.set $_tempSwap_i32\n";
-        }
-        else if (tempDataType == "i64") {
-            add_tempSwapDeclaration_i64 = true;
-            wasmCode += "local.set $_tempSwap_i64\n";
-        }
-        else if (tempDataType == "f32") {
-            add_tempSwapDeclaration_f32 = true;
-            wasmCode += "local.set $_tempSwap_f32\n";
-        }
-        else if (tempDataType == "f64") {
-            add_tempSwapDeclaration_f64 = true;
-            wasmCode += "local.set $_tempSwap_f64\n";
-        }
-        else{
-            throw std::runtime_error("Invalid datatype in checkAndSaveTempVarToLocal: "+tempDataType);
-        }
+    // needToRestoreSwappedTemporary = true;
+    tempSwapVariableName = tempVar;
+    std::string tempVarType = getWASMNumberDatatype(tempVar);
+    if (tempVarType == "i32") {
+        add_tempSwapDeclaration_i32 = true;
+        wasmCode += "local.set $_tempSwap_i32\n";
+    }
+    else if (tempVarType == "i64") {
+        add_tempSwapDeclaration_i64 = true;
+        wasmCode += "local.set $_tempSwap_i64\n";
+    }
+    else if (tempVarType == "f32") {
+        add_tempSwapDeclaration_f32 = true;
+        wasmCode += "local.set $_tempSwap_f32\n";
+    }
+    else if (tempVarType == "f64") {
+        add_tempSwapDeclaration_f64 = true;
+        wasmCode += "local.set $_tempSwap_f64\n";
+    }
+    else{
+        throw std::runtime_error("Invalid datatype in saveTempVarToLocal: "+tempVarType);
     }
     return wasmCode;
 }
+
+std::string IrWasmVisitor::handleCommutativeNumberOperands(std::string nodeSrc1, std::string nodeSrc2, std::string expectedWasmDatatype){
+    std::string wasmCode = "";
+    //all the operations are commutative, but may need special handling
+    
+
+    if (!IRSemantics::isInternalTempVar(nodeSrc1) && IRSemantics::isInternalTempVar(nodeSrc2)){    
+    //CASE1: if we have <non-temp> <temp>, then we process in reverse order src2 then src1 (since src2 was already on the stack)
+        wasmCode += convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype);
+    }
+    else if (IRSemantics::isInternalTempVar(nodeSrc1) && IRSemantics::isInternalTempVar(nodeSrc2)){
+        //CASE 2: OP <temp> <temp>
+        //this case is usually fine, unless you need to add something to src1 (which is on the bottom of the stack)
+        //in which case we need to save src2 to a local variable, to operate on src1 first
+        if (variableWASMDatatypeMap[nodeSrc1] != expectedWasmDatatype){
+            wasmCode += saveTempVarToLocal(nodeSrc2);
+        }
+        wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
+    }
+    else{    //normal order
+        wasmCode += convertNumberSrcToWASM(nodeSrc1, expectedWasmDatatype) + convertNumberSrcToWASM(nodeSrc2, expectedWasmDatatype);
+    }
+
+    return wasmCode;
+}
+
+std::string IrWasmVisitor::checkAndSaveNonCommutativeOperands(std::string nodeSrc1, std::string nodeSrc2, std::string expectedWasmDatatype){
+    std::string wasmCode = "";
+    if (!IRSemantics::isInternalTempVar(nodeSrc1) && IRSemantics::isInternalTempVar(nodeSrc2)){
+        //CASE 1: OP <non-temp> <temp>
+        //nodeSrc2 is at bottom of the stack, but we need to swap the order, since operation is non-commutative
+        wasmCode += saveTempVarToLocal(nodeSrc2);
+    }
+    else if (IRSemantics::isInternalTempVar(nodeSrc1) && IRSemantics::isInternalTempVar(nodeSrc2)){
+        //CASE 2: OP <temp> <temp>
+        //this case is usually fine, unless you need to add something to src1 (which is on the bottom of the stack)
+            //in which case we need to save src2 to a local variable, to operate on src1 first
+        if (variableWASMDatatypeMap[nodeSrc1] != expectedWasmDatatype){
+        wasmCode += saveTempVarToLocal(nodeSrc2);
+    }
+    }
+    return wasmCode;
+}
+
 
 int IrWasmVisitor::getWASMByteSize(const std::string& type) {
     if (type == "i32" || type == "f32") {

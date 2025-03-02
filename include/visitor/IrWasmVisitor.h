@@ -83,6 +83,9 @@ class IrWasmVisitor : public IrBaseVisitor {
         //typically used for finding the datatype of a nodeSrc. Can then use findLargestDatatype 
         std::string getWASMNumberDatatype(const std::string& item);    //e.g. input x or _t0 or 3.14, returns i32 or f32 etc.
 
+         //returns the larger of the two wasm datatypes
+        std::string findLargestWASMDatatype(const std::string& type1, const std::string& type2);
+
         int getWASMByteSize(const std::string& type);
 
         //e.g. returns "\01\00\00\00" for 1 as a i32
@@ -118,9 +121,20 @@ class IrWasmVisitor : public IrBaseVisitor {
 
         //return wasm code to save a temporary variable into the _tempSwap wasm local variable - so we need to fetch it when we want to use this temp variable
         //currently supports binary operations (could expand for 3, 4, etc. operands)
-        std::string checkAndSaveTempVarToLocal(std::string src1, std::string src2);    
+        //might need the expectedDatatype for checking two temporary variables - to see if the first one needs to be converted (code requires to be added), so need to save second variable
+        // std::string checkAndSaveTempVarToLocal(std::string src1, std::string src2, std::string expectedDatatype);    
+
+        std::string saveTempVarToLocal(std::string tempVar);
+
+        //these operations handle when you need to save and restore tempSwap variables (especially if you need to add code to the operand which is on the bottom of the stack, e.g. for implicit casting)
+        //note - for commutative operations, we also have added the 'convertNumberSrcToWASM' code to the operands
+        std::string handleCommutativeNumberOperands(std::string nodeSrc1, std::string nodeSrc2, std::string expectedWasmDatatype);
+
+        //note - for non-commutative operations, we have NOT added the 'convertNumberSrcToWASM' code to the operands (because some cases like 'POW' needs special handling)
+        std::string checkAndSaveNonCommutativeOperands(std::string nodeSrc1, std::string nodeSrc2, std::string expectedWasmDatatype);
 
         bool needToRestoreSwappedTemporary = false;    //set to true when we have stored a temporary variable into the _tempSwap wasm local variable
+        std::string tempSwapVariableName = "";     //even though we have 4 versions of the _tempSwap variable, actually one would be used at any time, so just store that variable name - restore when we try to get that src
 
         bool add_tempSwapDeclaration_i32 = false;  //hopefully just one variable of each type needs to be added to the top declaration section if required
         bool add_tempSwapDeclaration_i64 = false;
@@ -139,4 +153,5 @@ class IrWasmVisitor : public IrBaseVisitor {
 
         const int WASM_PAGE_SIZE = 65536;    //each page is 64KiB, use this and the estimatedBytesAllocated to calculate the number of pages needed
 
+       
 };
