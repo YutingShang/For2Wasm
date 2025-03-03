@@ -1,11 +1,11 @@
 #pragma once
 
-#include "SimpleNode.h"
+#include "ExpressionNode.h"
 
 //For loading an element from an array
 //LOAD <dest> <arrayVar> (<index1>, <index2>, ...)
 
-class LoadEltNode : public SimpleNode {
+class LoadEltNode : public ExpressionNode {
 public:
     //Constructor and destructor
     LoadEltNode(std::string dest, std::string arrayVar, std::vector<std::string> indices);   //the indices are given in fortran (1-based), only converted to 0-based in Wasm
@@ -14,10 +14,10 @@ public:
     std::shared_ptr<BaseNode> cloneContent() const override;
 
     //Getters and setters
-    std::string getDest() const;
+    std::string getDest() const override;
     std::string getArrayVar() const;
     std::vector<std::string> getIndicies() const;
-    void setDest(std::string dest);
+    void setDest(std::string dest) override;
     void setArrayVar(std::string arrayVar);
     void setIndicies(std::vector<std::string> indices);
 

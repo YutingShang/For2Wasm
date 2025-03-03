@@ -25,6 +25,14 @@ To compile a fortran program, with different output options and optimisation fla
 Input files are typically located in the **examples** directory.
 Output files are typically located in the **dist** directory.
 
+### Build Options
+
+* `./build.sh test` - build the compiler with unit tests
+* `./build.sh install` - build the compiler (no unit tests)
+* `./build.sh` - compile and run the fortran program
+* `./build.sh compile` - compile the fortran program but does not run it
+* `./build.sh run` - run the last compiled fortran program in the dist/ directory (error if files do not exist)
+
 ### Output Options
 
 The first flag determines what to output. The available options are:
@@ -43,6 +51,8 @@ The second and third flags determine what optimisation to apply. The available o
 * `-const` - run constant propagation
 * `-CP` - run copy propagation
 * `-iterCSE-CP` - run copy propagation and common subexpression elimination iteratively until no more changes are made
+* `-iterPRE-CP` - run copy propagation and partial redundancy elimination iteratively until no more changes are made
+* `-tile` - run loop tiling with a tile size of 4
 
 ### Maintenance Recap
 

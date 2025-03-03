@@ -8,6 +8,7 @@
 #include "InsertableBasicBlock.h"  // full definition
 #include <vector>
 #include <memory>
+#include <regex>
 #include "BaseNode.h"
 
 
@@ -93,4 +94,6 @@ class AnalysisTools {
         //then inserts a new instruction in the ELSE block of the IfElseNode
         static std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> createNewElseBlockInsertionStrategy(std::shared_ptr<IfNode> ifNodeToInsertAfter);
 
+        //returns the regex for splitting an expression into tokens
+        static std::regex getExpressionSplitRegex();
 };

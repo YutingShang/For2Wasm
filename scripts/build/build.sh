@@ -12,6 +12,10 @@ mkdir -p $OUTPUT_DIR
 MAIN_PROGRAM=$SCRIPT_DIR/../../build/bin/main
 FLAG1=${1:-examples/summation.f90}     #should be the fortran file, or could be '-help' or 'install' or 'run'
 
+WAT_FILE=$OUTPUT_DIR/output.wat
+WASM_FILE=$OUTPUT_DIR/output.wasm
+PROGRAM_FILE=$SCRIPT_DIR/../../src/wasm/program.js
+
 if [ "$FLAG1" == "-help" ]; then
     echo "\n------------------------------------------------------------------------------"
     echo "*                                FOR2WASM                                    *"
@@ -40,25 +44,44 @@ elif [ "$FLAG1" == "install" ]; then
     EXAMPLE_FORTRAN_FILE="${2}"
     OUTPUT_FORMAT=${3}      # output format
     OPTIMISATION_FLAGS="${@:4}"     # captured all optimisation flags, expand with ${FLAGS[@]}
-elif [ "$FLAG1" == "run" ]; then
-    #do not run make, will just run the main program
+elif [ "$FLAG1" == "test" ]; then
+    make -C $MAKEFILE_DIR #generates the main program with unit tests
+    EXAMPLE_FORTRAN_FILE="${2}"
+    OUTPUT_FORMAT=${3}      # output format
+    OPTIMISATION_FLAGS="${@:4}"     # captured all optimisation flags, expand with ${FLAGS[@]}  
+elif [ "$FLAG1" == "compile" ]; then
+    #to work with the -WASM flag, just creates the wasm and wat files, but does not run node
     EXAMPLE_FORTRAN_FILE="${2}"
     OUTPUT_FORMAT=${3}      # output format
     OPTIMISATION_FLAGS="${@:4}"     # captured all optimisation flags, expand with ${FLAGS[@]}
-else 
-    make -C $MAKEFILE_DIR #generates the main program
+elif [ "$FLAG1" == "run" ]; then
+    #to work with the -WASM flag, just runs the wasm and wat files in the dist/ directory if it exists
+    if [ -f "$OUTPUT_DIR/output.wasm" ]; then
+        # node --no-wasm-tier-up --no-liftoff --no-turbofan $PROGRAM_FILE $WASM_FILE $WAT_FILE
+        node --no-wasm-tier-up --liftoff $PROGRAM_FILE $WASM_FILE $WAT_FILE
+        # node $SCRIPT_DIR/../../src/wasm/program.js $OUTPUT_DIR/output.wasm $OUTPUT_DIR/output.wat
+    else
+        echo "Error: WASM file not found in dist/ directory"
+        exit 1
+    fi
+else      #just ./build.sh - does not run make, will just run the main program executable
     EXAMPLE_FORTRAN_FILE="${FLAG1}"
     OUTPUT_FORMAT=${2}      # output format
     OPTIMISATION_FLAGS="${@:3}"     # captured all optimisation flags, expand with ${FLAGS[@]}  
 fi
 
 if [ "$OUTPUT_FORMAT" == "-WASM" ]; then
-    WAT_FILE=$OUTPUT_DIR/output.wat
-    WASM_FILE=$OUTPUT_DIR/output.wasm
-    PROGRAM_FILE=$SCRIPT_DIR/../../src/wasm/program.js
     printf "%s" "$($MAIN_PROGRAM $EXAMPLE_FORTRAN_FILE $OUTPUT_FORMAT $OPTIMISATION_FLAGS)" > $WAT_FILE
     wat2wasm $WAT_FILE -o $WASM_FILE
-    node --no-wasm-tier-up --no-liftoff --no-turbofan $PROGRAM_FILE $WASM_FILE $WAT_FILE
+    if [ "$FLAG1" == "compile" ]; then
+        exit 0
+    fi
+    node --no-wasm-tier-up --liftoff $PROGRAM_FILE $WASM_FILE $WAT_FILE
+fi
+
+if [ "$FLAG1" == "compile" ]; then
+    echo "compile flag works only with -WASM flag"
+    exit 1
 fi
 
 if [[ "$OUTPUT_FORMAT" == "-irTree"  || "$OUTPUT_FORMAT" == "-parseTree"  || "$OUTPUT_FORMAT" == "-astTree" || "$OUTPUT_FORMAT" == "-flowgraph" ]]; then

@@ -109,6 +109,11 @@ TEST(WASMTranslationTest, ControlFlowProgramWASM)
     runWASMTest("controlFlow.f90", "controlFlow.wat");
 }
 
+TEST(WASMTranslationTest, BinomialCoeffProgramWASM)
+{
+    runWASMTest("binomialCoeff.f90", "binomialCoeff.wat");
+}
+
 //////////////////////// Helper function definitions ////////////////////////
 
 void runASTStringTest(std::string inputFileName, std::string expectedOutputFileName)

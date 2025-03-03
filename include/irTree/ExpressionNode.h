@@ -1,7 +1,8 @@
 #pragma once
 #include "SimpleNode.h"
 
-//an abstract class for ArithOpNode, LogicBinOpNode, LogicNotNode and RelOpNode
+//an abstract class for ArithOpNode, LogicBinOpNode, LogicNotNode and RelOpNode, LoadEltNode
+//always creates an 'expression' e.g. x+y or array(i,gj)
 //always has a 'dest' member variable, which a setter function will be provided for to change the dest
 ///NOTE: does not include MovNode, since it does not generate any 'expressions'
 

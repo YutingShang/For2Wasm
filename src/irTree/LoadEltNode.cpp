@@ -63,7 +63,10 @@ std::set<std::string> LoadEltNode::getDefinedVariables() const {
 }
 
 std::set<std::string> LoadEltNode::getReferencedExpressions() const {
-    return {};
+    std::string vectorText = IRSemantics::getVectorText(indices);
+    //remove the spaces, e.g. an expression is array(i,j)  (without spaces)
+    vectorText.erase(std::remove_if(vectorText.begin(), vectorText.end(), ::isspace), vectorText.end());
+    return {arrayVar + vectorText};
 }
 
 void LoadEltNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {

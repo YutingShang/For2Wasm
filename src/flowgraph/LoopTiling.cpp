@@ -58,15 +58,20 @@ bool LoopTiling::runLoopTiling() {
     for (auto &keyValuePair : loopCondNodesToTile) {
         std::shared_ptr<LoopCondNode> originalOuterLoop = keyValuePair.first;
         std::shared_ptr<EndBlockNode> originalOuterLoopEndLoop = originalOuterLoop->getEndLoopNode();
-        std::shared_ptr<BaseNode> originalOuterLoopEndLoopChild = originalOuterLoopEndLoop->getSingleChild();
-        originalOuterLoopEndLoop->removeChild(*originalOuterLoopEndLoopChild);      //remove the stuff after all the nested loops in the original case
+        std::shared_ptr<BaseNode> originalOuterLoopEndLoopChild;     //save any original code if there is any
+        if (originalOuterLoopEndLoop->getChildren().size() > 0) {
+            originalOuterLoopEndLoopChild = originalOuterLoopEndLoop->getSingleChild();
+            originalOuterLoopEndLoop->removeChild(*originalOuterLoopEndLoopChild);      //remove the stuff after all the nested loops in the original case
+        }
         std::vector<std::shared_ptr<LoopCondNode>> originalInnerLoops = keyValuePair.second;
 
         std::shared_ptr<LoopCondNode> newOuterLoop = getNewLoopCondNodeForTiledLoop(originalOuterLoop);
         std::shared_ptr<BaseNode> parent = originalOuterLoop->getParent();
         parent->removeChild(*originalOuterLoop);
         parent->addChild(newOuterLoop);
-        newOuterLoop->getEndLoopNode()->addChild(originalOuterLoopEndLoopChild);      //add the stuff after all the nested loops in the original case to the new outer loop
+        if (originalOuterLoopEndLoopChild) {
+            newOuterLoop->getEndLoopNode()->addChild(originalOuterLoopEndLoopChild);      //add the stuff after all the nested loops in the original case to the new outer loop
+        }
         std::shared_ptr<LoopCondNode> previousLoopCondNode = newOuterLoop;
 
         for (auto &originalInnerLoop : originalInnerLoops) {
@@ -94,7 +99,12 @@ std::shared_ptr<LoopCondNode> LoopTiling::getNewLoopCondNodeForTiledLoop(std::sh
     std::shared_ptr<SimpleNode> currentInitSimpleNode = std::dynamic_pointer_cast<SimpleNode>(currentInitNode);
     while (currentInitSimpleNode && !std::dynamic_pointer_cast<MovNode>(currentInitSimpleNode)) {
         //check if the next node is the MovNode we are looking for
-        currentInitSimpleNode = std::dynamic_pointer_cast<SimpleNode>(currentInitSimpleNode->getSingleChild());
+        if (currentInitSimpleNode->getChildren().size() > 0) {
+            currentInitSimpleNode = std::dynamic_pointer_cast<SimpleNode>(currentInitSimpleNode->getSingleChild());
+        }
+        else {
+            throw std::runtime_error("Loop tiling could not be performed (1). This simple node has no children: " + currentInitSimpleNode->getText());
+        }
     }
     if (!currentInitSimpleNode) {
         throw std::runtime_error("Loop tiling could not be performed due to an invalid cast for the init node.");
@@ -241,8 +251,13 @@ std::shared_ptr<LoopCondNode> LoopTiling::getNewLoopCondNodeForTiledLoop(std::sh
 std::shared_ptr<EndBlockNode> LoopTiling::getLoopCondNodeEndBodyNode(std::shared_ptr<LoopCondNode> loopCondNode) {
     std::shared_ptr<IfElseNode> ifNode = std::dynamic_pointer_cast<IfElseNode>(loopCondNode->getBodyNode());
     std::shared_ptr<EndBlockNode> endIfNode = std::dynamic_pointer_cast<EndBlockNode>(ifNode->getEndIfNode());
-    std::shared_ptr<EndBlockNode> endBodyNode = std::dynamic_pointer_cast<EndBlockNode>(endIfNode->getSingleChild());
-    return endBodyNode;
+    if (endIfNode->getChildren().size() > 0) {
+        std::shared_ptr<EndBlockNode> endBodyNode = std::dynamic_pointer_cast<EndBlockNode>(endIfNode->getSingleChild());
+        return endBodyNode;
+    }
+    else {
+        throw std::runtime_error("Loop tiling could not be performed (2). The end if node has no children: " + endIfNode->getText());
+    }
 }
 
 void LoopTiling::nestLoopCondNodes(std::shared_ptr<LoopCondNode> outerLoopCondNode, std::shared_ptr<LoopCondNode> innerLoopCondNode) {
@@ -265,14 +280,24 @@ std::pair<std::shared_ptr<ArithOpNode>, std::shared_ptr<ArithOpNode>> LoopTiling
     currentArithCondNodeCopyBottom = currentArithCondNodeCopyTop;   //might be the same node
 
     //get its child node - if its another arithmetic node, continue to copy it and add to currentArithCondNodeCopy
-    std::shared_ptr<ArithOpNode> arithCondChild = std::dynamic_pointer_cast<ArithOpNode>(startArithOpNode->getSingleChild());
-    while (arithCondChild) {
-        std::shared_ptr<ArithOpNode> arithCondChildCopy = std::dynamic_pointer_cast<ArithOpNode>(arithCondChild->cloneContent());
-        currentArithCondNodeCopyTop->addChild(arithCondChildCopy);
+    if (startArithOpNode->getChildren().size() > 0) {
+        std::shared_ptr<ArithOpNode> arithCondChild = std::dynamic_pointer_cast<ArithOpNode>(startArithOpNode->getSingleChild());
+        while (arithCondChild) {
+            std::shared_ptr<ArithOpNode> arithCondChildCopy = std::dynamic_pointer_cast<ArithOpNode>(arithCondChild->cloneContent());
+            currentArithCondNodeCopyTop->addChild(arithCondChildCopy);
 
-        //get the next child node
-        currentArithCondNodeCopyBottom = arithCondChildCopy;    //keep track of the bottom node, so we can attach stuff to it later
-        arithCondChild = std::dynamic_pointer_cast<ArithOpNode>(arithCondChild->getSingleChild());
+            //get the next child node
+            currentArithCondNodeCopyBottom = arithCondChildCopy;    //keep track of the bottom node, so we can attach stuff to it later
+            if (arithCondChild->getChildren().size() > 0) {
+                arithCondChild = std::dynamic_pointer_cast<ArithOpNode>(arithCondChild->getSingleChild());
+            }
+            else {
+                throw std::runtime_error("Loop tiling could not be performed (4). The arithmetic condition node has no children (expecteding an RelOpNode): " + arithCondChild->getText());
+            }
+        }
+    }
+    else {
+        throw std::runtime_error("Loop tiling could not be performed (3). The arithmetic condition node has no children (expecteding a RelOpNode): " + startArithOpNode->getText());
     }
 
     return std::make_pair(currentArithCondNodeCopyTop, currentArithCondNodeCopyBottom);

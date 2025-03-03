@@ -151,7 +151,7 @@ std::set<std::string> AnalysisTools::getKilledExpressionsAtNode(std::shared_ptr<
     for (const auto &programExpr : allExpressions) {
 
         //split the expression based on symbols (+, -, *, /, |, &, !, <, > , <=, >=, ==)
-        std::regex symbolRegex("([+\\-*/|&!<>=]+)");
+        std::regex symbolRegex = AnalysisTools::getExpressionSplitRegex();
         std::sregex_token_iterator exprIter(programExpr.begin(), programExpr.end(), symbolRegex, -1);     //split the expression based on symbols
         std::sregex_token_iterator exprEnd;      //default end iterator
 
@@ -279,9 +279,9 @@ std::set<std::string> AnalysisTools::getGeneratedExpressionsAtNode(std::shared_p
 
     for (const auto &programExpr : referencedExpressions) {
 
-        //split the expression based on symbols (+, -, *, /, |, &, !, <, > , <=, >=, ==)
-        std::regex symbolRegex("([+\\-*/|&!<>=]+)");
-        std::sregex_token_iterator exprIter(programExpr.begin(), programExpr.end(), symbolRegex, -1);     //split the expression based on symbols
+        //split the expression based on symbols +, -, *, /, |, &, !, <, > , <=, >=, ==, (, ), , and whitespace (the latter for array indexing)
+        std::regex symbolRegex = AnalysisTools::getExpressionSplitRegex();
+        std::sregex_token_iterator exprIter(programExpr.begin(), programExpr.end(), symbolRegex, -1);     //split the expression based on symbols, brackets, commas and whitespace
         std::sregex_token_iterator exprEnd;      //default end iterator
 
         //check if the expression contains any of the defined variables
@@ -298,6 +298,10 @@ std::set<std::string> AnalysisTools::getGeneratedExpressionsAtNode(std::shared_p
         }
     }
     return generatedExpressions;
+}
+
+std::regex AnalysisTools::getExpressionSplitRegex() {
+    return std::regex("([+\\-*/|&!<>=()\\s,]+)");
 }
 
 

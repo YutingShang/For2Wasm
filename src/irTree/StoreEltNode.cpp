@@ -56,15 +56,20 @@ std::set<std::string> StoreEltNode::getReferencedVariables() const {
             refs.insert(index);
         }
     }
+
+    //arrayVar is actually in the referenced set, not the defined set
+    if (IRSemantics::isVariable(arrayVar)) {   //well it definitely should be
+        refs.insert(arrayVar);
+    }
     return refs;
 }
 
 std::set<std::string> StoreEltNode::getDefinedVariables() const {
-    return {getArrayVar()};
+    return {};    //the whole array has not been defined, only an element of it. Can't say it's defined, otherwise another assignment will make a previous assignment 'dead code'
 }
 
 std::set<std::string> StoreEltNode::getReferencedExpressions() const {
-    return {};
+    return {};  // arrayVar+ IRSemantics::getVectorText(indices)   //cannot say it's referenced array(indicies), since we are not explicitly loading the array at that index into a temp variable - cannot be reused
 }
 
 void StoreEltNode::replaceReferencedVariable(std::string oldVar, std::string newVar) {

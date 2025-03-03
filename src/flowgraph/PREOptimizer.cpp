@@ -103,20 +103,29 @@ void PREOptimizer::addNewBasicBlocksToMultiplePredecessorNodes()
                     if (std::dynamic_pointer_cast<EndBlockNode>(lastInstruction) == nullptr && std::dynamic_pointer_cast<LoopNode>(lastInstruction) == nullptr)
                     {   
                         //otherwise, check what the last instruction is
-                        /// ONE: it is a TestNode. This means we need to convert IfNode --> IfElseNode
+                        /// ONE: it is a TestNode. This means we need to convert IfNode --> IfElseNode (if Test node is part of an IfNode, not a LoopCondNode)
                         /// TWO: it is a SimpleNode like in LoopCondNode init and step (not TestNode). This means we need to insert a new instruction after the SimpleNode
                         std::unique_ptr<InsertableBasicBlock::NodeInsertionStrategy> insertionStrategy;
                         if (std::dynamic_pointer_cast<TestNode>(lastInstruction) != nullptr)
                         {
                             //go backwards from the test node to find the if node
                             std::shared_ptr<IfNode> ifNode;
-                            for (std::shared_ptr<BaseNode> node = lastInstruction; node != nullptr; node = node->getParent()) {
-                                if (std::dynamic_pointer_cast<IfNode>(node) != nullptr) {
-                                    ifNode = std::dynamic_pointer_cast<IfNode>(node);
+                            std::list<std::weak_ptr<BaseNode>> bbNodes = predecessor->get_instructions_copy();
+                            std::reverse(bbNodes.begin(), bbNodes.end());
+                            for (std::weak_ptr<BaseNode> node : bbNodes) {       //search the basic block (ending with the Test node) backwards for an IfNode
+                                std::shared_ptr<BaseNode> node_shared = node.lock();
+                                if (std::dynamic_pointer_cast<IfNode>(node_shared) != nullptr) {     //found the if node
+                                    ifNode = std::dynamic_pointer_cast<IfNode>(node_shared);
                                     break;
                                 }
                             }
-                            insertionStrategy = std::move(AnalysisTools::createNewElseBlockInsertionStrategy(ifNode));
+                            if (ifNode != nullptr) {
+                                insertionStrategy = std::move(AnalysisTools::createNewElseBlockInsertionStrategy(ifNode));
+                            } else {
+                                //otherwise, did not find an if node, it is actually a LoopCondNode 
+                                ///NOTE: we are ignoring this case (of exiting from a LoopCondNode, and giving multiple predecessors) for now
+                                continue;
+                            }
                         }
                         else
                         {

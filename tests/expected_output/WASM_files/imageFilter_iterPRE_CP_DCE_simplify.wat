@@ -6,6 +6,7 @@
 (data (i32.const 0) "Convolution completed. Sample values:")
 (func (export "main")
 (local $_tempSwap_f32 f32)
+(local $_s9 f32)
 (local $_s8 i32)
 (local $_s7 i32)
 (local $_s6 i32)
@@ -13,6 +14,8 @@
 (local $_s4 i32)
 (local $_s3 i32)
 (local $_s2 i32)
+(local $_s1 f32)
+(local $_s0 f32)
 (local $width i32)
 (local $height i32)
 (local $x i32)
@@ -22,11 +25,138 @@
 (local $sum_x f32)
 (local $sum_y f32)
 (local $magnitude f32)
-(local $pixel f32)
 i32.const 10000
 local.set $width
 i32.const 10000
 local.set $height
+f32.const 0
+f32.const 1.0
+f32.sub
+local.set $_s0
+i32.const 1
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 1
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+local.get $_s0
+f32.store
+i32.const 2
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 1
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+f32.const 0.0
+f32.store
+i32.const 3
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 1
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+f32.const 1.0
+f32.store
+f32.const 0
+f32.const 2.0
+f32.sub
+local.set $_s1
+i32.const 1
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 2
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+local.get $_s1
+f32.store
+i32.const 2
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 2
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+f32.const 0.0
+f32.store
+i32.const 3
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 2
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+f32.const 2.0
+f32.store
+i32.const 1
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 3
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+local.get $_s0
+f32.store
+i32.const 2
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 3
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000037
+i32.add
+f32.const 0.0
+f32.store
 i32.const 3
 i32.const 1
 i32.sub
@@ -41,6 +171,126 @@ i32.mul
 i32.const 800000037
 i32.add
 f32.const 1.0
+f32.store
+i32.const 1
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 1
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+local.get $_s0
+f32.store
+i32.const 2
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 1
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+local.get $_s1
+f32.store
+i32.const 3
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 1
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+local.get $_s0
+f32.store
+i32.const 1
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 2
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+f32.const 0.0
+f32.store
+i32.const 2
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 2
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+f32.const 0.0
+f32.store
+i32.const 3
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 2
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+f32.const 0.0
+f32.store
+i32.const 1
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 3
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+f32.const 1.0
+f32.store
+i32.const 2
+i32.const 1
+i32.sub
+i32.const 3
+i32.mul
+i32.const 3
+i32.const 1
+i32.sub
+i32.add
+i32.const 4
+i32.mul
+i32.const 800000073
+i32.add
+f32.const 2.0
 f32.store
 i32.const 3
 i32.const 1
@@ -203,7 +453,7 @@ i32.mul
 i32.const 37
 i32.add
 f32.load
-local.set $pixel
+local.set $_s9
 local.get $ky
 i32.const 2
 i32.add
@@ -226,25 +476,11 @@ i32.mul
 i32.const 800000037
 i32.add
 f32.load
-local.get $pixel
+local.get $_s9
 f32.mul
 local.get $sum_x
 f32.add
 local.set $sum_x
-local.get $_s6
-i32.const 1
-i32.sub
-i32.const 10000
-i32.mul
-local.get $_s5
-i32.const 1
-i32.sub
-i32.add
-i32.const 4
-i32.mul
-i32.const 37
-i32.add
-f32.load
 local.get $_s8
 i32.const 1
 i32.sub
@@ -259,6 +495,7 @@ i32.mul
 i32.const 800000073
 i32.add
 f32.load
+local.get $_s9
 f32.mul
 local.get $sum_y
 f32.add
