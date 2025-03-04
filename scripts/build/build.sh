@@ -10,7 +10,51 @@ mkdir -p $OUTPUT_DIR
 
 
 MAIN_PROGRAM=$SCRIPT_DIR/../../build/bin/main
-FLAG1=${1:-examples/summation.f90}     #should be the fortran file, or could be '-help' or 'install' or 'run'
+FLAG1=${1}     #should be the fortran file, or could be '-help' or 'install' or 'run'
+
+NODE_FLAGS=()     #could be '--no-L' for no liftoff in wasm execution, or '--P' for print the compiled wasm code
+START_IDX=1
+# If FLAG1 is a command like 'install', 'run', etc., start collecting flags from position 2
+if [[ "$FLAG1" == "install" || "$FLAG1" == "run" || "$FLAG1" == "compile" || "$FLAG1" == "test" ]]; then
+    START_IDX=2
+fi
+NEXT_IDX=$START_IDX    #after processing all the flags, this will be the index of the fortran file
+
+for arg in "${@:$START_IDX}"; do
+    if [[ "$arg" == --* ]]; then
+        # Translate shorthand flags to their full versions
+        if [[ "$arg" == "--no-L" ]]; then
+            NODE_FLAGS+=("--no-liftoff")
+        elif [[ "$arg" == "--P" ]]; then
+            NODE_FLAGS+=("--print-wasm-code")
+        else
+            echo "Unknown flag: $arg"
+            exit 1
+        fi
+        ((NEXT_IDX++))       #increment the end index
+    else
+        # If we encounter a non-flag argument, stop collecting flags
+        break
+    fi
+done
+
+
+# Function to parse arguments based on --no-L flag
+parse_args() {
+    EXAMPLE_FORTRAN_FILE="${1}"
+    OUTPUT_FORMAT="${2}"
+    OPTIMISATION_FLAGS="${3}"
+}
+
+run_node_with_flags() {
+    # Check if there are any NODE_FLAGS
+    # always have --no-wasm-tier-up to either force liftoff or not (then its turbofan)
+    if [ ${#NODE_FLAGS[@]} -gt 0 ]; then
+        node --no-wasm-tier-up "${NODE_FLAGS[@]}" $PROGRAM_FILE $WASM_FILE $WAT_FILE
+    else
+        node --no-wasm-tier-up --liftoff $PROGRAM_FILE $WASM_FILE $WAT_FILE
+    fi
+}
 
 WAT_FILE=$OUTPUT_DIR/output.wat
 WASM_FILE=$OUTPUT_DIR/output.wasm
@@ -20,15 +64,24 @@ if [ "$FLAG1" == "-help" ]; then
     echo "\n------------------------------------------------------------------------------"
     echo "*                                FOR2WASM                                    *"
     echo "------------------------------------------------------------------------------"
-    echo "Usage: \t ./build.sh <fortran_file> <flag1> <flag2> <flag3>\n"
-    echo "Flag 1: output format\n"
+    echo "Usage: \t ./build.sh <build_type>? <node_flags>? <fortran_file> <output_format> <optimisation_flags>?\n"
+    echo "Build type: \n"
+    echo "  None \t default compile and run fortran file (using built compiler)\n"
+    echo "  compile \t compile the fortran file (does not run)\n"
+    echo "  run \t \t runs the last compiled wasm file (can just ./build.sh run)\n"
+    echo "  install \t builds the compiler (does not run tests)\n"
+    echo "  test \t \t builds the compiler and runs the tests\n"
+    echo "Node flags: \n"
+    echo "  -no-L \t \t --no-liftoff in wasm execution\n"
+    echo "  -P \t \t --print-wasm-code\n"
+    echo "Output format: \n"
     echo "  -WASM \t WASM format -> executes the program\n"
     echo "  -irPrint \t IR tree -> text format\n"
     echo "  -irTree \t IR tree -> dot format + converts to png\n"
     echo "  -astTree \t AST tree -> dot format + converts to png [no optimisation]\n"
     echo "  -parseTree \t parse tree -> dot format + converts to png [no optimisation]\n"
     echo "  -flowgraph \t flowgraph -> dot format + converts to png\n"
-    echo "Flag 2 & \nFlag 3: optimisation (default is no optimisation)\n"
+    echo "Optimisation flags: \n"
     echo "  -DCE \t \t dead code elimination\n"
     echo "  -CSE \t \t common subexpression elimination\n"
     echo "  -simplify \t remove all empty control flow constructs and unused declare statements\n"
@@ -37,37 +90,29 @@ if [ "$FLAG1" == "-help" ]; then
     echo "  -iterCSE-CP \t fix point iteration of CSE and copy propagation\n"
     echo "  -PRE \t partial redundancy elimination\n"
     echo "  -iterPRE-CP \t fix point iteration of PRE and copy propagation\n"
+    echo "  -tile \t loop tiling with a tile size of 4 bytes\n"
     echo "------------------------------------------------------------------------------\n"
     exit 0
 elif [ "$FLAG1" == "install" ]; then
     make -C $MAKEFILE_DIR install #generates the main program without running tests, -C is to specify the makefile directory
-    EXAMPLE_FORTRAN_FILE="${2}"
-    OUTPUT_FORMAT=${3}      # output format
-    OPTIMISATION_FLAGS="${@:4}"     # captured all optimisation flags, expand with ${FLAGS[@]}
+    parse_args "${@:NEXT_IDX}"
 elif [ "$FLAG1" == "test" ]; then
     make -C $MAKEFILE_DIR #generates the main program with unit tests
-    EXAMPLE_FORTRAN_FILE="${2}"
-    OUTPUT_FORMAT=${3}      # output format
-    OPTIMISATION_FLAGS="${@:4}"     # captured all optimisation flags, expand with ${FLAGS[@]}  
+    parse_args "${@:NEXT_IDX}"
 elif [ "$FLAG1" == "compile" ]; then
     #to work with the -WASM flag, just creates the wasm and wat files, but does not run node
-    EXAMPLE_FORTRAN_FILE="${2}"
-    OUTPUT_FORMAT=${3}      # output format
-    OPTIMISATION_FLAGS="${@:4}"     # captured all optimisation flags, expand with ${FLAGS[@]}
+    #does not work with the --no-L flag or the --P flag
+    parse_args "${@:NEXT_IDX}"
 elif [ "$FLAG1" == "run" ]; then
     #to work with the -WASM flag, just runs the wasm and wat files in the dist/ directory if it exists
     if [ -f "$OUTPUT_DIR/output.wasm" ]; then
-        # node --no-wasm-tier-up --no-liftoff --no-turbofan $PROGRAM_FILE $WASM_FILE $WAT_FILE
-        node --no-wasm-tier-up --liftoff $PROGRAM_FILE $WASM_FILE $WAT_FILE
-        # node $SCRIPT_DIR/../../src/wasm/program.js $OUTPUT_DIR/output.wasm $OUTPUT_DIR/output.wat
+        run_node_with_flags
     else
         echo "Error: WASM file not found in dist/ directory"
         exit 1
     fi
 else      #just ./build.sh - does not run make, will just run the main program executable
-    EXAMPLE_FORTRAN_FILE="${FLAG1}"
-    OUTPUT_FORMAT=${2}      # output format
-    OPTIMISATION_FLAGS="${@:3}"     # captured all optimisation flags, expand with ${FLAGS[@]}  
+    parse_args "${@:NEXT_IDX}"
 fi
 
 if [ "$OUTPUT_FORMAT" == "-WASM" ]; then
@@ -76,7 +121,7 @@ if [ "$OUTPUT_FORMAT" == "-WASM" ]; then
     if [ "$FLAG1" == "compile" ]; then
         exit 0
     fi
-    node --no-wasm-tier-up --liftoff $PROGRAM_FILE $WASM_FILE $WAT_FILE
+    run_node_with_flags
 fi
 
 if [ "$FLAG1" == "compile" ]; then

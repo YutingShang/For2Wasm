@@ -19,7 +19,7 @@ You can simply run the script `./build.sh` and it will compile the program.
 
 To compile a fortran program, with different output options and optimisation flags, you can use the following command:
 ```
-./build.sh <fortran_file> <flag1> <flag2> <flag3>
+./build.sh <build_type>? <node_flags>? <fortran_file> <output_format> <optimisation_flags>?
 ```
 
 Input files are typically located in the **examples** directory.
@@ -29,9 +29,16 @@ Output files are typically located in the **dist** directory.
 
 * `./build.sh test` - build the compiler with unit tests
 * `./build.sh install` - build the compiler (no unit tests)
-* `./build.sh` - compile and run the fortran program
+* `./build.sh` - compile and run the fortran program (using built compiler)
 * `./build.sh compile` - compile the fortran program but does not run it
 * `./build.sh run` - run the last compiled fortran program in the dist/ directory (error if files do not exist)
+
+### Node Flags
+
+* `-no-L` - do not use **Liftoff** for wasm execution (short for `--no-liftoff`)
+* `-P` - print the wasm code (short for `--print-wasm-code`)
+
+Note. The `--no-wasm-tier-up` flag is always used to either force Liftoff or not (then uses **Turbofan**)
 
 ### Output Options
 

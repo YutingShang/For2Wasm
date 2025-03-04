@@ -23,7 +23,7 @@ std::string relativeProjectRootPath = "../../";      //from where the makefile i
 void run_custom_pipeline_test(std::string inputFileName, std::string expectedOutputFileName, OutputFlag outputFlag, std::vector<OptimisationFlag> optimisationFlags) {
     //reading the input file
     std::ifstream inputFile;
-    std::string inputFilePath = relativeProjectRootPath + "examples/" + inputFileName;
+    std::string inputFilePath = relativeProjectRootPath + "examples/test/" + inputFileName;
     inputFile.open(inputFilePath); // open the Fortran program to translate to IR, e.g: ./main examples/summation.f90
     if (!inputFile.is_open())
     {

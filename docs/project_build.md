@@ -14,7 +14,7 @@ Currently my program works to compile Fortran to WASM by first compiling the mai
 
 ```
 make
-./build/bin/main examples/summation.f90 -irWASM > output.wat
+./build/bin/main examples/test/summation.f90 -irWASM > output.wat
 wat2wasm output.wat -o output.wasm
 
 ```
@@ -32,7 +32,7 @@ Okay I've put this all in a bash script, so you can just run `./build.sh` and it
 
 e.g. 
 ```
-./build.sh examples/summation.f90
+./build.sh examples/test/summation.f90
 ```
 
 This will compile the program and run it.
@@ -44,7 +44,7 @@ Run `make clean` when necessary.
 
 ---
 
-You can also run `./build.sh examples/summation.f90 -irDot` to get the IR tree in dot format and png.
+You can also run `./build.sh examples/test/summation.f90 -irDot` to get the IR tree in dot format and png.
 
 Options:
 `-irDot` - output the IR tree in dot format and convert to png
