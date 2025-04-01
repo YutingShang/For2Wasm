@@ -590,7 +590,7 @@ std::string IrWasmVisitor::visitTestNode(const std::shared_ptr<TestNode>& node) 
     std::string nodeVar = node->getVar();
     
     //the TEST variable could be a program variable or temp variable (or value?) - return appropriate one
-    if (IRSemantics::isVariable(nodeVar)) {
+    if (!IRSemantics::isStringConstant(nodeVar)) {
         return convertNumberSrcToWASM(nodeVar, getWASMNumberDatatype(nodeVar));
     }
     else{
