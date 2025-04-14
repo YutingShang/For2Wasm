@@ -15,8 +15,13 @@ FLAG1=${1}     #should be the fortran file, or could be '-help' or 'install' or 
 NODE_FLAGS=()     #could be '--no-L' for no liftoff in wasm execution, or '--P' for print the compiled wasm code
 START_IDX=1
 # If FLAG1 is a command like 'install', 'run', etc., start collecting flags from position 2
-if [[ "$FLAG1" == "install" || "$FLAG1" == "run" || "$FLAG1" == "compile" || "$FLAG1" == "test" ]]; then
+###NOTE: also need to add flags here!!!
+if [ "$FLAG1" == "run-benchmark" ] && [[ "${2}" =~ ^[0-9]+$ ]]; then      #if the second argument is a number, then it is the number of runs
+    START_IDX=3
+    NUM_RUNS=${2}
+elif [[ "$FLAG1" == "install" || "$FLAG1" == "run" || "$FLAG1" == "compile" || "$FLAG1" == "test" || "$FLAG1" == "run-benchmark" ]]; then
     START_IDX=2
+    #num runs is just default 1
 fi
 NEXT_IDX=$START_IDX    #after processing all the flags, this will be the index of the fortran file
 
@@ -39,25 +44,35 @@ for arg in "${@:$START_IDX}"; do
 done
 
 
-# Function to parse arguments based on --no-L flag
+#output file only works for -WASM flag
+get_output_file() {
+    if [ "${1}" = "-o" ]; then
+        WAT_FILE="${2}"
+        WASM_FILE="${2%.*}.wasm"
+        NEXT_IDX=$((NEXT_IDX + 2))
+    else
+        WAT_FILE=$OUTPUT_DIR/output.wat
+        WASM_FILE=$OUTPUT_DIR/output.wasm
+    fi
+}
+
 parse_args() {
     EXAMPLE_FORTRAN_FILE="${1}"
     OUTPUT_FORMAT="${2}"
-    OPTIMISATION_FLAGS="${3}"
+    OPTIMISATION_FLAGS="${@:3}"
 }
 
 run_node_with_flags() {
     # Check if there are any NODE_FLAGS
     # always have --no-wasm-tier-up to either force liftoff or not (then its turbofan)
     if [ ${#NODE_FLAGS[@]} -gt 0 ]; then
-        node --no-wasm-tier-up "${NODE_FLAGS[@]}" $PROGRAM_FILE $WASM_FILE $WAT_FILE
+        node --no-wasm-tier-up "${NODE_FLAGS[@]}" $PROGRAM_FILE $WASM_FILE $WAT_FILE $NUM_RUNS    #hopefully num runs is usually just empty
     else
-        node --no-wasm-tier-up --liftoff $PROGRAM_FILE $WASM_FILE $WAT_FILE
+        node --no-wasm-tier-up --liftoff $PROGRAM_FILE $WASM_FILE $WAT_FILE $NUM_RUNS
     fi
 }
 
-WAT_FILE=$OUTPUT_DIR/output.wat
-WASM_FILE=$OUTPUT_DIR/output.wasm
+get_output_file "${@:NEXT_IDX}"   #if a custom -o output.wat one exists for -WASM compile or run
 PROGRAM_FILE=$SCRIPT_DIR/../../src/wasm/program.js
 
 if [ "$FLAG1" == "-help" ]; then
@@ -103,9 +118,12 @@ elif [ "$FLAG1" == "compile" ]; then
     #to work with the -WASM flag, just creates the wasm and wat files, but does not run node
     #does not work with the --no-L flag or the --P flag
     parse_args "${@:NEXT_IDX}"
-elif [ "$FLAG1" == "run" ]; then
+elif [[ "$FLAG1" == "run" || "$FLAG1" == "run-benchmark" ]]; then
     #to work with the -WASM flag, just runs the wasm and wat files in the dist/ directory if it exists
-    if [ -f "$OUTPUT_DIR/output.wasm" ]; then
+    if [ -f "$WASM_FILE" ]; then
+        if [ "$FLAG1" == "run-benchmark" ]; then
+            PROGRAM_FILE=$SCRIPT_DIR/../../src/wasm/program_benchmark.js     #change the program file to the benchmark file
+        fi
         run_node_with_flags
     else
         echo "Error: WASM file not found in dist/ directory"
