@@ -47,8 +47,56 @@ bool PREOptimizer::runPartialRedundancyElimination()
     // Analysis: VBE, AVAIL_PRE, POST, USED
     USED used(startBasicBlock);
     this->nodeLatestExpressionsSets = used.getNodesLatestExpressionsSets();
+    this->nodeOutUsedSets = used.getNodeOutDataFlowSets();           
+
+    // Transformation: Remove partial redundancy
+    bool modified = false;
+    for (std::shared_ptr<BasicBlock> basicBlock : basicBlocks)
+    {
+        modified |= basicBlockRemovePartialRedundancy(basicBlock);
+    }
+
+    return modified;    //whether any partial redundancy was removed
+}
+
+bool PREOptimizer::runPartialRedundancyEliminationEfficiently()
+{
+        //reinitialise expressions map each time we run PRE. IR Tree has changed 
+    this->allExpressionsToCloneableNodesMap = AnalysisTools::getAllProgramExpressionsToCloneableNodesMap(std::static_pointer_cast<BaseNode>(entryNode));
+    //get all expressions in the program, just take the keys from the map instead of traversing the IR tree again
+    for (auto it = allExpressionsToCloneableNodesMap.begin(); it != allExpressionsToCloneableNodesMap.end(); ++it) {
+        allExpressions.insert(it->first);
+    }
+
+    //reinitialise the irExpressionToDatatypeMap
+    irExpressionToDatatypeMap = AnalysisTools::getAllProgramExpressionsToIRDatatypeMap(entryNode, irDatatypeMap);
+
+    //redraw flowgraph to synchronize with the updated IR tree
+    startBasicBlock = AnalysisTools::drawFlowgraph(entryNode);
+
+    //need to first get the basic blocks, then add new basic blocks to the flowgraph
+    basicBlocks = AnalysisTools::getBasicBlocks(startBasicBlock);
+    //add new basic blocks to the flowgraph to basic blocks that have more than one predecessor
+    addNewBasicBlocksToMultiplePredecessorNodes();
+    
+
+    // Analysis: VBE, AVAIL_PRE, POST, USED
+    VBE vbe(startBasicBlock);
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesAnticipatedInExpressions = vbe.getNodeInDataFlowSets();
+
+    AVAIL_PRE avail_pre(startBasicBlock, allNodesAnticipatedInExpressions);
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesAvailableExpressions = avail_pre.getNodeInDataFlowSets();
+
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions = AnalysisTools::getAllNodesEarliestExpressions(startBasicBlock, allNodesAnticipatedInExpressions, allNodesAvailableExpressions);
+
+    POST post(startBasicBlock, allNodesEarliestExpressions);
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesInPostExpressions = post.getNodeInDataFlowSets();
+
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesLatestExpressions = AnalysisTools::getAllNodesLatestExpressions(startBasicBlock, allExpressions, basicBlocks, std::optional{allNodesEarliestExpressions}, std::optional{allNodesInPostExpressions});
+
+    USED used(startBasicBlock, allNodesLatestExpressions);
+    this->nodeLatestExpressionsSets = allNodesLatestExpressions;
     this->nodeOutUsedSets = used.getNodeOutDataFlowSets();
-                    
 
     // Transformation: Remove partial redundancy
     bool modified = false;
@@ -69,7 +117,18 @@ bool PREOptimizer::iteratePRE_CopyPropagation()
         modified |= propagationOptimizer.runCopyPropagation();
     }
     return modified;
-}   
+}  
+
+bool PREOptimizer::iterateEfficientPRE_CopyPropagation()
+{
+    bool modified = true;
+    while (modified) {
+        modified = runPartialRedundancyEliminationEfficiently();
+        PropagationOptimizer propagationOptimizer(entryNode);
+        modified |= propagationOptimizer.runCopyPropagation();
+    }
+    return modified;
+}
 
 
 void PREOptimizer::addNewBasicBlocksToMultiplePredecessorNodes()

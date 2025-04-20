@@ -9,6 +9,8 @@ class POST : public BaseDataFlowAnalysis<std::set<std::string>> {
     public:
 
         POST(std::shared_ptr<BasicBlock> entryBasicBlock);
+        //overload
+        POST(std::shared_ptr<BasicBlock> entryBasicBlock, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& allNodesEarliestExpressions);
 
         void printBlockDataFlowSets() override;
 

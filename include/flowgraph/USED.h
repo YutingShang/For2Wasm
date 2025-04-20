@@ -12,6 +12,8 @@ class USED : public BaseDataFlowAnalysis<std::set<std::string>> {
     public:
 
         USED(std::shared_ptr<BasicBlock> entryBasicBlock);
+        //overload
+        USED(std::shared_ptr<BasicBlock> entryBasicBlock, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& allNodesLatestExpressions);
 
         void printBlockDataFlowSets() override;
 

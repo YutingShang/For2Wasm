@@ -13,6 +13,20 @@ USED::USED(std::shared_ptr<BasicBlock> entryBasicBlock) : BaseDataFlowAnalysis(e
     computeDataFlowSets();
 }
 
+USED::USED(std::shared_ptr<BasicBlock> entryBasicBlock, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& allNodesLatestExpressions) : BaseDataFlowAnalysis(entryBasicBlock, AnalysisDirection::BACKWARD) {
+    //get the 'latest expressions' for all nodes
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
+    std::set<std::string> allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
+    this->allNodesLatestExpressions = allNodesLatestExpressions;
+
+    //set the initial set to the empty set
+    setInitialSet(std::set<std::string>());
+
+    //compute the dataflow sets for each basic block and instruction node
+    computeDataFlowSets();
+}
+
+
 void USED::printBlockDataFlowSets() {
 
         for (int i = 0; i < basicBlocks.size(); i++)

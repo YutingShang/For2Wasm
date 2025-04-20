@@ -1,13 +1,13 @@
 import subprocess
 import time
 import os
-from typing import List
+from typing import List, Dict
 import json
 
 ROOT_DIR = "../../"
 BUILD_SCRIPT = "../build/build.sh"
 
-EXPERIMENT_NUMBER = None
+EXPERIMENT_NUMBER = 50
 results_file = None
         
 
@@ -65,7 +65,7 @@ def get_optimisation_name(opt_flag: str):
 
 #runs a list of optimisations for a benchmark
 #gets the compile and run times and writes to a benchmark file
-def run_single_benchmark_optimisation(benchmark_file: str, optimisation_flags: List[str], num_compile_runs: int = 10):
+def run_single_benchmark_optimisation(benchmark_file: str, optimisation_flags: List[str], num_compile_runs: int = 10, v8_flags: List[str] = []):
     """NOTE: num_compile_runs is the number of times to compile the benchmark, each is then then run 5 times in the JS/
 
     The python script will return a list of compile times and the JS will save the each run time to a file 
@@ -114,7 +114,7 @@ def run_single_benchmark_optimisation(benchmark_file: str, optimisation_flags: L
         run_time = time.time()*1000
         # if single_opt == '-tile':
         #run everything with liftoff
-        result = subprocess.run([BUILD_SCRIPT, 'run-benchmark', '-o', output_wat_file], capture_output=True, text=True, check=True)
+        result = subprocess.run([BUILD_SCRIPT, 'run-benchmark', ] + v8_flags + ['-o', output_wat_file], capture_output=True, text=True, check=True)
         run_time = time.time()*1000 - run_time
         print("Run time:", run_time)
         # print("stdout:", result.stdout)
@@ -152,10 +152,12 @@ def run_gfortran_benchmark(benchmark_file: str, num_compile_runs: int = 10):
     compile_times = []
     run_times = []
 
-    gfortran_output_file = "results/exp" + str(EXPERIMENT_NUMBER)+"/dist/" + get_benchmark_name(benchmark_file) 
-    os.makedirs(os.path.dirname(gfortran_output_file), exist_ok=True)
+    
 
     for i in range(num_compile_runs):
+        gfortran_output_file = "results/exp" + str(EXPERIMENT_NUMBER)+"/dist/" + get_benchmark_name(benchmark_file) +str(i)
+        os.makedirs(os.path.dirname(gfortran_output_file), exist_ok=True)
+
         compile_start_time = time.time()*1000
         result = subprocess.run(['gfortran', benchmark_file, '-o', gfortran_output_file], capture_output=True, text=True, check=True)
         compile_end_time = time.time()*1000
@@ -188,12 +190,13 @@ def run_gfortran_benchmark(benchmark_file: str, num_compile_runs: int = 10):
     
 
 #runs a list of optimisations for a benchmark
-def run_optimisations_for_benchmarks(benchmark_files: List[str], num_compile_runs: int = 10):
+def run_optimisations_for_benchmarks(benchmark_files: List[str], num_compile_runs: int = 10, optimisations: List[List[str]] = None):
 
-    optimisations = [["GFortran"], ["None"], ["-DCE"], ["-CSE"], ["-PRE"], ["-CP"], ["-const"], ["-simplify"], ["-DCE", "-simplify"], ["-iterCSE-CP"], ["-iterPRE-CP"], ["-iterCSE-CP", "-DCE"], ["-iterPRE-CP", "-DCE"], ["-iterCSE-CP", "-iterPRE-CP", "-const", "-DCE", "-simplify"]]
+    # optimisations = [["GFortran"], ["None"], ["-DCE"], ["-CSE"], ["-PRE"], ["-CP"], ["-const"], ["-simplify"], ["-DCE", "-simplify"], ["-iterCSE-CP"], ["-iterPRE-CP"], ["-iterCSE-CP", "-DCE"], ["-iterPRE-CP", "-DCE"], ["-iterCSE-CP", "-iterPRE-CP", "-const", "-DCE", "-simplify"]]
+    # optimisations = [["None"], ["-iterCSE-CP", "-iterPRE-CP", "-const", "-DCE", "-simplify"], ["-iterPRE-CP", "-iterCSE-CP", "-const", "-DCE", "-simplify"], ["-const", "-DCE", "-simplify", "-iterCSE-CP", "-iterPRE-CP"], ["-simplify", "-DCE", "-const","-iterPRE-CP", "-iterCSE-CP"], ["-iterCSE-CP", "-DCE",  "-simplify", "-const", "-iterPRE-CP"], ["-iterCSE-CP", "-DCE", "-iterPRE-CP", "-const", "-DCE", "-simplify"]]
     # I think the None flag will just be ignored
     # optimisations = [["None"], ["-simplify"], ["-DCE", "-simplify"]]
-    # optimisations = [["GFortran"], ["None"], ["-iterCSE-CP", "-iterPRE-CP", "-const", "-DCE", "-simplify"]]
+    # optimisations = [["GFortran"]]#, ["None"]]#, ["-iterCSE-CP", "-iterPRE-CP", "-const", "-DCE", "-simplify"]]
     for benchmark_file in benchmark_files:
         for opt_flags in optimisations:
             if opt_flags == ["GFortran"]:
@@ -201,6 +204,14 @@ def run_optimisations_for_benchmarks(benchmark_files: List[str], num_compile_run
             else:
                 run_single_benchmark_optimisation(benchmark_file, opt_flags, num_compile_runs)
 
+def run_micro_benchmarks(benchmark_optimisations: Dict[str, List[List[str]]], num_compile_runs: int = 10):
+    for benchmark_file, benchmark_optimisations in benchmark_optimisations.items():
+        if benchmark_file == ROOT_DIR + "examples/microbenchmarks/matrixMult.f90":
+            v8_flags = ["--no-L"]
+        else:
+            v8_flags = []
+        for optimisation_flags in benchmark_optimisations:
+            run_single_benchmark_optimisation(benchmark_file, optimisation_flags, num_compile_runs, v8_flags)
 
 def get_code_sizes_for_benchmarks(benchmark_names: List[str]):
     optimisations = [["None"], ["-DCE"], ["-CSE"], ["-PRE"], ["-CP"], ["-const"], ["-simplify"], ["-DCE", "-simplify"], ["-iterCSE-CP"], ["-iterPRE-CP"], ["-iterCSE-CP", "-DCE"], ["-iterPRE-CP", "-DCE"], ["-iterCSE-CP", "-iterPRE-CP", "-const", "-DCE", "-simplify"]]
@@ -227,26 +238,39 @@ def get_code_size(benchmark_file: str, opt_flags: List[str]):
 def main():
     install_the_compiler()
     set_experiment_number()
+    # EXPERIMENT_NUMBER = 50
 
+    # UNCOMMENT FOR RESULTS FILE - ALSO USED IN PROGRAM_BENCHMARK.JS
     global results_file
     results_file = "results/exp" + str(EXPERIMENT_NUMBER) + f"/benchmark_results_{str(EXPERIMENT_NUMBER)}.txt"
     prepare_results_file(results_file)
 
-    # benchmark_program_file = ROOT_DIR + "examples/benchmark/partialredundancy.f90"
-    # run_single_optimisations_for_benchmarks([benchmark_program_file], 10)
-    # run_single_benchmark_optimisation(benchmark_program_file, "", 2)
 
-    benchmark_dir = ROOT_DIR + "examples/benchmark"
-    benchmark_names = [os.path.join(benchmark_dir, f) for f in os.listdir(benchmark_dir)]
-    # benchmark_names = [benchmark_dir + "/taylorSeries.f90"]
-    run_optimisations_for_benchmarks(benchmark_names, 10)
-    # code_sizes = get_code_sizes_for_benchmarks(benchmark_names)
+    # UNCOMMENT TO RUN MACROBENCHMARKS
+    # benchmark_dir = ROOT_DIR + "examples/benchmark"
+    # benchmark_names = [os.path.join(benchmark_dir, f) for f in os.listdir(benchmark_dir)]
+    # # benchmark_names = [benchmark_dir + "/taylorSeries.f90"]
+    # run_optimisations_for_benchmarks(benchmark_names, 10)
+    # # code_sizes = get_code_sizes_for_benchmarks(benchmark_names)
 
     # # Write code sizes to JSON file
     # json_file = f"results/exp{EXPERIMENT_NUMBER}/code_sizes_{EXPERIMENT_NUMBER}.json"
     # os.makedirs(os.path.dirname(json_file), exist_ok=True)
     # with open(json_file, 'w') as f:
     #     json.dump(code_sizes, f, indent=4)
+
+    # UNCOMMENT TO RUN MICROBENCHMARKS
+    micro_benchmark_dir = ROOT_DIR + "examples/microbenchmarks"
+    benchmark_optimisations_map = {
+        # "dead3.f90" : [["None"], ["-DCE"], ["-DCE", "-simplify"]],
+        # "common4.f90" : [["None"], ["-CSE"], ["-iterCSE-CP"]],   #could also add [-iterCSE-CP, -DCE] and [iterPRE-CP] but Want to keep it micro!! - can analyse these other effects in the macrobenchmark taylorSeries results
+        "partialredundancy.f90" : [["None"], ["-PRE"], ["-iterPRE-CP"], ["-PRE-2.0"], ["-iterPRE-CP-2.0"]],
+        # "matrixMult.f90" : [["None"], ["-tile"]],
+        # "copyconst.f90" : [["None"], ["-CP", "-DCE"], ["-const", "-DCE"]]
+    }
+    benchmark_optimisations_map = {micro_benchmark_dir + "/" + benchmark_file : benchmark_optimisations for benchmark_file, benchmark_optimisations in benchmark_optimisations_map.items()}
+    run_micro_benchmarks(benchmark_optimisations_map, 10)
+
 
     increment_experiment_number()
 if __name__ == "__main__":

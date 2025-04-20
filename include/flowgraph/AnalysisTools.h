@@ -10,6 +10,7 @@
 #include <memory>
 #include <regex>
 #include "BaseNode.h"
+#include <optional>
 
 
 
@@ -67,11 +68,16 @@ class AnalysisTools {
         ///NOTE: could overload this with different signatures for if you have already calculated the VBE and AVAIL results
         //using weak pointer since some nodes could be removed from the flowgraph as we are later using the map
         static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesEarliestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock);
+        //overload
+        static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesEarliestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& allNodesAnticipatedExpressions, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& allNodesAvailableExpressions);
 
         // returns the set of all latest expressions in a flowgraph
         // Need allExpressions of the program to get the complementation
         // Need to pass in the basic blocks of the flowgraph in order to find successors of each node
-        static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks);
+        // static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks);
+        //rewrite function with optional params
+        static std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks, std::optional<std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>> allNodesEarliestExpressionsOption = std::nullopt, std::optional<std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>> allNodesInPostExpressionsOption = std::nullopt);
+
 
         // returns a map of all flowgraph nodes to their corresponding basic blocks
         // in order for fast lookup of the basic block of a node

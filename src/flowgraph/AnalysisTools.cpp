@@ -305,7 +305,7 @@ std::regex AnalysisTools::getExpressionSplitRegex() {
 }
 
 
-std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesEarliestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock) {
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesEarliestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock) { 
     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions;
 
     //get the anticipated[B].in expressions of all nodes
@@ -327,16 +327,105 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
     return allNodesEarliestExpressions;
 }
 
-std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks) {
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesEarliestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& allNodesAnticipatedExpressions, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> &allNodesAvailableExpressions){
+
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions;
+
+    //For each node: earliest[B] = anticipated[B].in - available[B].in
+    for (auto& [node, anticipatedExpressions] : allNodesAnticipatedExpressions) {
+        std::set<std::string> earliestExpressions;
+        std::set<std::string> availableExpressions = allNodesAvailableExpressions[node];
+        std::set_difference(anticipatedExpressions.begin(), anticipatedExpressions.end(), availableExpressions.begin(), availableExpressions.end(), std::inserter(earliestExpressions, earliestExpressions.begin()));
+        allNodesEarliestExpressions[node] = earliestExpressions;
+    }
+
+    return allNodesEarliestExpressions;
+}
+
+
+// std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks) {
+//     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesLatestExpressions;
+
+//     //get the earliest expressions of all nodes
+//     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions = getAllNodesEarliestExpressions(entryBasicBlock);
+
+//     //get the in-POST expressions of all nodes
+//     POST post(entryBasicBlock);
+//     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesInPostExpressions = post.getNodeInDataFlowSets();
+
+//     //get node:basicBlock map for all nodes in order to getSuccessorNodes faster
+//     std::map<std::weak_ptr<BaseNode>, std::shared_ptr<BasicBlock>, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap = getFlowgraphNodeToBasicBlockMap(basicBlocks);
+
+
+//     //latest[B] = (earliest[B] ∪ in-POST[B]) ∩ (e_useB ∪ ¬(∩ successors S: (earliest[S] ∪ in-POST[S]))
+//     for (auto& [node, earliestExpressions] : allNodesEarliestExpressions) {     //FOR EACH NODE, find the latest expression set
+
+//         if (node.expired()) {
+//             throw std::runtime_error("Node has expired, cannot get latest expressions");
+//         }
+
+//         //first get (earliest[B] ∪ in-POST[B])
+//         std::set<std::string> inPostExpressions = allNodesInPostExpressions[node];
+//         std::set<std::string> earliestOrInPostExpressions;
+//         std::set_union(earliestExpressions.begin(), earliestExpressions.end(), inPostExpressions.begin(), inPostExpressions.end(), std::inserter(earliestOrInPostExpressions, earliestOrInPostExpressions.begin()));
+
+//         //get the used/referenced expressions at the node
+//         std::set<std::string> usedExpressions = node.lock()->getReferencedExpressions();
+
+//         //get the successors of the node
+//         std::shared_ptr<BasicBlock> currentBasicBlock = flowgraphNodeToBasicBlockMap[node];
+//         std::vector<std::weak_ptr<BaseNode>> successorNodes = getSuccessorNodes(node.lock(), currentBasicBlock);
+
+//         //intersect over all successors
+//         std::set<std::string> intersectionOfSuccessorEarliestOrInPostExpressions = allExpressions;
+//         //for every successor node, find (earliest[S] ∪ in-POST[S])
+//         for (std::weak_ptr<BaseNode> successor : successorNodes) {
+//             std::set<std::string> successorEarliestExpressions = allNodesEarliestExpressions[successor];
+//             std::set<std::string> successorInPostExpressions = allNodesInPostExpressions[successor];
+//             std::set<std::string> earliestOrInPostExpressions;     //for this successor node, find the union of earliest and postponable expressions
+//             std::set_union(successorEarliestExpressions.begin(), successorEarliestExpressions.end(), successorInPostExpressions.begin(), successorInPostExpressions.end(), std::inserter(earliestOrInPostExpressions, earliestOrInPostExpressions.begin()));
+
+//             //intersect the next successor with the current intersection
+//             std::set<std::string> tempIntersection;
+//             std::set_intersection(intersectionOfSuccessorEarliestOrInPostExpressions.begin(), intersectionOfSuccessorEarliestOrInPostExpressions.end(), earliestOrInPostExpressions.begin(), earliestOrInPostExpressions.end(), std::inserter(tempIntersection, tempIntersection.begin()));
+//             intersectionOfSuccessorEarliestOrInPostExpressions = tempIntersection;
+
+//             }
+
+//         //get the complementation of the intersection of all successors
+//         std::set<std::string> complementationOfIntersectionOfSuccessors;
+//         std::set_difference(allExpressions.begin(), allExpressions.end(), intersectionOfSuccessorEarliestOrInPostExpressions.begin(), intersectionOfSuccessorEarliestOrInPostExpressions.end(), std::inserter(complementationOfIntersectionOfSuccessors, complementationOfIntersectionOfSuccessors.begin()));
+
+//         //finally, find the intersection of the earliest or in-post expressions and the complementation of the intersection of all successors
+//         std::set<std::string> latestExpressions;
+//         std::set_intersection(earliestOrInPostExpressions.begin(), earliestOrInPostExpressions.end(), complementationOfIntersectionOfSuccessors.begin(), complementationOfIntersectionOfSuccessors.end(), std::inserter(latestExpressions, latestExpressions.begin()));
+
+//         //store the latest expression set for the node
+//         allNodesLatestExpressions[node] = latestExpressions;
+//     }
+
+//     return allNodesLatestExpressions;
+// }
+
+std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> AnalysisTools::getAllNodesLatestExpressions(std::shared_ptr<BasicBlock> entryBasicBlock, std::set<std::string> allExpressions, std::vector<std::shared_ptr<BasicBlock>> basicBlocks, std::optional<std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>> allNodesEarliestExpressionsOption, std::optional<std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>> allNodesInPostExpressionsOption){
     std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesLatestExpressions;
 
     //get the earliest expressions of all nodes
-    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions = getAllNodesEarliestExpressions(entryBasicBlock);
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesEarliestExpressions;
+    if (allNodesEarliestExpressionsOption.has_value()) {
+        allNodesEarliestExpressions = allNodesEarliestExpressionsOption.value();
+    }else{
+        allNodesEarliestExpressions = getAllNodesEarliestExpressions(entryBasicBlock);
+    }
 
-    //get the in-POST expressions of all nodes
-    POST post(entryBasicBlock);
-    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesInPostExpressions = post.getNodeInDataFlowSets();
-
+    std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>> allNodesInPostExpressions;
+    if (allNodesInPostExpressionsOption.has_value()) {
+        allNodesInPostExpressions = allNodesInPostExpressionsOption.value();
+    }else{
+        POST post(entryBasicBlock);
+        allNodesInPostExpressions = post.getNodeInDataFlowSets();
+    }
+    
     //get node:basicBlock map for all nodes in order to getSuccessorNodes faster
     std::map<std::weak_ptr<BaseNode>, std::shared_ptr<BasicBlock>, std::owner_less<std::weak_ptr<BaseNode>>> flowgraphNodeToBasicBlockMap = getFlowgraphNodeToBasicBlockMap(basicBlocks);
 
@@ -346,7 +435,7 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
 
         if (node.expired()) {
             throw std::runtime_error("Node has expired, cannot get latest expressions");
-}
+        }
 
         //first get (earliest[B] ∪ in-POST[B])
         std::set<std::string> inPostExpressions = allNodesInPostExpressions[node];
@@ -389,6 +478,8 @@ std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::we
     }
 
     return allNodesLatestExpressions;
+
+
 }
 
 

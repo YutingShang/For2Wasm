@@ -16,6 +16,17 @@ AVAIL_PRE::AVAIL_PRE(std::shared_ptr<BasicBlock> entryBasicBlock) : BaseDataFlow
     computeDataFlowSets();
 }
 
+AVAIL_PRE::AVAIL_PRE(std::shared_ptr<BasicBlock> entryBasicBlock, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& anticipatedExpressions) : BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::FORWARD) {
+    allExpressions = AnalysisTools::getAllProgramExpressions(entryBasicBlock->get_instructions_copy().front().lock());
+    this->allNodesAnticipatedInExpressions = anticipatedExpressions;
+
+    //set the initial set to the universe of all expressions
+    setInitialSet(allExpressions);
+
+    //compute the dataflow sets for each basic block and instruction node
+    computeDataFlowSets();
+}
+
 void AVAIL_PRE::printBlockDataFlowSets() {
     for (int i = 0; i < basicBlocks.size(); i++)
     {

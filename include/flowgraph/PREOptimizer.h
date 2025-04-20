@@ -20,8 +20,12 @@ class PREOptimizer {
         //returns true if any changes were made
         bool runPartialRedundancyElimination();
 
+        bool runPartialRedundancyEliminationEfficiently();
+
         //runs PRE + CP repeatedly until no more partial redundancies are found
         bool iteratePRE_CopyPropagation();
+
+        bool iterateEfficientPRE_CopyPropagation();
 
         int getNextProgramTempVariableCount() const;
 

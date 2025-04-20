@@ -173,6 +173,10 @@ int main(int argc, const char **argv)
       DeadCodeElimination deadCodeElimination(entryNode);
       deadCodeElimination.iterateDeadCodeElimination();
     }
+    else if (optFlag == "-DCE1") {
+      DeadCodeElimination deadCodeElimination(entryNode);
+      deadCodeElimination.deadCodeEliminationOnce();
+    }
     else if (optFlag == "-CSE") {
       CSEOptimizer cseOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
       cseOptimizer.runCommonSubexpressionElimination();
@@ -202,6 +206,18 @@ int main(int argc, const char **argv)
     else if (optFlag == "-iterPRE-CP") {
       PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
       preOptimizer.iteratePRE_CopyPropagation();
+      nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+      irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
+    }
+    else if (optFlag == "-PRE-2.0") {
+      PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
+      preOptimizer.runPartialRedundancyEliminationEfficiently();
+      nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+      irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
+    }
+    else if (optFlag == "-iterPRE-CP-2.0") {
+      PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
+      preOptimizer.iterateEfficientPRE_CopyPropagation();
       nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
       irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
     }

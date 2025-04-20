@@ -117,7 +117,20 @@ void run_custom_pipeline_test(std::string inputFileName, std::string expectedOut
                     preOptimizer.iteratePRE_CopyPropagation();
                     nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
                     irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
-                }else if (optimisationFlag == Tile){
+                }
+                else if (optimisationFlag == PRE_2){
+                    PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
+                    preOptimizer.runPartialRedundancyEliminationEfficiently();
+                    nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+                    irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
+                }
+                else if (optimisationFlag == IterPRE_CP_2){
+                    PREOptimizer preOptimizer(entryNode, irDatatypeMap, nextProgramTempVariableCount);
+                    preOptimizer.iterateEfficientPRE_CopyPropagation();
+                    nextProgramTempVariableCount = preOptimizer.getNextProgramTempVariableCount();
+                    irDatatypeMap = preOptimizer.getUpdatedIRDatatypeMap();
+                }
+                else if (optimisationFlag == Tile){
                     LoopTiling tiling(entryNode, irVisitor.getNextLoopLabelNumber(), irVisitor.getNextIfLabelNumber(), irVisitor.getNextTempVariableCount(), irDatatypeMap);
                     tiling.runLoopTiling();
                     irDatatypeMap = tiling.getUpdatedIRDatatypeMap();

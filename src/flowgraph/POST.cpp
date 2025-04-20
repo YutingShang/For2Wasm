@@ -10,6 +10,19 @@ POST::POST(std::shared_ptr<BasicBlock> entryBasicBlock) : BaseDataFlowAnalysis<s
     //get all earliest[B] expressions in the program
     allNodesEarliestExpressions = AnalysisTools::getAllNodesEarliestExpressions(entryBasicBlock);
 
+    //set the initial set to the universe of all expressions
+    setInitialSet(allExpressions);
+
+    //compute the dataflow sets for each basic block and instruction node
+    computeDataFlowSets();
+}
+
+POST::POST(std::shared_ptr<BasicBlock> entryBasicBlock, std::map<std::weak_ptr<BaseNode>, std::set<std::string>, std::owner_less<std::weak_ptr<BaseNode>>>& allNodesEarliestExpressions) : BaseDataFlowAnalysis<std::set<std::string>>(entryBasicBlock, AnalysisDirection::FORWARD) {
+    std::shared_ptr<BaseNode> rootNode = entryBasicBlock->get_instructions_copy().front().lock();
+    allExpressions = AnalysisTools::getAllProgramExpressions(rootNode);
+
+    //get all earliest[B] expressions in the program
+    this->allNodesEarliestExpressions = allNodesEarliestExpressions;
 
     //set the initial set to the universe of all expressions
     setInitialSet(allExpressions);
@@ -17,6 +30,7 @@ POST::POST(std::shared_ptr<BasicBlock> entryBasicBlock) : BaseDataFlowAnalysis<s
     //compute the dataflow sets for each basic block and instruction node
     computeDataFlowSets();
 }
+
 
 void POST::printBlockDataFlowSets() {
     for (int i = 0; i < basicBlocks.size(); i++)
